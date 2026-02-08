@@ -10,13 +10,11 @@
         .active { display: block; }
         .card { background: #2b2f36; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #3d434d; }
         .flex { display: flex; justify-content: space-between; align-items: center; }
-        .price { color: #4CAF50; font-weight: bold; font-size: 1.1em; }
-        button.buy { background: #2481cc; border: none; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        button.buy:active { transform: scale(0.95); background: #1c66a3; }
-        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #2b2f36; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #3d434d; }
-        .tab { background: none; border: none; color: #888; font-size: 11px; font-weight: bold; text-transform: uppercase; cursor: pointer; }
+        .price { color: #4CAF50; font-weight: bold; }
+        button.buy { background: #2481cc; border: none; color: white; padding: 10px 15px; border-radius: 8px; font-weight: bold; }
+        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #2b2f36; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #444; }
+        .tab { background: none; border: none; color: #888; font-size: 12px; font-weight: bold; }
         .tab.active { color: #2481cc; }
-        h2 { margin-top: 0; }
     </style>
 </head>
 <body>
@@ -40,10 +38,9 @@
     <div id="profile" class="page">
         <h2 style="color: #2481cc;">👤 Профиль</h2>
         <div class="card">
-            <div class="flex" style="margin-bottom: 10px;"><span>Ваш ID:</span> <span id="u_id">...</span></div>
+            <div class="flex" style="margin-bottom: 10px;"><span>Ваш ID:</span> <span id="u_id">Загрузка...</span></div>
             <div class="flex"><span>Баланс:</span> <span id="u_bal" style="color: #4CAF50;">0₽</span></div>
         </div>
-        <p style="font-size: 0.8em; color: #888; text-align: center;">Баланс обновляется при перезапуске приложения</p>
     </div>
 
     <div class="tab-bar">
@@ -54,8 +51,6 @@
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
-        tg.MainButton.textColor = "#FFFFFF";
-        tg.MainButton.color = "#2481cc";
 
         function tab(name) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -65,27 +60,19 @@
         }
 
         function sendOrder(name, price) {
-            // Используем стандартный prompt для ТЗ, но можно сделать и красивое поле в HTML
-            let comment = prompt(`Вы заказываете ${name} за ${price}₽.\nВведите ссылку или ТЗ:`);
-            
-            if (comment !== null && comment.trim() !== "") {
-                const data = {
-                    service: name,
-                    price: price,
-                    comment: comment
-                };
-                // Отправляем данные боту (это закроет Mini App автоматически)
-                tg.sendData(JSON.stringify(data));
+            let comment = prompt("Введите ссылку или ТЗ:");
+            if (comment) {
+                tg.sendData(JSON.stringify({service: name, price: price, comment: comment}));
             }
         }
 
-        // Парсим параметры из URL (которые прислал бот)
+        // ПОЛУЧЕНИЕ ДАННЫХ ИЗ URL
         const params = new URLSearchParams(window.location.search);
-        const userId = params.get('id');
-        const userBal = params.get('balance');
+        const myId = params.get('id');
+        const myBal = params.get('balance');
 
-        if (userId) document.getElementById('u_id').innerText = userId;
-        if (userBal) document.getElementById('u_bal').innerText = userBal + '₽';
+        if (myId) document.getElementById('u_id').innerText = myId;
+        if (myBal) document.getElementById('u_bal').innerText = myBal + '₽';
     </script>
 </body>
 </html>
