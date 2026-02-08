@@ -7,11 +7,12 @@
     <style>
         body { font-family: sans-serif; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); padding: 15px; }
         .card { background: var(--tg-theme-secondary-bg-color); padding: 15px; border-radius: 12px; margin-top: 10px; }
-        select, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); box-sizing: border-box; }
+        select, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); box-sizing: border-box; font-size: 16px; }
         .tabs { display: flex; gap: 10px; }
-        .tab { flex: 1; padding: 10px; border: none; border-radius: 8px; background: #333; color: #999; }
+        .tab { flex: 1; padding: 10px; border: none; border-radius: 8px; background: #333; color: #999; cursor: pointer; }
         .tab.active { background: var(--tg-theme-button-color); color: white; }
         .hidden { display: none; }
+        b { color: var(--tg-theme-button-color); }
     </style>
 </head>
 <body>
@@ -23,12 +24,13 @@
 
 <div id="ord">
     <div class="card">
-        <select id="srv" onchange="updateMainButton()">
-            <option value="Архив">Архив (50$)</option>
-            <option value="Сео">Сео (100$)</option>
-            <option value="Залив">Залив (150$)</option>
+        <label>Выберите услугу:</label>
+        <select id="srv" onchange="updateButton()">
+            <option value="Сео">Сео — 130 руб.</option>
+            <option value="Архив">Архив — 250 руб.</option>
+            <option value="Залив">Залив — 100 руб.</option>
         </select>
-        <textarea id="task" rows="5" placeholder="Введите ТЗ..." oninput="updateMainButton()"></textarea>
+        <textarea id="task" rows="5" placeholder="Введите ваше ТЗ..." oninput="updateButton()"></textarea>
     </div>
 </div>
 
@@ -41,63 +43,61 @@
 
 <script>
     const tg = window.Telegram.WebApp;
-    tg.expand();
-
-    // Парсим ID из URL
+    // ОБНОВЛЕННЫЕ ЦЕНЫ В РУБЛЯХ
+    const prices = { "Сео": 130, "Архив": 250, "Залив": 100 };
+    
     const params = new URLSearchParams(window.location.search);
-    const userId = params.get('id') || "Неизвестно";
-    const userBal = params.get('bal') || "0";
+    const userId = params.get('id') || "—";
+    let balance = parseFloat(params.get('bal')) || 0;
 
-    document.getElementById('ui').innerText = userId;
-    document.getElementById('ub').innerText = userBal + "$";
+    function refreshUI() {
+        document.getElementById('ui').innerText = userId;
+        document.getElementById('ub').innerText = balance.toFixed(2) + " руб.";
+    }
+    refreshUI();
 
-    // Настройка главной кнопки Telegram
     tg.MainButton.setText("ОТПРАВИТЬ ЗАКАЗ");
     tg.MainButton.show();
 
-    function updateMainButton() {
+    function updateButton() {
+        const srv = document.getElementById('srv').value;
+        const cost = prices[srv];
         const desc = document.getElementById('task').value.trim();
-        if (desc.length > 3) {
-            tg.MainButton.enable();
-            tg.MainButton.setParams({color: "#248bed"}); 
+
+        if (desc.length > 4) {
+            if (balance < cost) {
+                tg.MainButton.setParams({text: `МАЛО СРЕДСТВ (${cost} руб.)`, color: "#ff4444", is_active: false});
+            } else {
+                tg.MainButton.setParams({text: `ОПЛАТИТЬ ${cost} РУБ.`, color: "#248bed", is_active: true});
+            }
         } else {
-            tg.MainButton.setParams({color: "#666666"});
+            tg.MainButton.setParams({text: "ВВЕДИТЕ ТЗ", color: "#666666", is_active: false});
         }
     }
 
-    // Слушатель нажатия на кнопку Telegram
     tg.onEvent('mainButtonClicked', function() {
-        const data = {
-            service: document.getElementById('srv').value,
-            description: document.getElementById('task').value.trim()
-        };
+        const srv = document.getElementById('srv').value;
+        const cost = prices[srv];
         
-        if (data.description.length < 5) {
-            tg.showAlert("Слишком короткое ТЗ!");
-            return;
-        }
+        balance -= cost; 
+        refreshUI();
 
-        tg.sendData(JSON.stringify(data));
+        tg.sendData(JSON.stringify({
+            service: srv,
+            description: document.getElementById('task').value
+        }));
+        setTimeout(() => tg.close(), 500);
     });
 
     function show(id) {
-        if (id === 'ord') {
-            document.getElementById('ord').classList.remove('hidden');
-            document.getElementById('prof').classList.add('hidden');
-            document.getElementById('t1').classList.add('active');
-            document.getElementById('t2').classList.remove('active');
-            tg.MainButton.show();
-        } else {
-            document.getElementById('ord').classList.add('hidden');
-            document.getElementById('prof').classList.remove('hidden');
-            document.getElementById('t2').classList.add('active');
-            document.getElementById('t1').classList.remove('active');
-            tg.MainButton.hide();
-        }
+        document.getElementById('ord').classList.toggle('hidden', id !== 'ord');
+        document.getElementById('prof').classList.toggle('hidden', id !== 'prof');
+        document.getElementById('t1').classList.toggle('active', id === 'ord');
+        document.getElementById('t2').classList.toggle('active', id === 'prof');
+        id === 'ord' ? tg.MainButton.show() : tg.MainButton.hide();
     }
     
-    updateMainButton();
+    updateButton();
 </script>
 </body>
 </html>
-
