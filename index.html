@@ -1,16 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: sans-serif; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); margin: 0; padding: 15px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: var(--tg-theme-secondary-bg-color); color: var(--tg-theme-hint-color); border-radius: 8px; cursor: pointer; }
+        .tab-btn.active { background: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); }
+        .content { display: none; }
+        .content.active { display: block; }
+        .card { background: var(--tg-theme-secondary-bg-color); padding: 15px; border-radius: 12px; margin-bottom: 10px; }
+        select, textarea { width: 100%; padding: 10px; margin-top: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
+        .main-btn { width: 100%; padding: 15px; background: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); border: none; border-radius: 12px; font-weight: bold; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="tabs">
+    <button class="tab-btn active" onclick="openTab('orders')">Заказы</button>
+    <button class="tab-btn" onclick="openTab('profile')">Профиль</button>
+</div>
+
+<div id="orders" class="content active">
+    <div class="card">
+        <label>Выберите услугу:</label>
+        <select id="service-type">
+            <option value="Архив">Архив</option>
+            <option value="Сео">Сео</option>
+            <option value="Залив">Залив</option>
+        </select>
+        
+        <label style="display:block; margin-top:15px;">Техническое задание (ТЗ):</label>
+        <textarea id="task-desc" rows="4" placeholder="Опишите детали заказа..."></textarea>
+        
+        <button class="main-btn" onclick="sendData()">Отправить заказ</button>
+    </div>
+</div>
+
+<div id="profile" class="content">
+    <div class="card">
+        <p><b>ID:</b> <span id="user-id"></span></p>
+        <p><b>Баланс:</b> 0.00 $</p>
+    </div>
+</div>
+
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    function sendOrder(serviceName) {
+    // Заполнение профиля данными из ТГ
+    document.getElementById('user-id').innerText = tg.initDataUnsafe.user.id;
+
+    function openTab(tabName) {
+        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    function sendData() {
+        const service = document.getElementById('service-type').value;
+        const description = document.getElementById('task-desc').value;
+
+        if (!description) {
+            alert("Пожалуйста, заполните ТЗ!");
+            return;
+        }
+
         const data = {
-            service: serviceName,
-            customer_name: tg.initDataUnsafe.user.first_name,
-            username: tg.initDataUnsafe.user.username
+            type: "new_order",
+            service: service,
+            desc: description,
+            user_id: tg.initDataUnsafe.user.id,
+            username: tg.initDataUnsafe.user.username || "n/a"
         };
-        tg.sendData(JSON.stringify(data)); 
-        tg.close(); 
+
+        tg.sendData(JSON.stringify(data));
+        tg.close();
     }
 </script>
-
-<button onclick="sendOrder('Стрижка бороды')">Заказать стрижку</button>
+</body>
+</html>
