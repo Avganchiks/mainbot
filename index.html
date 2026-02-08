@@ -1,76 +1,75 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: #1a1d21; color: white; margin: 0; padding: 20px; padding-bottom: 80px; }
-        .item-card { background: #2b2f36; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #3d434d; }
-        .item-info { display: flex; flex-direction: column; }
-        .price { color: #4CAF50; font-weight: bold; }
-        button { background: #2481cc; border: none; color: white; padding: 8px 16px; border-radius: 8px; font-weight: bold; }
-        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #2b2f36; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #444; }
+        body { font-family: sans-serif; background: #1a1d21; color: white; margin: 0; padding: 15px; }
         .page { display: none; }
         .active { display: block; }
+        .card { background: #2b2f36; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #3d434d; }
+        .flex { display: flex; justify-content: space-between; align-items: center; }
+        .price { color: #4CAF50; font-weight: bold; }
+        button.buy { background: #2481cc; border: none; color: white; padding: 8px 15px; border-radius: 8px; font-weight: bold; }
+        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #2b2f36; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #444; }
+        .tab { background: none; border: none; color: #888; font-size: 12px; font-weight: bold; }
+        .tab.active { color: #2481cc; }
     </style>
 </head>
 <body>
 
     <div id="shop" class="page active">
-        <h2>🛒 Заказ услуг</h2>
-        <div class="item-card">
-            <div class="item-info"><b>Архив</b><span class="price">250₽</span></div>
-            <button onclick="order('Архив', 250)">Выбрать</button>
+        <h2 style="color: #2481cc;">🛒 Магазин</h2>
+        <div class="card flex">
+            <div><b>Архив</b><br><span class="price">250₽</span></div>
+            <button class="buy" onclick="sendOrder('Архив', 250)">Заказать</button>
         </div>
-        <div class="item-card">
-            <div class="item-info"><b>SEO</b><span class="price">130₽</span></div>
-            <button onclick="order('SEO', 130)">Выбрать</button>
+        <div class="card flex">
+            <div><b>SEO</b><br><span class="price">130₽</span></div>
+            <button class="buy" onclick="sendOrder('SEO', 130)">Заказать</button>
         </div>
-        <div class="item-card">
-            <div class="item-info"><b>Залив</b><span class="price">100₽</span></div>
-            <button onclick="order('Залив', 100)">Выбрать</button>
+        <div class="card flex">
+            <div><b>Залив</b><br><span class="price">100₽</span></div>
+            <button class="buy" onclick="sendOrder('Залив', 100)">Заказать</button>
         </div>
     </div>
 
     <div id="profile" class="page">
-        <h2>👤 Профиль</h2>
-        <p>Ваш ID: <span id="u_id">...</span></p>
+        <h2 style="color: #2481cc;">👤 Профиль</h2>
+        <div class="card">
+            <div class="flex" style="margin-bottom: 10px;"><span>Ваш ID:</span> <span id="u_id">...</span></div>
+            <div class="flex"><span>Баланс:</span> <span id="u_bal" style="color: #4CAF50;">0₽</span></div>
+        </div>
     </div>
 
     <div class="tab-bar">
-        <button onclick="show('shop')" style="color:#2481cc">МАГАЗИН</button>
-        <button onclick="show('profile')">ПРОФИЛЬ</button>
+        <button class="tab active" id="btn-shop" onclick="tab('shop')">МАГАЗИН</button>
+        <button class="tab" id="btn-profile" onclick="tab('profile')">ПРОФИЛЬ</button>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        function show(id) {
+        function tab(name) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(name).classList.add('active');
+            document.getElementById('btn-' + name).classList.add('active');
         }
 
-        function order(service, price) {
-            // Спрашиваем у пользователя текст (ссылку или ТЗ)
-            let comment = prompt(`Вы выбрали ${service}. Введите данные для заказа (ссылку или комментарий):`);
-            
-            if (comment && comment.trim() !== "") {
-                let data = {
-                    service: service,
-                    price: price,
-                    comment: comment
-                };
-                // Отправляем данные боту и закрываем Mini App
-                tg.sendData(JSON.stringify(data));
-            } else {
-                tg.showAlert("Вы не ввели данные для заказа!");
+        function sendOrder(name, price) {
+            let comment = prompt("Введите ссылку или ТЗ для заказа:");
+            if (comment) {
+                tg.sendData(JSON.stringify({service: name, price: price, comment: comment}));
             }
         }
 
+        // Загрузка данных из URL
         const params = new URLSearchParams(window.location.search);
         if (params.get('id')) document.getElementById('u_id').innerText = params.get('id');
+        if (params.get('balance')) document.getElementById('u_bal').innerText = params.get('balance') + '₽';
     </script>
 </body>
 </html>
