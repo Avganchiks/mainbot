@@ -2,207 +2,261 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Заказы мини‑апп</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказы Mini App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <!-- Telegram WebApp JS -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #111827;
+            --text-main: #e5e7eb;
+            --text-dim: #9ca3af;
+            --accent: #6366f1;
+            --error: #f97373;
+            --success: #4ade80;
+        }
+
         body {
             margin: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: #0f172a;
-            color: #e5e7eb;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
         }
+
         .container {
             max-width: 480px;
             margin: 0 auto;
             padding: 16px;
+            padding-bottom: 80px; /* Отступ под кнопку */
         }
+
         h1 {
-            font-size: 22px;
-            margin-bottom: 8px;
+            font-size: 24px;
+            margin-bottom: 4px;
         }
+
         .subtitle {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-bottom: 20px;
+        }
+
+        .user-block {
             font-size: 13px;
-            color: #9ca3af;
-            margin-bottom: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: inline-block;
         }
+
+        .user-block span {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
         .card {
-            background: #111827;
-            border-radius: 12px;
-            padding: 12px 14px;
-            margin-bottom: 12px;
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
             border: 1px solid #1f2937;
+            transition: border-color 0.2s;
         }
-        .card-header {
+
+        .service-option {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            border: 1px solid transparent;
+            background: rgba(255, 255, 255, 0.02);
         }
-        .service-name {
+
+        .service-option:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Подсветка выбранной услуги */
+        input[type="radio"]:checked + .option-info {
+            color: var(--accent);
+        }
+
+        .service-option:has(input:checked) {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .option-info {
+            flex-grow: 1;
+        }
+
+        .option-name {
             font-weight: 600;
+            display: block;
         }
+
         .price {
             font-size: 13px;
             color: #a5b4fc;
         }
-        .radio-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .radio-row input {
-            accent-color: #6366f1;
-        }
+
         textarea {
             width: 100%;
-            min-height: 90px;
-            resize: vertical;
-            border-radius: 10px;
-            border: 1px solid #1f2937;
-            padding: 8px 10px;
-            font-size: 14px;
+            min-height: 120px;
             background: #020617;
-            color: #e5e7eb;
+            border: 1px solid #1f2937;
+            border-radius: 10px;
+            color: var(--text-main);
+            padding: 12px;
+            font-size: 15px;
+            resize: none;
             box-sizing: border-box;
+            outline: none;
         }
+
         textarea:focus {
-            outline: 1px solid #6366f1;
+            border-color: var(--accent);
         }
-        .info {
+
+        .hint {
             font-size: 12px;
-            color: #9ca3af;
-            margin-top: 6px;
+            color: var(--text-dim);
+            margin-top: 8px;
+            line-height: 1.4;
         }
-        .user-block {
-            font-size: 12px;
-            color: #9ca3af;
-            margin-bottom: 10px;
+
+        #status {
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: center;
+            min-height: 20px;
         }
-        .user-block span {
-            color: #e5e7eb;
-        }
-        .error {
-            color: #f97373;
-            font-size: 13px;
-            margin-top: 6px;
-        }
-        .success {
-            color: #4ade80;
-            font-size: 13px;
-            margin-top: 6px;
+
+        .error { color: var(--error); }
+        .success { color: var(--success); }
+
+        input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--accent);
         }
     </style>
 </head>
 <body>
+
 <div class="container">
     <h1>Новый заказ</h1>
-    <div class="subtitle">Выбери услугу, опиши задачу и отправь заказ.</div>
+    <p class="subtitle">Выберите тип услуги и опишите детали</p>
 
     <div class="user-block">
-        Ваш Telegram ID: <span id="user-id">—</span>
+        ID Пользователя: <span id="user-id">загрузка...</span>
     </div>
 
-    <!-- Выбор услуги -->
     <div class="card">
-        <div class="card-header">
-            <div class="service-name">Услуга</div>
-        </div>
-
-        <label class="radio-row">
+        <label class="service-option">
             <input type="radio" name="service" value="seo" checked>
-            <div>
-                <div>SEO</div>
-                <div class="price">130 ₽</div>
+            <div class="option-info">
+                <span class="option-name">SEO Оптимизация</span>
+                <span class="price">130 ₽</span>
             </div>
         </label>
 
-        <label class="radio-row">
+        <label class="service-option">
             <input type="radio" name="service" value="archive">
-            <div>
-                <div>Архив</div>
-                <div class="price">250 ₽</div>
+            <div class="option-info">
+                <span class="option-name">Архив (Full)</span>
+                <span class="price">250 ₽</span>
             </div>
         </label>
 
-        <label class="radio-row">
+        <label class="service-option">
             <input type="radio" name="service" value="zaliv">
-            <div>
-                <div>Залив</div>
-                <div class="price">100 ₽</div>
+            <div class="option-info">
+                <span class="option-name">Залив видео</span>
+                <span class="price">100 ₽</span>
             </div>
         </label>
     </div>
 
-    <!-- Текст заказа -->
     <div class="card">
-        <div class="card-header">
-            <div class="service-name">Описание заказа</div>
-        </div>
-        <textarea id="order-text" placeholder="Напишите сюда ссылку, ТЗ или описание задачи..."></textarea>
-        <div class="info">Этот текст увидят воркеры, когда будут принимать заказ.</div>
-        <div id="status" class=""></div>
+        <div style="margin-bottom: 10px; font-weight: 600;">Детали заказа</div>
+        <textarea id="order-text" placeholder="Введите ссылку, тех. задание или другие важные детали..."></textarea>
+        <p class="hint">Укажите максимально подробную информацию для воркера.</p>
+        <div id="status"></div>
     </div>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
 
-    // Разворачиваем мини‑апп
+    // Инициализация
+    tg.ready();
     tg.expand();
 
-    // Показываем ID пользователя
+    // Настройка главной кнопки
+    tg.MainButton.setText("СОЗДАТЬ ЗАКАЗ");
+    tg.MainButton.textColor = "#ffffff";
+    tg.MainButton.color = "#4f46e5";
+    tg.MainButton.show();
+
+    // Вывод данных пользователя
     const user = tg.initDataUnsafe?.user;
-    if (user && user.id) {
+    if (user) {
         document.getElementById('user-id').innerText = user.id;
+    } else {
+        document.getElementById('user-id').innerText = "Не определен";
     }
 
     const statusEl = document.getElementById('status');
     const textarea = document.getElementById('order-text');
 
-    function setStatus(text, type) {
-        statusEl.textContent = text || '';
-        statusEl.className = type || '';
+    function showStatus(msg, type) {
+        statusEl.textContent = msg;
+        statusEl.className = type;
     }
 
-    // Обработчик кнопки "Основная кнопка" Telegram WebApp
-    tg.MainButton.setText("Отправить заказ");
-    tg.MainButton.color = "#4f46e5";
-    tg.MainButton.textColor = "#ffffff";
-    tg.MainButton.show();
-
+    // Клик по главной кнопке
     tg.onEvent('mainButtonClicked', () => {
-        setStatus('', '');
+        const selectedService = document.querySelector('input[name="service"]:checked').value;
+        const comment = textarea.value.trim();
 
-        const serviceInput = document.querySelector('input[name="service"]:checked');
-        const service = serviceInput ? serviceInput.value : null;
-        const text = textarea.value.trim();
-
-        if (!service) {
-            setStatus("Выберите услугу.", "error");
-            return;
-        }
-        if (!text) {
-            setStatus("Введите текст заказа.", "error");
+        // Валидация
+        if (comment.length < 5) {
+            showStatus("Пожалуйста, напишите подробнее (минимум 5 символов)", "error");
+            tg.HapticFeedback.notificationOccurred('error');
             return;
         }
 
-        const payload = {
-            service: service,   // seo / archive / zaliv
-            text: text
+        const data = {
+            service: selectedService,
+            text: comment
         };
 
         try {
-            tg.sendData(JSON.stringify(payload));
-            setStatus("Заказ отправлен боту, ожидайте подтверждения.", "success");
-        } catch (e) {
-            console.error(e);
-            setStatus("Ошибка отправки данных в бота.", "error");
+            // Отправка данных боту
+            tg.sendData(JSON.stringify(data));
+            
+            // ВАЖНО: Приложение должно закрыться, чтобы бот получил событие web_app_data
+            tg.close();
+        } catch (err) {
+            showStatus("Ошибка при отправке. Попробуйте еще раз.", "error");
         }
     });
+
+    // Легкая вибрация при выборе услуги
+    document.querySelectorAll('.service-option').forEach(item => {
+        item.addEventListener('click', () => {
+            tg.HapticFeedback.selectionChanged();
+        });
+    });
+
 </script>
 </body>
 </html>
