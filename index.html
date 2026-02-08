@@ -5,16 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: #1a1d21; color: white; margin: 0; padding: 15px; }
+        body { font-family: sans-serif; background: #1a1d21; color: white; margin: 0; padding: 15px; padding-bottom: 80px; }
         .page { display: none; }
         .active { display: block; }
         .card { background: #2b2f36; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #3d434d; }
         .flex { display: flex; justify-content: space-between; align-items: center; }
-        .price { color: #4CAF50; font-weight: bold; }
-        button.buy { background: #2481cc; border: none; color: white; padding: 8px 15px; border-radius: 8px; font-weight: bold; }
-        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #2b2f36; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #444; }
-        .tab { background: none; border: none; color: #888; font-size: 12px; font-weight: bold; }
+        .price { color: #4CAF50; font-weight: bold; font-size: 1.1em; }
+        button.buy { background: #2481cc; border: none; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        button.buy:active { transform: scale(0.95); background: #1c66a3; }
+        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #2b2f36; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #3d434d; }
+        .tab { background: none; border: none; color: #888; font-size: 11px; font-weight: bold; text-transform: uppercase; cursor: pointer; }
         .tab.active { color: #2481cc; }
+        h2 { margin-top: 0; }
     </style>
 </head>
 <body>
@@ -41,6 +43,7 @@
             <div class="flex" style="margin-bottom: 10px;"><span>Ваш ID:</span> <span id="u_id">...</span></div>
             <div class="flex"><span>Баланс:</span> <span id="u_bal" style="color: #4CAF50;">0₽</span></div>
         </div>
+        <p style="font-size: 0.8em; color: #888; text-align: center;">Баланс обновляется при перезапуске приложения</p>
     </div>
 
     <div class="tab-bar">
@@ -51,6 +54,8 @@
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
+        tg.MainButton.textColor = "#FFFFFF";
+        tg.MainButton.color = "#2481cc";
 
         function tab(name) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -60,16 +65,27 @@
         }
 
         function sendOrder(name, price) {
-            let comment = prompt("Введите ссылку или ТЗ для заказа:");
-            if (comment) {
-                tg.sendData(JSON.stringify({service: name, price: price, comment: comment}));
+            // Используем стандартный prompt для ТЗ, но можно сделать и красивое поле в HTML
+            let comment = prompt(`Вы заказываете ${name} за ${price}₽.\nВведите ссылку или ТЗ:`);
+            
+            if (comment !== null && comment.trim() !== "") {
+                const data = {
+                    service: name,
+                    price: price,
+                    comment: comment
+                };
+                // Отправляем данные боту (это закроет Mini App автоматически)
+                tg.sendData(JSON.stringify(data));
             }
         }
 
-        // Загрузка данных из URL
+        // Парсим параметры из URL (которые прислал бот)
         const params = new URLSearchParams(window.location.search);
-        if (params.get('id')) document.getElementById('u_id').innerText = params.get('id');
-        if (params.get('balance')) document.getElementById('u_bal').innerText = params.get('balance') + '₽';
+        const userId = params.get('id');
+        const userBal = params.get('balance');
+
+        if (userId) document.getElementById('u_id').innerText = userId;
+        if (userBal) document.getElementById('u_bal').innerText = userBal + '₽';
     </script>
 </body>
 </html>
