@@ -61,7 +61,6 @@
     const prices = { "Сео": 130, "Архив": 250, "Залив": 100 };
     const params = new URLSearchParams(window.location.search);
     
-    // Получаем данные из URL, переданные ботом
     const userId = params.get('id') || "—";
     const balance = parseFloat(params.get('bal')) || 0;
 
@@ -92,46 +91,44 @@
                 tg.MainButton.setParams({
                     text: `НЕДОСТАТОЧНО СРЕДСТВ (${cost}р)`, 
                     color: "#e74c3c", 
-                    is_active: false,
-                    is_visible: true
+                    is_active: false
                 });
             } else {
                 tg.MainButton.setParams({
                     text: `КУПИТЬ ЗА ${cost} РУБ.`, 
                     color: "#248bed", 
-                    is_active: true,
-                    is_visible: true
+                    is_active: true
                 });
             }
         } else {
             tg.MainButton.setParams({
                 text: "ВВЕДИТЕ ТЗ (мин. 5 симв.)", 
                 color: "#666666", 
-                is_active: false,
-                is_visible: true
+                is_active: false
             });
         }
     }
 
+    // Универсальная функция для кнопок Обновить и Пополнить
     function sendAction(actionName) {
-        // Отправляем JSON боту. Бот ждет action: 'deposit' или action: 'refresh'
         tg.sendData(JSON.stringify({ action: actionName }));
-        tg.close();
+        tg.close(); // Закрываем, чтобы бот мог сразу ответить
     }
 
+    // Обработка клика по Главной Кнопке (Купить)
     tg.onEvent('mainButtonClicked', function() {
         const srv = document.getElementById('srv').value;
         const desc = document.getElementById('task').value;
         
         tg.sendData(JSON.stringify({
-            action: 'order',
+            action: 'order', // Явно указываем, что это заказ
             service: srv,
             description: desc
         }));
         tg.close();
     });
 
-    // Инициализация при запуске
+    // Инициализация
     tg.MainButton.show();
     updateButton();
 </script>
