@@ -3,70 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini App</title>
+    <title>Main Bot App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #1a1d21; color: white; margin: 0; padding: 20px; }
-        .page { display: none; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+               background: #1a1d21; color: white; margin: 0; padding: 20px; overflow: hidden; }
+
+        .page { display: none; height: 80vh; }
         .active { display: block; }
-        .profile-card { background: #2b2f36; padding: 20px; border-radius: 15px; text-align: center; }
-        .row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #3d434d; }
-        .balance { color: #4CAF50; font-weight: bold; }
-        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #2b2f36; display: flex; justify-content: space-around; padding: 10px 0; }
-        .tab { background: none; border: none; color: #888; font-size: 16px; cursor: pointer; }
-        .tab.active { color: #2481cc; font-weight: bold; }
-        .btn-refresh { width: 100%; margin-top: 20px; background: #444; border: none; color: white; padding: 12px; border-radius: 8px; }
+
+        .card { background: #2b2f36; padding: 20px; border-radius: 16px; margin-top: 20px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+
+        .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #3d434d; }
+        .row:last-child { border-bottom: none; }
+
+        .balance-val { color: #4CAF50; font-weight: bold; font-size: 1.1em; }
+
+        /* Навигация */
+        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #2b2f36;
+                   display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #3d434d; }
+
+        .tab { background: none; border: none; color: #888; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        .tab.active { color: #2481cc; transform: translateY(-2px); }
+
+        h2 { margin-top: 0; color: #2481cc; }
     </style>
 </head>
 <body>
 
     <div id="shop" class="page">
-        <h2>Магазин</h2>
-        <p>Выберите услугу в меню...</p>
+        <h2>🛒 Магазин</h2>
+        <div class="card">
+            <p>Доступные услуги появятся здесь в ближайшее время.</p>
+        </div>
     </div>
 
     <div id="profile" class="page active">
-        <div class="profile-card">
-            <h2 id="display-name">User</h2>
+        <h2>👤 Ваш профиль</h2>
+        <div class="card">
             <div class="row">
                 <span>Ваш ID:</span>
-                <span id="user-id">Загрузка...</span>
+                <span id="u_id" style="color: #aaa;">Не определен</span>
             </div>
             <div class="row">
                 <span>Баланс:</span>
-                <span id="user-balance" class="balance">0₽</span>
+                <span id="u_bal" class="balance-val">0₽</span>
             </div>
         </div>
-        <button class="btn-refresh" onclick="location.reload()">Обновить данные</button>
+        <button onclick="location.reload()" style="width:100%; margin-top:20px; background:#3d434d; color:white; border:none; padding:10px; border-radius:8px;">Обновить страницу</button>
     </div>
 
     <div class="tab-bar">
-        <button class="tab" onclick="switchTab('shop', this)">Магазин</button>
-        <button class="tab active" onclick="switchTab('profile', this)">Профиль</button>
+        <button class="tab" id="tab-shop" onclick="switchTab('shop')">МАГАЗИН</button>
+        <button class="tab active" id="tab-profile" onclick="switchTab('profile')">ПРОФИЛЬ</button>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
+        tg.headerColor = '#1a1d21';
 
-        // ЛОГИКА ПОЛУЧЕНИЯ ДАННЫХ ИЗ URL
+        // 1. Получаем данные из параметров URL
         const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('id');
-        const balance = urlParams.get('balance');
+        const myId = urlParams.get('id');
+        const myBal = urlParams.get('balance');
 
-        if (userId) document.getElementById('user-id').innerText = userId;
-        if (balance) document.getElementById('user-balance').innerText = balance + '₽';
-        
-        // Берем имя из данных Telegram
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            document.getElementById('display-name').innerText = tg.initDataUnsafe.user.first_name;
+        // 2. Отображаем данные (если они есть в ссылке)
+        if (myId) {
+            document.getElementById('u_id').innerText = myId;
+        }
+        if (myBal) {
+            document.getElementById('u_bal').innerText = myBal + '₽';
         }
 
-        function switchTab(tabId, btn) {
+        // 3. Переключение вкладок
+        function switchTab(screen) {
+            // Скрыть все страницы
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            // Деактивировать все кнопки
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            btn.classList.add('active');
+
+            // Показать нужную
+            document.getElementById(screen).classList.add('active');
+            document.getElementById('tab-' + screen).classList.add('active');
+
+            // Легкая вибрация при переключении
+            tg.HapticFeedback.impactOccurred('light');
         }
     </script>
 </body>
