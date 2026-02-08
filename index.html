@@ -1,57 +1,81 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+    <meta charset="UTF-8">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; padding: 20px; color: white; background: #212121; }
-        .card { background: #333; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
-        button { background: #0088cc; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; }
+        body { font-family: sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 20px; }
+        .card { background: #2d2d2d; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        input { width: 80%; padding: 10px; margin: 10px 0; border-radius: 8px; border: none; }
+        button { background: #3390ec; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 85%; }
+        button:active { transform: scale(0.98); }
+        .balance-val { font-size: 24px; color: #4CAF50; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div id="profile" class="card">
+
+    <div class="card">
         <h3>Профиль</h3>
-        <p>ID: <span id="userId">...</span></p>
-        <p>Баланс: <span id="balance">0</span> руб.</p>
+        <p>ID: <span id="my_id">...</span></p>
+        <p>Баланс: <span id="balance" class="balance-val">0</span> руб.</p>
     </div>
 
     <div class="card">
-        <h3>Заказать услугу</h3>
-        <input type="text" id="comment" placeholder="Комментарий к заказу" style="width: 90%; margin-bottom: 10px;">
-        <button onclick="makeOrder(500)">Купить за 500 руб.</button>
+        <h3>Оформить заказ</h3>
+        <input type="text" id="comment" placeholder="Введите комментарий...">
+        <button onclick="sendOrder(500)">Заказать (500 руб.)</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        const serverUrl = "https://твой-сервер.com"; // URL где запущен Python бот
-        const userId = tg.initDataUnsafe.user.id;
+        tg.expand();
 
-        document.getElementById('userId').innerText = userId;
+        // СЮДА ВСТАВЬ ССЫЛКУ ИЗ NGROK (с https://)
+        const SERVER_URL = "https://avganchiks.github.io/mainbot/"; 
+        const userId = tg.initDataUnsafe.user?.id || 1234567; // 1234567 для теста в браузере
 
-        // Загрузка профиля
-        fetch(`${serverUrl}/get_profile?user_id=${userId}`)
-            .then(res => res.json())
-            .then(data => {
+        document.getElementById('my_id').innerText = userId;
+
+        // Загрузка данных профиля
+        async function loadProfile() {
+            try {
+                const response = await fetch(`${SERVER_URL}/get_profile?user_id=${userId}`);
+                const data = await response.json();
                 document.getElementById('balance').innerText = data.balance;
-            });
-
-        async function makeOrder(price) {
-            const comment = document.getElementById('comment').value;
-            const response = await fetch(`${serverUrl}/create_order`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ user_id: userId, price: price, comment: comment })
-            });
-            
-            const result = await response.json();
-            if (result.success) {
-                alert("Заказ создан!");
-                document.getElementById('balance').innerText = result.new_balance;
-            } else {
-                alert("Ошибка: " + result.error);
+            } catch (e) {
+                console.error("Ошибка загрузки профиля:", e);
             }
         }
-        tg.expand();
+
+        // Функция покупки
+        async function sendOrder(price) {
+            const comment = document.getElementById('comment').value;
+            
+            try {
+                const response = await fetch(`${SERVER_URL}/create_order`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        price: price,
+                        comment: comment
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    tg.showAlert("✅ Заказ успешно создан!");
+                    document.getElementById('balance').innerText = result.new_balance;
+                } else {
+                    tg.showAlert("❌ Ошибка: " + result.error);
+                }
+            } catch (e) {
+                tg.showAlert("🔌 Нет связи с сервером. Проверь Ngrok!");
+            }
+        }
+
+        loadProfile();
     </script>
 </body>
 </html>
