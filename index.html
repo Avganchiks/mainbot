@@ -14,7 +14,7 @@
             --main-btn: var(--tg-theme-button-color, #007aff);
             --main-btn-text: var(--tg-theme-button-text-color, #ffffff);
             --secondary-bg: var(--tg-theme-secondary-bg-color, #ffffff);
-            --accent: #34c759; /* Зеленый для баланса */
+            --accent: #34c759;
         }
 
         body {
@@ -27,54 +27,55 @@
             flex-direction: column;
             gap: 16px;
             animation: fadeIn 0.4s ease-out;
+            -webkit-user-select: none;
         }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Табы */
         .tabs {
             display: flex;
             background: var(--secondary-bg);
             padding: 4px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
         .tab {
             flex: 1;
-            padding: 10px;
+            padding: 12px;
             border: none;
-            border-radius: 9px;
+            border-radius: 11px;
             background: transparent;
             color: var(--hint-color);
             font-weight: 600;
             font-size: 14px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .tab.active {
             background: var(--main-btn);
             color: var(--main-btn-text);
-            box-shadow: 0 4px 10px rgba(0, 122, 255, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
         }
 
         /* Карточки */
         .card {
             background: var(--secondary-bg);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .card-label {
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 12px;
+            font-weight: 700;
             color: var(--hint-color);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
+            letter-spacing: 0.8px;
+            margin-bottom: 12px;
             display: block;
         }
 
@@ -82,55 +83,66 @@
         select, textarea {
             width: 100%;
             background: var(--bg-color);
-            border: 1.5px solid transparent;
-            border-radius: 12px;
-            padding: 14px;
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 16px;
             font-size: 16px;
             color: var(--text-color);
             margin-top: 5px;
             outline: none;
-            transition: border 0.2s ease;
+            transition: all 0.2s ease;
             box-sizing: border-box;
+            font-family: inherit;
         }
 
         select:focus, textarea:focus {
             border-color: var(--main-btn);
+            background: var(--secondary-bg);
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
         }
 
-        textarea { resize: none; margin-bottom: 5px; }
+        textarea { resize: none; }
 
         /* Профиль */
-        .balance-title { font-size: 32px; font-weight: 700; margin: 5px 0; color: var(--accent); }
-        .user-id { font-size: 12px; color: var(--hint-color); margin-top: -5px; }
+        .balance-card {
+            background: linear-gradient(135deg, var(--main-btn), #0051ff);
+            color: white;
+            text-align: center;
+        }
+        
+        .balance-card .card-label { color: rgba(255,255,255,0.7); }
+        .balance-title { font-size: 38px; font-weight: 800; margin: 8px 0; }
+        .user-id { font-size: 13px; opacity: 0.8; }
 
         /* Кнопки */
         .btn {
             width: 100%;
             border: none;
-            border-radius: 14px;
-            padding: 16px;
+            border-radius: 18px;
+            padding: 18px;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            transition: transform 0.1s active;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .btn:active { transform: scale(0.98); }
+        .btn:active { transform: scale(0.97); opacity: 0.9; }
 
         .btn-deposit {
-            background: linear-gradient(135deg, #34c759, #28a745);
-            color: white;
-            margin-top: 15px;
-            box-shadow: 0 6px 15px rgba(52, 199, 89, 0.3);
+            background: #ffffff;
+            color: var(--main-btn);
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .btn-refresh {
-            background: transparent;
-            border: 1.5px solid var(--hint-color);
-            color: var(--hint-color);
-            margin-top: 10px;
-            padding: 10px;
-            font-size: 13px;
+            background: rgba(142, 142, 147, 0.1);
+            color: var(--text-color);
+            margin-top: 12px;
         }
 
         .hidden { display: none; }
@@ -145,7 +157,7 @@
 
 <div id="ord">
     <div class="card">
-        <span class="card-label">Выберите услугу</span>
+        <span class="card-label">Услуга</span>
         <select id="srv" onchange="updateButton()">
             <option value="Сео">🔥 Сео продвижение — 130₽</option>
             <option value="Архив">📦 Сбор архива — 250₽</option>
@@ -154,36 +166,45 @@
     </div>
 
     <div class="card" style="margin-top: 16px;">
-        <span class="card-label">Техническое задание</span>
-        <textarea id="task" rows="4" placeholder="Опишите детали заказа..." oninput="updateButton()"></textarea>
-        <span style="font-size: 11px; color: var(--hint-color);">Минимум 5 символов для активации заказа</span>
+        <span class="card-label">Детали заказа</span>
+        <textarea id="task" rows="4" placeholder="Опишите ваше ТЗ..." oninput="updateButton()"></textarea>
+        <div style="font-size: 12px; color: var(--hint-color); margin-top: 8px; display: flex; justify-content: space-between;">
+            <span>Минимум 5 символов</span>
+            <span id="charCount">0</span>
+        </div>
     </div>
 </div>
 
 <div id="prof" class="hidden">
-    <div class="card" style="text-align: center;">
-        <span class="card-label">Ваш текущий баланс</span>
+    <div class="card balance-card">
+        <span class="card-label">Доступные средства</span>
         <div class="balance-title"><span id="ub">0</span> ₽</div>
         <div class="user-id">ID: <span id="ui">000000</span></div>
         
-        <button class="btn btn-deposit" onclick="sendAction('deposit')">➕ Пополнить баланс</button>
-        <button class="btn btn-refresh" onclick="sendAction('refresh')">🔄 Обновить данные</button>
+        <button class="btn btn-deposit" onclick="sendAction('deposit')">
+            <span>➕</span> Пополнить
+        </button>
     </div>
+    
+    <button class="btn btn-refresh" onclick="sendAction('refresh')">
+        <span>🔄</span> Обновить данные
+    </button>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
     tg.headerColor = 'secondary_bg_color';
+    tg.enableClosingConfirmation();
 
     const prices = { "Сео": 130, "Архив": 250, "Залив": 100 };
     const params = new URLSearchParams(window.location.search);
     
-    const userId = params.get('id') || "666777";
+    const userId = params.get('id') || "User";
     const balance = parseFloat(params.get('bal')) || 0;
 
     document.getElementById('ui').innerText = userId;
-    document.getElementById('ub').innerText = balance.toFixed(2);
+    document.getElementById('ub').innerText = balance.toLocaleString('ru-RU');
 
     function show(id) {
         document.getElementById('ord').classList.toggle('hidden', id !== 'ord');
@@ -203,6 +224,7 @@
         const srv = document.getElementById('srv').value;
         const cost = prices[srv];
         const desc = document.getElementById('task').value.trim();
+        document.getElementById('charCount').innerText = desc.length;
 
         if (desc.length >= 5) {
             if (balance < cost) {
@@ -213,8 +235,8 @@
                 });
             } else {
                 tg.MainButton.setParams({
-                    text: `ОПЛАТИТЬ ЗАКАЗ (${cost}₽)`, 
-                    color: tg.themeParams.button_color || "#007aff", 
+                    text: `ОПЛАТИТЬ (${cost}₽)`, 
+                    color: "#007aff", 
                     is_active: true
                 });
             }
@@ -228,6 +250,7 @@
     }
 
     function sendAction(actionName) {
+        tg.HapticFeedback.impactOccurred('medium');
         tg.sendData(JSON.stringify({ action: actionName }));
         tg.close();
     }
@@ -235,6 +258,7 @@
     tg.onEvent('mainButtonClicked', function() {
         const srv = document.getElementById('srv').value;
         const desc = document.getElementById('task').value;
+        tg.HapticFeedback.notificationOccurred('success');
         tg.sendData(JSON.stringify({
             action: 'order',
             service: srv,
