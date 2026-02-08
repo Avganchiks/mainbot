@@ -48,7 +48,6 @@
             display: block;
         }
 
-        /* Контейнер для плиток */
         .services-grid {
             display: grid;
             gap: 12px;
@@ -71,7 +70,6 @@
 
         .service-tile:active { transform: scale(0.97); }
 
-        /* Состояние выбранной плитки */
         .service-tile.selected {
             background: rgba(0, 242, 254, 0.1);
             border-color: var(--accent-color);
@@ -95,7 +93,6 @@
             color: #000;
         }
 
-        /* Стилизация ТЗ */
         .glass-card {
             background: var(--card-bg);
             backdrop-filter: blur(20px);
@@ -118,7 +115,6 @@
             padding: 0;
         }
 
-        /* Профиль */
         .balance-card {
             background: linear-gradient(135deg, #fff 0%, #d1d5db 100%);
             color: #000;
@@ -128,7 +124,6 @@
         }
         .balance-amount { font-size: 48px; font-weight: 800; letter-spacing: -2px; }
 
-        /* Навигация */
         .dock {
             position: fixed;
             bottom: 30px;
@@ -173,7 +168,7 @@
 
     <span class="label">Выберите сервис</span>
     <div class="services-grid">
-        <div class="service-tile selected" onclick="selectService(this, 'Сео', 130)">
+        <div class="service-tile selected" onclick="selectService(this, 'Сео')">
             <div class="service-info">
                 <span class="service-icon">🚀</span>
                 <span class="service-name">SEO Boost</span>
@@ -181,7 +176,7 @@
             <div class="service-price">130 ₽</div>
         </div>
 
-        <div class="service-tile" onclick="selectService(this, 'Архив', 250)">
+        <div class="service-tile" onclick="selectService(this, 'Архив')">
             <div class="service-info">
                 <span class="service-icon">📦</span>
                 <span class="service-name">Archive Pack</span>
@@ -189,7 +184,7 @@
             <div class="service-price">250 ₽</div>
         </div>
 
-        <div class="service-tile" onclick="selectService(this, 'Залив', 100)">
+        <div class="service-tile" onclick="selectService(this, 'Залив')">
             <div class="service-info">
                 <span class="service-icon">⚡</span>
                 <span class="service-name">Fast Upload</span>
@@ -211,7 +206,7 @@
         <div class="balance-amount"><span id="ub">0</span> ₽</div>
         <div style="font-weight: 600; opacity: 0.6;">ID: <span id="ui">0</span></div>
     </div>
-    <button class="action-btn" onclick="tg.sendData(JSON.stringify({action:'deposit'}))">Пополнить баланс</button>
+    <button class="action-btn" onclick="sendDeposit()">Пополнить баланс</button>
 </div>
 
 <div class="dock">
@@ -226,13 +221,14 @@
 
     let selectedService = "Сео";
     const prices = { "Сео": 130, "Архив": 250, "Залив": 100 };
+    
     const params = new URLSearchParams(window.location.search);
     const balance = parseFloat(params.get('bal')) || 0;
 
-    document.getElementById('ui').innerText = params.get('id') || "666";
+    document.getElementById('ui').innerText = params.get('id') || "Неизвестен";
     document.getElementById('ub').innerText = balance.toLocaleString();
 
-    function selectService(el, name, price) {
+    function selectService(el, name) {
         tg.HapticFeedback.impactOccurred('light');
         document.querySelectorAll('.service-tile').forEach(t => t.classList.remove('selected'));
         el.classList.add('selected');
@@ -246,30 +242,75 @@
         document.getElementById('profile-page').classList.toggle('hidden', tab !== 'profile');
         document.getElementById('nav-shop').classList.toggle('active', tab === 'shop');
         document.getElementById('nav-profile').classList.toggle('active', tab === 'profile');
-        tab === 'shop' ? tg.MainButton.show() : tg.MainButton.hide();
+        
+        if (tab === 'shop') {
+            tg.MainButton.show();
+        } else {
+            tg.MainButton.hide();
+        }
     }
 
     function updateButton() {
         const cost = prices[selectedService];
-        const hasText = document.getElementById('task').value.trim().length >= 5;
+        const taskInput = document.getElementById('task');
+        const hasText = taskInput.value.trim().length >= 5;
 
         if (hasText) {
             if (balance < cost) {
-                tg.MainButton.setParams({ text: `ПОПОЛНИТЬ (${cost}₽)`, color: "#ef4444", is_active: true });
+                tg.MainButton.setParams({ 
+                    text: `ПОПОЛНИТЬ (${cost}₽)`, 
+                    color: "#ef4444", 
+                    text_color: "#ffffff",
+                    is_active: true 
+                });
             } else {
-                tg.MainButton.setParams({ text: `ОПЛАТИТЬ (${cost}₽)`, color: "#ffffff", text_color: "#000000", is_active: true });
+                tg.MainButton.setParams({ 
+                    text: `ОПЛАТИТЬ ${selectedService.toUpperCase()} (${cost}₽)`, 
+                    color: "#ffffff", 
+                    text_color: "#000000", 
+                    is_active: true 
+                });
             }
         } else {
-            tg.MainButton.setParams({ text: "ОПИШИТЕ ЗАДАЧУ", color: "#1e293b", text_color: "#94a3b8", is_active: false });
+            tg.MainButton.setParams({ 
+                text: "ОПИШИТЕ ЗАДАЧУ (МИН. 5 СИМВОЛОВ)", 
+                color: "#1e293b", 
+                text_color: "#94a3b8", 
+                is_active: false 
+            });
         }
     }
 
-    tg.onEvent('mainButtonClicked', () => {
-        const desc = document.getElementById('task').value;
-        tg.sendData(JSON.stringify({action: 'order', service: selectedService, desc: desc}));
+    function sendDeposit() {
+        tg.sendData(JSON.stringify({action: 'deposit'}));
+        tg.close();
+    }
+
+    // Слушатель нажатия на главную кнопку
+    tg.onEvent('mainButtonClicked', function() {
+        const currentTask = document.getElementById('task').value.trim();
+        const cost = prices[selectedService];
+
+        if (balance < cost) {
+            // Если баланса не хватает
+            tg.sendData(JSON.stringify({
+                action: 'deposit',
+                required: cost
+            }));
+        } else {
+            // Если всё ок, отправляем заказ с ТЗ
+            const orderData = {
+                action: 'order',
+                service: selectedService,
+                desc: currentTask,
+                price: cost
+            };
+            tg.sendData(JSON.stringify(orderData));
+        }
         tg.close();
     });
 
+    // Стартовая инициализация
     tg.MainButton.show();
     updateButton();
 </script>
