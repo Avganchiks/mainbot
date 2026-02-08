@@ -5,49 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: #1a1d21; color: white; margin: 0; padding: 20px; }
-        .card { background: #2b2f36; padding: 15px; border-radius: 12px; border: 1px solid #3d434d; margin-top: 10px; }
-        .flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        body { font-family: sans-serif; background: #1a1d21; color: white; margin: 0; padding: 20px; text-align: center; }
+        .card { background: #2b2f36; padding: 20px; border-radius: 15px; border: 1px solid #3d434d; margin-top: 20px; text-align: left; }
+        .flex { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 16px; }
+        .val { color: #4CAF50; font-weight: bold; }
         .btn-refresh { 
             background: #2481cc; color: white; border: none; width: 100%; 
-            padding: 12px; border-radius: 10px; font-weight: bold; margin-top: 15px;
+            padding: 15px; border-radius: 12px; font-weight: bold; margin-top: 20px; font-size: 16px;
         }
-        #u_bal { color: #4CAF50; font-weight: bold; }
-        .status { font-size: 12px; color: #888; text-align: center; margin-top: 10px; }
+        .hint { font-size: 12px; color: #888; margin-top: 15px; line-height: 1.4; }
     </style>
 </head>
 <body>
 
     <h2>👤 Профиль</h2>
+    
     <div class="card">
-        <div class="flex"><span>Ваш ID:</span> <span id="u_id">Загрузка...</span></div>
-        <div class="flex"><span>Баланс:</span> <span id="u_bal">0₽</span></div>
+        <div class="flex"><span>Имя:</span> <span id="u_name" class="val">...</span></div>
+        <div class="flex"><span>Ваш ID:</span> <span id="u_id" class="val">...</span></div>
+        <div class="flex"><span>Баланс:</span> <span id="u_bal" class="val">...</span></div>
     </div>
 
     <button class="btn-refresh" onclick="refresh()">🔄 Обновить баланс</button>
-    <p class="status">При нажатии приложение закроется,<br>и бот пришлет новую ссылку.</p>
+    
+    <p class="hint">Нажмите кнопку выше, чтобы бот прислал актуальный баланс в чат.</p>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ФУНКЦИЯ ПОЛУЧЕНИЯ ДАННЫХ
-        function loadData() {
-            const params = new URLSearchParams(window.location.search);
-            const id = params.get('id');
-            const bal = params.get('balance');
-
-            if (id) document.getElementById('u_id').innerText = id;
-            if (bal) document.getElementById('u_bal').innerText = bal + '₽';
+        // 1. Получаем данные напрямую из Telegram User Object
+        const user = tg.initDataUnsafe?.user;
+        
+        if (user) {
+            document.getElementById('u_id').innerText = user.id;
+            document.getElementById('u_name').innerText = user.first_name;
         }
 
-        // Вызываем сразу
-        loadData();
+        // 2. Пробуем достать баланс из URL (если он там есть)
+        const params = new URLSearchParams(window.location.search);
+        const bal = params.get('balance');
+        document.getElementById('u_bal').innerText = bal ? bal + '₽' : 'Нажмите Обновить';
 
         function refresh() {
-            // Отправляем сигнал боту на перегенерацию ссылки
+            // Отправляем сигнал боту
             tg.sendData(JSON.stringify({action: 'refresh'}));
-            tg.close();
+            // Закрываем приложение, чтобы юзер увидел ответ бота
+            setTimeout(() => { tg.close(); }, 100);
         }
     </script>
 </body>
