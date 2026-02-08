@@ -5,42 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: #1a1d21; color: white; margin: 0; padding: 15px; padding-bottom: 80px; }
+        body { font-family: sans-serif; background: #1a1d21; color: white; margin: 0; padding: 15px; }
         .page { display: none; }
         .active { display: block; }
         .card { background: #2b2f36; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #3d434d; }
         .flex { display: flex; justify-content: space-between; align-items: center; }
         .price { color: #4CAF50; font-weight: bold; }
-        button.buy { background: #2481cc; border: none; color: white; padding: 10px 15px; border-radius: 8px; font-weight: bold; }
+        button { border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .buy { background: #2481cc; color: white; padding: 10px 15px; }
+        .refresh-btn { background: #3d434d; color: #aaa; padding: 8px 12px; width: 100%; margin-top: 10px; font-size: 13px; }
         .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #2b2f36; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #444; }
-        .tab { background: none; border: none; color: #888; font-size: 12px; font-weight: bold; }
+        .tab { background: none; color: #888; font-size: 12px; }
         .tab.active { color: #2481cc; }
     </style>
 </head>
 <body>
 
     <div id="shop" class="page active">
-        <h2 style="color: #2481cc;">🛒 Магазин</h2>
+        <h2>🛒 Магазин</h2>
         <div class="card flex">
             <div><b>Архив</b><br><span class="price">250₽</span></div>
             <button class="buy" onclick="sendOrder('Архив', 250)">Заказать</button>
         </div>
-        <div class="card flex">
-            <div><b>SEO</b><br><span class="price">130₽</span></div>
-            <button class="buy" onclick="sendOrder('SEO', 130)">Заказать</button>
-        </div>
-        <div class="card flex">
-            <div><b>Залив</b><br><span class="price">100₽</span></div>
-            <button class="buy" onclick="sendOrder('Залив', 100)">Заказать</button>
-        </div>
     </div>
 
     <div id="profile" class="page">
-        <h2 style="color: #2481cc;">👤 Профиль</h2>
+        <h2>👤 Профиль</h2>
         <div class="card">
-            <div class="flex" style="margin-bottom: 10px;"><span>Ваш ID:</span> <span id="u_id">Загрузка...</span></div>
-            <div class="flex"><span>Баланс:</span> <span id="u_bal" style="color: #4CAF50;">0₽</span></div>
+            <div class="flex"><span>ID:</span> <span id="u_id">0</span></div>
+            <div class="flex" style="margin-top:10px;"><span>Баланс:</span> <span id="u_bal" style="color:#4CAF50">0₽</span></div>
+            <button class="refresh-btn" onclick="refreshBalance()">🔄 Обновить баланс</button>
         </div>
+        <p style="font-size: 11px; color: #666; text-align: center;">При обновлении приложение закроется, и бот пришлет новую ссылку.</p>
     </div>
 
     <div class="tab-bar">
@@ -59,39 +55,35 @@
             document.getElementById('btn-' + name).classList.add('active');
         }
 
+        // Функция заказа (с визуальным списанием)
         function sendOrder(name, price) {
-    // 1. Берем текущий баланс из заголовка (убираем символ '₽' и переводим в число)
-    let currentBalElement = document.getElementById('u_bal');
-    let currentBal = parseInt(currentBalElement.innerText.replace('₽', ''));
+            let balElem = document.getElementById('u_bal');
+            let currentBal = parseInt(balElem.innerText);
+            
+            if (currentBal < price) {
+                alert("Недостаточно средств!");
+                return;
+            }
 
-    // 2. Проверяем, хватит ли денег (дублируем проверку для красоты)
-    if (currentBal < price) {
-        alert("Недостаточно средств на балансе!");
-        return;
-    }
+            let comment = prompt("Введите ссылку:");
+            if (comment) {
+                balElem.innerText = (currentBal - price) + '₽'; // Списали визуально
+                tg.sendData(JSON.stringify({service: name, price: price, comment: comment}));
+            }
+        }
 
-    let comment = prompt("Введите ссылку или ТЗ:");
-    if (comment) {
-        // 3. ВИЗУАЛЬНОЕ ОБНОВЛЕНИЕ: вычитаем сумму прямо сейчас
-        let newBal = currentBal - price;
-        currentBalElement.innerText = newBal + '₽';
-        
-        // Добавим анимацию (опционально), чтобы юзер видел, что баланс изменился
-        currentBalElement.style.color = "#ff4444"; 
-        setTimeout(() => { currentBalElement.style.color = "#4CAF50"; }, 500);
+        // ФУНКЦИЯ ОБНОВЛЕНИЯ
+        function refreshBalance() {
+            // Отправляем сигнал боту
+            tg.sendData(JSON.stringify({action: 'refresh'}));
+            // Закрываем приложение, так как бот должен прислать новое сообщение
+            tg.close();
+        }
 
-        // 4. Отправляем данные боту (он спишет деньги в реальной базе)
-        tg.sendData(JSON.stringify({
-            service: name, 
-            price: price, 
-            comment: comment
-        }));
-
-        // Если хочешь, чтобы приложение закрывалось сразу после заказа:
-        // tg.close(); 
-    }
-}
+        // Загрузка данных из URL
+        const params = new URLSearchParams(window.location.search);
+        document.getElementById('u_id').innerText = params.get('id') || 'Неизвестно';
+        document.getElementById('u_bal').innerText = (params.get('balance') || '0') + '₽';
     </script>
 </body>
 </html>
-
