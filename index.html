@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <title>Заказы Mini App</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
     <style>
         :root {
             --bg-color: #0f172a;
@@ -14,249 +12,169 @@
             --text-main: #e5e7eb;
             --text-dim: #9ca3af;
             --accent: #6366f1;
-            --error: #f97373;
-            --success: #4ade80;
+            --nav-bg: #1e293b;
         }
 
         body {
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: var(--bg-color);
             color: var(--text-main);
-            overflow-x: hidden;
+            padding-bottom: 70px; /* Для навигации */
         }
 
-        .container {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 16px;
-            padding-bottom: 80px; /* Отступ под кнопку */
-        }
+        .container { max-width: 480px; margin: 0 auto; padding: 16px; }
 
-        h1 {
-            font-size: 24px;
-            margin-bottom: 4px;
-        }
+        /* Вкладки */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
-        .subtitle {
-            font-size: 14px;
-            color: var(--text-dim);
-            margin-bottom: 20px;
-        }
-
-        .user-block {
-            font-size: 13px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 8px 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: inline-block;
-        }
-
-        .user-block span {
-            color: var(--accent);
-            font-weight: bold;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 14px;
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid #1f2937;
-            transition: border-color 0.2s;
-        }
-
-        .service-option {
+        /* Навигация */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: var(--nav-bg);
             display: flex;
+            justify-content: space-around;
             align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-bottom: 8px;
-            border: 1px solid transparent;
-            background: rgba(255, 255, 255, 0.02);
+            border-top: 1px solid #334155;
+            z-index: 100;
         }
 
-        .service-option:last-child {
-            margin-bottom: 0;
-        }
-
-        /* Подсветка выбранной услуги */
-        input[type="radio"]:checked + .option-info {
-            color: var(--accent);
-        }
-
-        .service-option:has(input:checked) {
-            border-color: var(--accent);
-            background: rgba(99, 102, 241, 0.05);
-        }
-
-        .option-info {
-            flex-grow: 1;
-        }
-
-        .option-name {
-            font-weight: 600;
-            display: block;
-        }
-
-        .price {
-            font-size: 13px;
-            color: #a5b4fc;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 120px;
-            background: #020617;
-            border: 1px solid #1f2937;
-            border-radius: 10px;
-            color: var(--text-main);
-            padding: 12px;
-            font-size: 15px;
-            resize: none;
-            box-sizing: border-box;
-            outline: none;
-        }
-
-        textarea:focus {
-            border-color: var(--accent);
-        }
-
-        .hint {
-            font-size: 12px;
+        .nav-item {
             color: var(--text-dim);
-            margin-top: 8px;
-            line-height: 1.4;
+            text-decoration: none;
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
         }
 
-        #status {
-            margin-top: 10px;
-            font-size: 14px;
+        .nav-item.active { color: var(--accent); }
+
+        .nav-icon { font-size: 20px; margin-bottom: 2px; }
+
+        /* Профиль */
+        .profile-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 16px;
+            padding: 24px;
             text-align: center;
-            min-height: 20px;
+            border: 1px solid #334155;
+            margin-top: 10px;
         }
 
-        .error { color: var(--error); }
-        .success { color: var(--success); }
-
-        input[type="radio"] {
-            width: 20px;
-            height: 20px;
-            accent-color: var(--accent);
-        }
+        .balance-label { font-size: 14px; color: var(--text-dim); }
+        .balance-amount { font-size: 32px; font-weight: 800; margin: 10px 0; color: #fff; }
+        
+        /* Стили из прошлого ответа для карточек */
+        .card { background: var(--card-bg); border-radius: 14px; padding: 16px; margin-bottom: 16px; border: 1px solid #1f2937; }
+        .service-option { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; cursor: pointer; border: 1px solid transparent; background: rgba(255, 255, 255, 0.02); margin-bottom: 8px; }
+        .service-option:has(input:checked) { border-color: var(--accent); background: rgba(99, 102, 241, 0.05); }
+        textarea { width: 100%; min-height: 120px; background: #020617; border: 1px solid #1f2937; border-radius: 10px; color: #fff; padding: 12px; box-sizing: border-box; }
+        input[type="radio"] { accent-color: var(--accent); }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Новый заказ</h1>
-    <p class="subtitle">Выберите тип услуги и опишите детали</p>
-
-    <div class="user-block">
-        ID Пользователя: <span id="user-id">загрузка...</span>
-    </div>
-
-    <div class="card">
-        <label class="service-option">
-            <input type="radio" name="service" value="seo" checked>
-            <div class="option-info">
-                <span class="option-name">SEO Оптимизация</span>
-                <span class="price">130 ₽</span>
+    <div class="container">
+        <div id="tab-order" class="tab-content active">
+            <h1>Новый заказ</h1>
+            <div class="card">
+                <label class="service-option">
+                    <input type="radio" name="service" value="seo" checked>
+                    <div><span style="display:block;font-weight:600">SEO Оптимизация</span><span style="color:#a5b4fc">130 ₽</span></div>
+                </label>
+                <label class="service-option">
+                    <input type="radio" name="service" value="archive">
+                    <div><span style="display:block;font-weight:600">Архив</span><span style="color:#a5b4fc">250 ₽</span></div>
+                </label>
             </div>
-        </label>
-
-        <label class="service-option">
-            <input type="radio" name="service" value="archive">
-            <div class="option-info">
-                <span class="option-name">Архив (Full)</span>
-                <span class="price">250 ₽</span>
+            <div class="card">
+                <textarea id="order-text" placeholder="Описание задачи..."></textarea>
             </div>
-        </label>
+        </div>
 
-        <label class="service-option">
-            <input type="radio" name="service" value="zaliv">
-            <div class="option-info">
-                <span class="option-name">Залив видео</span>
-                <span class="price">100 ₽</span>
+        <div id="tab-profile" class="tab-content">
+            <h1>Мой профиль</h1>
+            <div class="profile-card">
+                <div class="balance-label">Ваш баланс</div>
+                <div class="balance-amount" id="user-balance">0.00 ₽</div>
+                <div style="font-size: 13px; color: var(--text-dim);">ID: <span id="display-id">---</span></div>
             </div>
-        </label>
-    </div>
-
-    <div class="card">
-        <div style="margin-bottom: 10px; font-weight: 600;">Детали заказа</div>
-        <textarea id="order-text" placeholder="Введите ссылку, тех. задание или другие важные детали..."></textarea>
-        <p class="hint">Укажите максимально подробную информацию для воркера.</p>
-        <div id="status"></div>
-    </div>
-</div>
-
-<script>
-    const tg = window.Telegram.WebApp;
-
-    // Инициализация
-    tg.ready();
-    tg.expand();
-
-    // Настройка главной кнопки
-    tg.MainButton.setText("СОЗДАТЬ ЗАКАЗ");
-    tg.MainButton.textColor = "#ffffff";
-    tg.MainButton.color = "#4f46e5";
-    tg.MainButton.show();
-
-    // Вывод данных пользователя
-    const user = tg.initDataUnsafe?.user;
-    if (user) {
-        document.getElementById('user-id').innerText = user.id;
-    } else {
-        document.getElementById('user-id').innerText = "Не определен";
-    }
-
-    const statusEl = document.getElementById('status');
-    const textarea = document.getElementById('order-text');
-
-    function showStatus(msg, type) {
-        statusEl.textContent = msg;
-        statusEl.className = type;
-    }
-
-    // Клик по главной кнопке
-    tg.onEvent('mainButtonClicked', () => {
-        const selectedService = document.querySelector('input[name="service"]:checked').value;
-        const comment = textarea.value.trim();
-
-        // Валидация
-        if (comment.length < 5) {
-            showStatus("Пожалуйста, напишите подробнее (минимум 5 символов)", "error");
-            tg.HapticFeedback.notificationOccurred('error');
-            return;
-        }
-
-        const data = {
-            service: selectedService,
-            text: comment
-        };
-
-        try {
-            // Отправка данных боту
-            tg.sendData(JSON.stringify(data));
             
-            // ВАЖНО: Приложение должно закрыться, чтобы бот получил событие web_app_data
-            tg.close();
-        } catch (err) {
-            showStatus("Ошибка при отправке. Попробуйте еще раз.", "error");
+            <div class="card" style="margin-top: 20px;">
+                <div style="font-weight: 600; margin-bottom: 10px;">Статистика</div>
+                <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                    <span>Заказов в работе:</span>
+                    <span style="color: var(--accent);">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="nav-bar">
+        <div class="nav-item active" onclick="switchTab('order')">
+            <span class="nav-icon">🛒</span>
+            <span>Заказ</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('profile')">
+            <span class="nav-icon">👤</span>
+            <span>Профиль</span>
+        </div>
+    </nav>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        // Данные пользователя
+        const user = tg.initDataUnsafe?.user;
+        if (user) {
+            document.getElementById('display-id').innerText = user.id;
+            // Здесь в будущем можно сделать запрос к БД и получить реальный баланс
+            document.getElementById('user-balance').innerText = "1,250.00 ₽";
         }
-    });
 
-    // Легкая вибрация при выборе услуги
-    document.querySelectorAll('.service-option').forEach(item => {
-        item.addEventListener('click', () => {
-            tg.HapticFeedback.selectionChanged();
+        function switchTab(tabName) {
+            // Вибрация при переключении
+            tg.HapticFeedback.impactOccurred('light');
+
+            // Переключение контента
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+
+            // Переключение кнопок меню
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // Управляем кнопкой "Отправить" (скрываем в профиле)
+            if (tabName === 'order') {
+                tg.MainButton.show();
+            } else {
+                tg.MainButton.hide();
+            }
+        }
+
+        // Логика основной кнопки
+        tg.MainButton.setText("ОТПРАВИТЬ ЗАКАЗ").show();
+        tg.onEvent('mainButtonClicked', () => {
+            const service = document.querySelector('input[name="service"]:checked').value;
+            const text = document.getElementById('order-text').value;
+            
+            if(text.length < 3) {
+                tg.showAlert("Пожалуйста, заполните описание");
+                return;
+            }
+
+            tg.sendData(JSON.stringify({service, text}));
+            tg.close();
         });
-    });
-
-</script>
+    </script>
 </body>
 </html>
