@@ -3,225 +3,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Premium Shop</title>
+    <title>NextGen Shop</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Градиент, который хорошо смотрится и в светлой, и в темной теме */
-            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            --tg-bg: var(--tg-theme-bg-color, #f4f7f9);
-            --sec-bg: var(--tg-theme-secondary-bg-color, rgba(255, 255, 255, 0.7));
-            --text: var(--tg-theme-text-color, #1c1c1e);
-            --hint: var(--tg-theme-hint-color, #8e8e93);
-            --accent: var(--tg-theme-button-color, #007aff);
-        }
-
-        /* Адаптация под темную тему Telegram */
-        body.dark-theme {
-            --bg-gradient: linear-gradient(135deg, #1a1a1a 0%, #2c3e50 100%);
+            --bg-color: #0b0e11;
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --accent-color: #00f2fe; /* Яркий акцент как у Stripe/Revolut */
+            --text-main: #ffffff;
+            --text-hint: #94a3b8;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            /* Устанавливаем градиент на весь экран */
-            background: var(--bg-gradient);
+            background: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(0, 242, 254, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(79, 70, 229, 0.2) 0%, transparent 40%);
             background-attachment: fixed;
-            min-height: 100vh;
-            color: var(--text);
+            color: var(--text-main);
             margin: 0;
-            padding: 16px;
-            padding-bottom: 100px;
-            overflow-x: hidden;
-            -webkit-user-select: none;
-        }
-
-        .page-title {
-            font-size: 26px;
-            font-weight: 800;
-            margin-bottom: 20px;
-            letter-spacing: -0.5px;
-        }
-
-        /* Карточки с эффектом матового стекла */
-        .card {
-            background: var(--sec-bg);
-            backdrop-filter: blur(10px); /* Размытие фона за карточкой */
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 24px;
             padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            animation: slideUp 0.4s ease-out;
+            padding-bottom: 110px;
+            -webkit-font-smoothing: antialiased;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Заголовок с градиентом */
+        .header-section {
+            margin-bottom: 30px;
+            padding-top: 10px;
         }
 
-        .card-label {
+        .header-section h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Сочные карточки */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .label {
             font-size: 11px;
-            font-weight: 700;
-            color: var(--hint);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
+            letter-spacing: 1.5px;
+            color: var(--accent-color);
+            font-weight: 700;
+            margin-bottom: 12px;
             display: block;
         }
 
-        select, textarea {
+        /* Кастомный Select */
+        select {
             width: 100%;
-            background: rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(0,0,0,0.05);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
-            padding: 14px;
+            padding: 16px;
+            color: white;
             font-size: 16px;
-            color: var(--text);
+            font-weight: 600;
             outline: none;
-            box-sizing: border-box;
+            appearance: none;
+        }
+
+        /* Текстовое поле */
+        textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 17px;
             font-family: inherit;
+            resize: none;
+            outline: none;
+            padding: 0;
+            margin-top: 8px;
         }
 
-        /* Нижнее меню тоже сделаем слегка прозрачным */
-        .nav-bar {
+        /* Плитка баланса (Apple Card Style) */
+        .balance-card {
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+            color: #000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-card::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(0,242,254,0.2) 0%, transparent 70%);
+        }
+
+        .balance-amount {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin: 10px 0;
+        }
+
+        /* Навигация (Floating Dock) */
+        .dock-container {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 75px;
-            background: var(--sec-bg);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 35px;
             display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: env(safe-area-inset-bottom);
-            z-index: 1000;
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            z-index: 9999;
         }
 
-        .nav-item {
+        .dock-item {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: var(--hint);
-            transition: 0.3s;
+            justify-content: center;
+            padding: 12px 0;
+            border-radius: 28px;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-hint);
         }
 
-        .nav-item.active {
-            color: var(--accent);
-            transform: translateY(-2px);
+        .dock-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
         }
 
-        .nav-icon { font-size: 24px; margin-bottom: 2px; }
-        .nav-label { font-size: 10px; font-weight: 700; text-transform: uppercase; }
-
-        .balance-box {
-            background: linear-gradient(135deg, rgba(0,122,255,0.8), rgba(88,86,214,0.8));
-            color: white;
-            border: none;
-        }
+        .dock-icon { font-size: 22px; margin-bottom: 4px; }
+        .dock-text { font-size: 10px; font-weight: 700; text-transform: uppercase; }
 
         .hidden { display: none; }
+        
+        /* Кнопка пополнения */
+        .action-btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 18px;
+            border-radius: 20px;
+            width: 100%;
+            font-weight: 700;
+            font-size: 16px;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
 
-<div id="ord-page">
-    <div class="page-title">Магазин</div>
-    <div class="card">
-        <span class="card-label">Услуга</span>
+<div id="shop-page">
+    <div class="header-section">
+        <h1>Магазин</h1>
+    </div>
+
+    <div class="glass-card">
+        <span class="label">Выбор сервиса</span>
         <select id="srv" onchange="updateButton()">
-            <option value="Сео">🚀 СЕО Продвижение</option>
-            <option value="Архив">📦 Сбор архива</option>
-            <option value="Залив">⚡️ Быстрый залив</option>
+            <option value="Сео">SEO Boost — 130₽</option>
+            <option value="Архив">Archive Pack — 250₽</option>
+            <option value="Залив">Fast Upload — 100₽</option>
         </select>
     </div>
-    <div class="card">
-        <span class="card-label">Описание задачи</span>
-        <textarea id="task" rows="4" placeholder="Напишите, что нужно сделать..." oninput="updateButton()"></textarea>
+
+    <div class="glass-card">
+        <span class="label">Техническое задание</span>
+        <textarea id="task" rows="4" placeholder="Опишите проект..." oninput="updateButton()"></textarea>
     </div>
 </div>
 
-<div id="prof-page" class="hidden">
-    <div class="page-title">Мой аккаунт</div>
-    <div class="card balance-box">
-        <span class="card-label" style="color: rgba(255,255,255,0.8)">Баланс</span>
-        <div style="font-size: 40px; font-weight: 800; margin: 5px 0;"><span id="ub">0</span> ₽</div>
-        <div style="font-size: 12px; opacity: 0.7;">ID: <span id="ui">0</span></div>
+<div id="profile-page" class="hidden">
+    <div class="header-section">
+        <h1>Профиль</h1>
     </div>
-    <button class="card" style="width: 100%; background: var(--accent); color: white; border: none; font-weight: 700; font-size: 16px;" onclick="sendAction('deposit')">
-        Пополнить баланс
-    </button>
+
+    <div class="glass-card balance-card">
+        <span class="label" style="color: #64748b;">Ваш баланс</span>
+        <div class="balance-amount"><span id="ub">0</span> ₽</div>
+        <div style="font-size: 13px; font-weight: 600;">ID: <span id="ui">0</span></div>
+    </div>
+
+    <button class="action-btn" onclick="sendAction('deposit')">Пополнить баланс</button>
 </div>
 
-<nav class="nav-bar">
-    <div id="nav-ord" class="nav-item active" onclick="showPage('ord')">
-        <span class="nav-icon">💎</span>
-        <span class="nav-label">Услуги</span>
+<div class="dock-container">
+    <div id="nav-shop" class="dock-item active" onclick="switchTab('shop')">
+        <span class="dock-icon">⚡️</span>
+        <span class="dock-text">Сервисы</span>
     </div>
-    <div id="nav-prof" class="nav-item" onclick="showPage('prof')">
-        <span class="nav-icon">👤</span>
-        <span class="nav-label">Профиль</span>
+    <div id="nav-profile" class="dock-item" onclick="switchTab('profile')">
+        <span class="dock-icon">💎</span>
+        <span class="dock-text">Профиль</span>
     </div>
-</nav>
+</div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
-    
-    // Автоматическое определение темной темы
-    if (tg.colorScheme === 'dark') {
-        document.body.classList.add('dark-theme');
-    }
+    tg.backgroundColor = '#0b0e11';
+    tg.headerColor = '#0b0e11';
 
     const prices = { "Сео": 130, "Архив": 250, "Залив": 100 };
     const params = new URLSearchParams(window.location.search);
-    
-    document.getElementById('ui').innerText = params.get('id') || "User";
     const balance = parseFloat(params.get('bal')) || 0;
-    document.getElementById('ub').innerText = balance.toFixed(2);
 
-    function showPage(page) {
+    document.getElementById('ui').innerText = params.get('id') || "666";
+    document.getElementById('ub').innerText = balance.toLocaleString();
+
+    function switchTab(tab) {
         tg.HapticFeedback.impactOccurred('medium');
-        document.getElementById('ord-page').classList.toggle('hidden', page !== 'ord');
-        document.getElementById('prof-page').classList.toggle('hidden', page !== 'prof');
-        document.getElementById('nav-ord').classList.toggle('active', page === 'ord');
-        document.getElementById('nav-prof').classList.toggle('active', page === 'prof');
+        document.getElementById('shop-page').classList.toggle('hidden', tab !== 'shop');
+        document.getElementById('profile-page').classList.toggle('hidden', tab !== 'profile');
+        
+        document.getElementById('nav-shop').classList.toggle('active', tab === 'shop');
+        document.getElementById('nav-profile').classList.toggle('active', tab === 'profile');
 
-        if(page === 'ord') { tg.MainButton.show(); updateButton(); } 
-        else { tg.MainButton.hide(); }
+        tab === 'shop' ? tg.MainButton.show() : tg.MainButton.hide();
     }
 
     function updateButton() {
         const srv = document.getElementById('srv').value;
         const cost = prices[srv];
-        const desc = document.getElementById('task').value.trim();
+        const hasText = document.getElementById('task').value.trim().length >= 5;
 
-        if (desc.length >= 5) {
+        if (hasText) {
             if (balance < cost) {
-                tg.MainButton.setParams({ text: `ПОПОЛНИТЕ БАЛАНС (${cost}₽)`, color: "#ff3b30", is_active: false });
+                tg.MainButton.setParams({ text: `ПОПОЛНИТЬ (${cost}₽)`, color: "#ef4444", is_active: true });
             } else {
-                tg.MainButton.setParams({ text: `ОПЛАТИТЬ УСЛУГУ (${cost}₽)`, color: "#007aff", is_active: true });
+                tg.MainButton.setParams({ text: `ПОДТВЕРДИТЬ (${cost}₽)`, color: "#ffffff", text_color: "#000000", is_active: true });
             }
         } else {
-            tg.MainButton.setParams({ text: "ЗАПОЛНИТЕ ТЗ", color: "#8e8e93", is_active: false });
+            tg.MainButton.setParams({ text: "ОПИШИТЕ ТЗ", color: "#1e293b", text_color: "#94a3b8", is_active: false });
         }
     }
 
-    function sendAction(action) {
+    function sendAction(a) {
         tg.HapticFeedback.notificationOccurred('success');
-        tg.sendData(JSON.stringify({ action: action }));
-        tg.close();
+        tg.sendData(JSON.stringify({action: a}));
     }
 
-    tg.onEvent('mainButtonClicked', function() {
+    tg.onEvent('mainButtonClicked', () => {
         const srv = document.getElementById('srv').value;
         const desc = document.getElementById('task').value;
-        tg.sendData(JSON.stringify({ action: 'order', service: srv, description: desc }));
+        tg.sendData(JSON.stringify({action: 'order', service: srv, desc: desc}));
         tg.close();
     });
 
