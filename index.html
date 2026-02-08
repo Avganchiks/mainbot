@@ -73,13 +73,31 @@
     }
 
     function sendOrder() {
-        const service = document.getElementById('service-type').value;
-        const description = document.getElementById('task-desc').value.trim();
+    const service = document.getElementById('service-type').value;
+    const description = document.getElementById('task-desc').value.trim();
 
-        if (!description) {
-            tg.showAlert("Пожалуйста, заполните поле ТЗ!");
-            return;
-        }
+    if (!description) {
+        tg.showAlert("Пожалуйста, заполните поле ТЗ!");
+        return;
+    }
+
+    const data = {
+        action: "new_order",
+        service: service,
+        description: description,
+        user_id: tg.initDataUnsafe.user.id // передаем ID для бэкенда
+    };
+
+    // Так как sendData не работает в Menu Button, 
+    // мы можем использовать этот хак, чтобы закрыть окно и передать инфу
+    // Но лучше всего использовать POST запрос на ваш Python бэкенд.
+    
+    // ВРЕМЕННОЕ РЕШЕНИЕ:
+    // Если у вас нет публичного IP для бэкенда, верните на время KeyboardButton.
+    // Если вы готовы запустить сервер, скажите "Давай сервер".
+    
+    tg.sendData(JSON.stringify(data)); 
+}
 
         const data = {
             action: "new_order",
@@ -94,3 +112,4 @@
 </script>
 </body>
 </html>
+
