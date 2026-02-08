@@ -3,73 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Заказ услуг</title>
+    <title>Mini App Shop</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background-color: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); padding: 20px; }
-        .card { border: 1px solid #ccc; border-radius: 10px; padding: 15px; margin-bottom: 10px; background: var(--tg-theme-secondary-bg-color); }
-        .price { font-weight: bold; color: #4CAF50; float: right; }
-        textarea { width: 100%; height: 80px; margin-top: 10px; border-radius: 5px; }
-        .btn { width: 100%; padding: 15px; background-color: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 10px; }
-        h3 { margin-top: 0; }
-        /* Скрываем радио-кнопки, стилизуем выбор через классы JS (упрощено для примера) */
-        input[type="radio"] { transform: scale(1.5); }
+        body {
+            font-family: sans-serif;
+            background-color: var(--tg-theme-bg-color, #fff);
+            color: var(--tg-theme-text-color, #000);
+            margin: 0; padding: 0;
+            padding-bottom: 70px; /* Отступ для нижнего меню */
+        }
+
+        /* Стили карточек товара */
+        .container { padding: 20px; }
+        .card {
+            border: 1px solid var(--tg-theme-hint-color, #ccc);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .price { font-weight: bold; color: #4CAF50; }
+
+        /* Стили ввода */
+        textarea {
+            width: 100%; height: 80px; margin-top: 10px;
+            border-radius: 8px; border: 1px solid #ccc; padding: 8px; box-sizing: border-box;
+            background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color);
+        }
+        .btn {
+            width: 100%; padding: 15px;
+            background-color: var(--tg-theme-button-color, #2481cc);
+            color: var(--tg-theme-button-text-color, #fff);
+            border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 10px;
+        }
+
+        /* Стили Профиля */
+        .profile-header { text-align: center; margin-bottom: 30px; }
+        .avatar-placeholder {
+            width: 80px; height: 80px; background: #ddd;
+            border-radius: 50%; margin: 0 auto 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 30px;
+        }
+        .info-row {
+            display: flex; justify-content: space-between;
+            padding: 15px 0; border-bottom: 1px solid var(--tg-theme-hint-color, #eee);
+        }
+
+        /* Нижнее меню (Tabs) */
+        .tab-bar {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: var(--tg-theme-secondary-bg-color, #fff);
+            border-top: 1px solid var(--tg-theme-hint-color, #ccc);
+            display: flex; justify-content: space-around;
+            padding: 10px 0;
+        }
+        .tab-btn {
+            background: none; border: none; font-size: 14px;
+            color: var(--tg-theme-hint-color, #888); cursor: pointer;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .tab-btn.active { color: var(--tg-theme-button-color, #2481cc); font-weight: bold; }
+
+        /* Управление видимостью страниц */
+        .page { display: none; }
+        .page.active { display: block; }
     </style>
 </head>
 <body>
 
-    <h2>Выберите услугу:</h2>
+    <div id="shop-page" class="page active container">
+        <h2>🛍 Услуги</h2>
 
-    <div class="card">
-        <label>
-            <input type="radio" name="service" value="archive" data-price="250" checked>
-            <b>Архив</b> <span class="price">250₽</span>
-        </label>
+        <div class="card" onclick="selectService('archive', 250)">
+            <label><input type="radio" name="service" value="archive"> Архив</label>
+            <span class="price">250₽</span>
+        </div>
+        <div class="card" onclick="selectService('seo', 130)">
+            <label><input type="radio" name="service" value="seo"> SEO</label>
+            <span class="price">130₽</span>
+        </div>
+        <div class="card" onclick="selectService('zaliv', 100)">
+            <label><input type="radio" name="service" value="zaliv"> Залив</label>
+            <span class="price">100₽</span>
+        </div>
+
+        <h3>ТЗ / Комментарий:</h3>
+        <textarea id="details" placeholder="Ссылка, текст или пожелания..."></textarea>
+        <button class="btn" onclick="sendOrder()">Заказать</button>
     </div>
 
-    <div class="card">
-        <label>
-            <input type="radio" name="service" value="seo" data-price="130">
-            <b>SEO</b> <span class="price">130₽</span>
-        </label>
+    <div id="profile-page" class="page container">
+        <div class="profile-header">
+            <div class="avatar-placeholder">👤</div>
+            <h2 id="display-name">User</h2>
+        </div>
+
+        <div class="info-row">
+            <span>Ваш ID:</span>
+            <b id="user-id">Loading...</b>
+        </div>
+        <div class="info-row">
+            <span>Баланс:</span>
+            <b id="user-balance" style="color: #4CAF50;">0₽</b>
+        </div>
+
+        <button class="btn" style="margin-top: 30px; background: #e0e0e0; color: #333;" onclick="tg.close()">Закрыть</button>
     </div>
 
-    <div class="card">
-        <label>
-            <input type="radio" name="service" value="zaliv" data-price="100">
-            <b>Залив</b> <span class="price">100₽</span>
-        </label>
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('shop', this)">
+            <span>🛒</span> Магазин
+        </button>
+        <button class="tab-btn" onclick="switchTab('profile', this)">
+            <span>👤</span> Профиль
+        </button>
     </div>
-
-    <h3>Техническое задание:</h3>
-    <textarea id="details" placeholder="Введите текст, ссылку или комментарий..."></textarea>
-
-    <button class="btn" onclick="sendOrder()">Оформить заказ</button>
 
     <script>
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Раскрыть на весь экран
+        tg.expand();
 
+        // 1. Получаем данные пользователя
+        let user = tg.initDataUnsafe.user;
+
+        // 2. Получаем баланс из URL (который передаст Python)
+        // Ссылка будет вида: index.html?balance=500
+        const urlParams = new URLSearchParams(window.location.search);
+        const balance = urlParams.get('balance') || '0';
+
+        // Заполняем профиль
+        if (user) {
+            document.getElementById('user-id').innerText = user.id;
+            document.getElementById('display-name').innerText = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+        } else {
+            document.getElementById('user-id').innerText = "Неизвестно";
+        }
+        document.getElementById('user-balance').innerText = balance + '₽';
+
+        // Логика вкладок
+        function switchTab(tabName, btn) {
+            // Скрываем все страницы
+            document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+            // Убираем активный класс у кнопок
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            // Показываем нужную
+            document.getElementById(tabName + '-page').classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // Выбор услуги (визуал)
+        function selectService(val, price) {
+            let radio = document.querySelector(`input[value="${val}"]`);
+            if(radio) radio.checked = true;
+        }
+
+        // Отправка заказа
         function sendOrder() {
-            // Получаем выбранную услугу
             let serviceEl = document.querySelector('input[name="service"]:checked');
-            let serviceType = serviceEl.value;
-            let price = serviceEl.getAttribute('data-price');
+            if (!serviceEl) {
+                tg.showAlert("Выберите услугу!");
+                return;
+            }
             let details = document.getElementById("details").value;
-
             if (!details) {
-                tg.showAlert("Пожалуйста, введите текст задания!");
+                tg.showAlert("Напишите тех. задание!");
                 return;
             }
 
-            // Формируем объект данных
+            let priceMap = { 'archive': 250, 'seo': 130, 'zaliv': 100 };
+            let serviceType = serviceEl.value;
+
             let data = {
                 type: serviceType,
-                price: price,
+                price: priceMap[serviceType],
                 text: details
             };
-
-            // Отправляем данные боту
             tg.sendData(JSON.stringify(data));
         }
     </script>
