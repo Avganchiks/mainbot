@@ -1,81 +1,16 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body { font-family: sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 20px; }
-        .card { background: #2d2d2d; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        input { width: 80%; padding: 10px; margin: 10px 0; border-radius: 8px; border: none; }
-        button { background: #3390ec; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 85%; }
-        button:active { transform: scale(0.98); }
-        .balance-val { font-size: 24px; color: #4CAF50; font-weight: bold; }
-    </style>
-</head>
-<body>
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-    <div class="card">
-        <h3>Профиль</h3>
-        <p>ID: <span id="my_id">...</span></p>
-        <p>Баланс: <span id="balance" class="balance-val">0</span> руб.</p>
-    </div>
+    function sendOrder(serviceName) {
+        const data = {
+            service: serviceName,
+            customer_name: tg.initDataUnsafe.user.first_name,
+            username: tg.initDataUnsafe.user.username
+        };
+        tg.sendData(JSON.stringify(data)); 
+        tg.close(); 
+    }
+</script>
 
-    <div class="card">
-        <h3>Оформить заказ</h3>
-        <input type="text" id="comment" placeholder="Введите комментарий...">
-        <button onclick="sendOrder(500)">Заказать (500 руб.)</button>
-    </div>
-
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-
-        // СЮДА ВСТАВЬ ССЫЛКУ ИЗ NGROK (с https://)
-        const SERVER_URL = "https://avganchiks.github.io/mainbot/"; 
-        const userId = tg.initDataUnsafe.user?.id || 1234567; // 1234567 для теста в браузере
-
-        document.getElementById('my_id').innerText = userId;
-
-        // Загрузка данных профиля
-        async function loadProfile() {
-            try {
-                const response = await fetch(`${SERVER_URL}/get_profile?user_id=${userId}`);
-                const data = await response.json();
-                document.getElementById('balance').innerText = data.balance;
-            } catch (e) {
-                console.error("Ошибка загрузки профиля:", e);
-            }
-        }
-
-        // Функция покупки
-        async function sendOrder(price) {
-            const comment = document.getElementById('comment').value;
-            
-            try {
-                const response = await fetch(`${SERVER_URL}/create_order`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user_id: userId,
-                        price: price,
-                        comment: comment
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    tg.showAlert("✅ Заказ успешно создан!");
-                    document.getElementById('balance').innerText = result.new_balance;
-                } else {
-                    tg.showAlert("❌ Ошибка: " + result.error);
-                }
-            } catch (e) {
-                tg.showAlert("🔌 Нет связи с сервером. Проверь Ngrok!");
-            }
-        }
-
-        loadProfile();
-    </script>
-</body>
-</html>
+<button onclick="sendOrder('Стрижка бороды')">Заказать стрижку</button>
