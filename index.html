@@ -2,27 +2,138 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini App Shop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Premium Bot Shop</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: var(--tg-theme-bg-color, #ffffff);
-            --text: var(--tg-theme-text-color, #000000);
-            --hint: var(--tg-theme-hint-color, #999999);
-            --btn: var(--tg-theme-button-color, #248bed);
-            --btn-text: var(--tg-theme-button-text-color, #ffffff);
-            --sec-bg: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            --bg-color: var(--tg-theme-bg-color, #f4f7f9);
+            --text-color: var(--tg-theme-text-color, #1c1c1e);
+            --hint-color: var(--tg-theme-hint-color, #8e8e93);
+            --main-btn: var(--tg-theme-button-color, #007aff);
+            --main-btn-text: var(--tg-theme-button-text-color, #ffffff);
+            --secondary-bg: var(--tg-theme-secondary-bg-color, #ffffff);
+            --accent: #34c759; /* Зеленый для баланса */
         }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; overflow-x: hidden; }
-        .card { background: var(--sec-bg); padding: 20px; border-radius: 15px; margin-top: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .tabs { display: flex; gap: 10px; margin-bottom: 15px; }
-        .tab { flex: 1; padding: 12px; border: none; border-radius: 10px; background: #ddd; color: #666; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .tab.active { background: var(--btn); color: var(--btn-text); }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Табы */
+        .tabs {
+            display: flex;
+            background: var(--secondary-bg);
+            padding: 4px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 9px;
+            background: transparent;
+            color: var(--hint-color);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab.active {
+            background: var(--main-btn);
+            color: var(--main-btn-text);
+            box-shadow: 0 4px 10px rgba(0, 122, 255, 0.2);
+        }
+
+        /* Карточки */
+        .card {
+            background: var(--secondary-bg);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--hint-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        /* Поля ввода */
+        select, textarea {
+            width: 100%;
+            background: var(--bg-color);
+            border: 1.5px solid transparent;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 16px;
+            color: var(--text-color);
+            margin-top: 5px;
+            outline: none;
+            transition: border 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        select:focus, textarea:focus {
+            border-color: var(--main-btn);
+        }
+
+        textarea { resize: none; margin-bottom: 5px; }
+
+        /* Профиль */
+        .balance-title { font-size: 32px; font-weight: 700; margin: 5px 0; color: var(--accent); }
+        .user-id { font-size: 12px; color: var(--hint-color); margin-top: -5px; }
+
+        /* Кнопки */
+        .btn {
+            width: 100%;
+            border: none;
+            border-radius: 14px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s active;
+        }
+
+        .btn:active { transform: scale(0.98); }
+
+        .btn-deposit {
+            background: linear-gradient(135deg, #34c759, #28a745);
+            color: white;
+            margin-top: 15px;
+            box-shadow: 0 6px 15px rgba(52, 199, 89, 0.3);
+        }
+
+        .btn-refresh {
+            background: transparent;
+            border: 1.5px solid var(--hint-color);
+            color: var(--hint-color);
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 13px;
+        }
+
         .hidden { display: none; }
-        select, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ccc; background: var(--bg); color: var(--text); box-sizing: border-box; font-size: 16px; outline: none; }
-        .dep-btn { width: 100%; background: #28a745; color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; font-size: 16px; }
-        .refresh-btn { background: none; border: 1px solid var(--hint); color: var(--hint); padding: 8px 10px; border-radius: 8px; font-size: 13px; margin-bottom: 10px; cursor: pointer; width: 100%; }
     </style>
 </head>
 <body>
@@ -34,34 +145,41 @@
 
 <div id="ord">
     <div class="card">
-        <label>Выберите услугу:</label>
+        <span class="card-label">Выберите услугу</span>
         <select id="srv" onchange="updateButton()">
-            <option value="Сео">Сео — 130 руб.</option>
-            <option value="Архив">Архив — 250 руб.</option>
-            <option value="Залив">Залив — 100 руб.</option>
+            <option value="Сео">🔥 Сео продвижение — 130₽</option>
+            <option value="Архив">📦 Сбор архива — 250₽</option>
+            <option value="Залив">🚀 Быстрый залив — 100₽</option>
         </select>
-        <textarea id="task" rows="5" placeholder="Введите ТЗ (минимум 5 символов)..." oninput="updateButton()"></textarea>
+    </div>
+
+    <div class="card" style="margin-top: 16px;">
+        <span class="card-label">Техническое задание</span>
+        <textarea id="task" rows="4" placeholder="Опишите детали заказа..." oninput="updateButton()"></textarea>
+        <span style="font-size: 11px; color: var(--hint-color);">Минимум 5 символов для активации заказа</span>
     </div>
 </div>
 
 <div id="prof" class="hidden">
     <div class="card" style="text-align: center;">
-        <p style="color: var(--hint); margin-bottom: 5px;">Ваш ID: <b id="ui"></b></p>
-        <h2 style="margin: 10px 0;">Баланс: <span id="ub" style="color: #28a745;">0</span> руб.</h2>
+        <span class="card-label">Ваш текущий баланс</span>
+        <div class="balance-title"><span id="ub">0</span> ₽</div>
+        <div class="user-id">ID: <span id="ui">000000</span></div>
         
-        <button class="refresh-btn" onclick="sendAction('refresh')">🔄 Обновить данные</button>
-        <button class="dep-btn" onclick="sendAction('deposit')">➕ Пополнить баланс</button>
+        <button class="btn btn-deposit" onclick="sendAction('deposit')">➕ Пополнить баланс</button>
+        <button class="btn btn-refresh" onclick="sendAction('refresh')">🔄 Обновить данные</button>
     </div>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
+    tg.headerColor = 'secondary_bg_color';
 
     const prices = { "Сео": 130, "Архив": 250, "Залив": 100 };
     const params = new URLSearchParams(window.location.search);
     
-    const userId = params.get('id') || "—";
+    const userId = params.get('id') || "666777";
     const balance = parseFloat(params.get('bal')) || 0;
 
     document.getElementById('ui').innerText = userId;
@@ -89,46 +207,42 @@
         if (desc.length >= 5) {
             if (balance < cost) {
                 tg.MainButton.setParams({
-                    text: `НЕДОСТАТОЧНО СРЕДСТВ (${cost}р)`, 
-                    color: "#e74c3c", 
+                    text: `НЕДОСТАТОЧНО СРЕДСТВ (${cost}₽)`, 
+                    color: "#ff3b30", 
                     is_active: false
                 });
             } else {
                 tg.MainButton.setParams({
-                    text: `КУПИТЬ ЗА ${cost} РУБ.`, 
-                    color: "#248bed", 
+                    text: `ОПЛАТИТЬ ЗАКАЗ (${cost}₽)`, 
+                    color: tg.themeParams.button_color || "#007aff", 
                     is_active: true
                 });
             }
         } else {
             tg.MainButton.setParams({
-                text: "ВВЕДИТЕ ТЗ (мин. 5 симв.)", 
-                color: "#666666", 
+                text: "ЗАПОЛНИТЕ ТЗ", 
+                color: "#8e8e93", 
                 is_active: false
             });
         }
     }
 
-    // Универсальная функция для кнопок Обновить и Пополнить
     function sendAction(actionName) {
         tg.sendData(JSON.stringify({ action: actionName }));
-        tg.close(); // Закрываем, чтобы бот мог сразу ответить
+        tg.close();
     }
 
-    // Обработка клика по Главной Кнопке (Купить)
     tg.onEvent('mainButtonClicked', function() {
         const srv = document.getElementById('srv').value;
         const desc = document.getElementById('task').value;
-        
         tg.sendData(JSON.stringify({
-            action: 'order', // Явно указываем, что это заказ
+            action: 'order',
             service: srv,
             description: desc
         }));
         tg.close();
     });
 
-    // Инициализация
     tg.MainButton.show();
     updateButton();
 </script>
