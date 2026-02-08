@@ -14,14 +14,14 @@
             --btn-text: var(--tg-theme-button-text-color, #ffffff);
             --sec-bg: var(--tg-theme-secondary-bg-color, #f0f0f0);
         }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; overflow-x: hidden; }
         .card { background: var(--sec-bg); padding: 20px; border-radius: 15px; margin-top: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .tabs { display: flex; gap: 10px; margin-bottom: 15px; }
         .tab { flex: 1; padding: 12px; border: none; border-radius: 10px; background: #ddd; color: #666; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .tab.active { background: var(--btn); color: var(--btn-text); }
         .hidden { display: none; }
-        select, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ccc; background: var(--bg); color: var(--text); box-sizing: border-box; font-size: 16px; }
-        .dep-btn { width: 100%; background: #28a745; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        select, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ccc; background: var(--bg); color: var(--text); box-sizing: border-box; font-size: 16px; outline: none; }
+        .dep-btn { width: 100%; background: #28a745; color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; font-size: 16px; }
         .refresh-btn { background: none; border: 1px solid var(--hint); color: var(--hint); padding: 8px 10px; border-radius: 8px; font-size: 13px; margin-bottom: 10px; cursor: pointer; width: 100%; }
     </style>
 </head>
@@ -46,11 +46,11 @@
 
 <div id="prof" class="hidden">
     <div class="card" style="text-align: center;">
-        <p style="color: var(--hint);">Ваш ID: <b id="ui"></b></p>
+        <p style="color: var(--hint); margin-bottom: 5px;">Ваш ID: <b id="ui"></b></p>
         <h2 style="margin: 10px 0;">Баланс: <span id="ub" style="color: #28a745;">0</span> руб.</h2>
         
-        <button class="refresh-btn" onclick="sendAction('refresh_balance')">🔄 Обновить данные</button>
-        <button class="dep-btn" onclick="sendAction('start_deposit')">➕ Пополнить баланс</button>
+        <button class="refresh-btn" onclick="sendAction('refresh')">🔄 Обновить данные</button>
+        <button class="dep-btn" onclick="sendAction('deposit')">➕ Пополнить баланс</button>
     </div>
 </div>
 
@@ -61,6 +61,7 @@
     const prices = { "Сео": 130, "Архив": 250, "Залив": 100 };
     const params = new URLSearchParams(window.location.search);
     
+    // Получаем данные из URL, переданные ботом
     const userId = params.get('id') || "—";
     const balance = parseFloat(params.get('bal')) || 0;
 
@@ -88,16 +89,32 @@
 
         if (desc.length >= 5) {
             if (balance < cost) {
-                tg.MainButton.setParams({text: `НЕДОСТАТОЧНО СРЕДСТВ (${cost}р)`, color: "#e74c3c", is_active: false});
+                tg.MainButton.setParams({
+                    text: `НЕДОСТАТОЧНО СРЕДСТВ (${cost}р)`, 
+                    color: "#e74c3c", 
+                    is_active: false,
+                    is_visible: true
+                });
             } else {
-                tg.MainButton.setParams({text: `КУПИТЬ ЗА ${cost} РУБ.`, color: "#248bed", is_active: true});
+                tg.MainButton.setParams({
+                    text: `КУПИТЬ ЗА ${cost} РУБ.`, 
+                    color: "#248bed", 
+                    is_active: true,
+                    is_visible: true
+                });
             }
         } else {
-            tg.MainButton.setParams({text: "ВВЕДИТЕ ТЗ", color: "#666666", is_active: false});
+            tg.MainButton.setParams({
+                text: "ВВЕДИТЕ ТЗ (мин. 5 симв.)", 
+                color: "#666666", 
+                is_active: false,
+                is_visible: true
+            });
         }
     }
 
     function sendAction(actionName) {
+        // Отправляем JSON боту. Бот ждет action: 'deposit' или action: 'refresh'
         tg.sendData(JSON.stringify({ action: actionName }));
         tg.close();
     }
@@ -107,14 +124,14 @@
         const desc = document.getElementById('task').value;
         
         tg.sendData(JSON.stringify({
-            action: 'order', // Явно указываем действие
+            action: 'order',
             service: srv,
             description: desc
         }));
         tg.close();
     });
 
-    // Стартовая инициализация
+    // Инициализация при запуске
     tg.MainButton.show();
     updateButton();
 </script>
