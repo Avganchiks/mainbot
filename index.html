@@ -1,180 +1,57 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Заказы Mini App</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #111827;
-            --text-main: #e5e7eb;
-            --text-dim: #9ca3af;
-            --accent: #6366f1;
-            --nav-bg: #1e293b;
-        }
-
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: var(--bg-color);
-            color: var(--text-main);
-            padding-bottom: 70px; /* Для навигации */
-        }
-
-        .container { max-width: 480px; margin: 0 auto; padding: 16px; }
-
-        /* Вкладки */
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        /* Навигация */
-        .nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            background: var(--nav-bg);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top: 1px solid #334155;
-            z-index: 100;
-        }
-
-        .nav-item {
-            color: var(--text-dim);
-            text-decoration: none;
-            font-size: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .nav-item.active { color: var(--accent); }
-
-        .nav-icon { font-size: 20px; margin-bottom: 2px; }
-
-        /* Профиль */
-        .profile-card {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border-radius: 16px;
-            padding: 24px;
-            text-align: center;
-            border: 1px solid #334155;
-            margin-top: 10px;
-        }
-
-        .balance-label { font-size: 14px; color: var(--text-dim); }
-        .balance-amount { font-size: 32px; font-weight: 800; margin: 10px 0; color: #fff; }
-        
-        /* Стили из прошлого ответа для карточек */
-        .card { background: var(--card-bg); border-radius: 14px; padding: 16px; margin-bottom: 16px; border: 1px solid #1f2937; }
-        .service-option { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; cursor: pointer; border: 1px solid transparent; background: rgba(255, 255, 255, 0.02); margin-bottom: 8px; }
-        .service-option:has(input:checked) { border-color: var(--accent); background: rgba(99, 102, 241, 0.05); }
-        textarea { width: 100%; min-height: 120px; background: #020617; border: 1px solid #1f2937; border-radius: 10px; color: #fff; padding: 12px; box-sizing: border-box; }
-        input[type="radio"] { accent-color: var(--accent); }
+        body { font-family: sans-serif; padding: 20px; color: white; background: #212121; }
+        .card { background: #333; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
+        button { background: #0088cc; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <div id="tab-order" class="tab-content active">
-            <h1>Новый заказ</h1>
-            <div class="card">
-                <label class="service-option">
-                    <input type="radio" name="service" value="seo" checked>
-                    <div><span style="display:block;font-weight:600">SEO Оптимизация</span><span style="color:#a5b4fc">130 ₽</span></div>
-                </label>
-                <label class="service-option">
-                    <input type="radio" name="service" value="archive">
-                    <div><span style="display:block;font-weight:600">Архив</span><span style="color:#a5b4fc">250 ₽</span></div>
-                </label>
-            </div>
-            <div class="card">
-                <textarea id="order-text" placeholder="Описание задачи..."></textarea>
-            </div>
-        </div>
-
-        <div id="tab-profile" class="tab-content">
-            <h1>Мой профиль</h1>
-            <div class="profile-card">
-                <div class="balance-label">Ваш баланс</div>
-                <div class="balance-amount" id="user-balance">0.00 ₽</div>
-                <div style="font-size: 13px; color: var(--text-dim);">ID: <span id="display-id">---</span></div>
-            </div>
-            
-            <div class="card" style="margin-top: 20px;">
-                <div style="font-weight: 600; margin-bottom: 10px;">Статистика</div>
-                <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                    <span>Заказов в работе:</span>
-                    <span style="color: var(--accent);">0</span>
-                </div>
-            </div>
-        </div>
+    <div id="profile" class="card">
+        <h3>Профиль</h3>
+        <p>ID: <span id="userId">...</span></p>
+        <p>Баланс: <span id="balance">0</span> руб.</p>
     </div>
 
-    <nav class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('order')">
-            <span class="nav-icon">🛒</span>
-            <span>Заказ</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('profile')">
-            <span class="nav-icon">👤</span>
-            <span>Профиль</span>
-        </div>
-    </nav>
+    <div class="card">
+        <h3>Заказать услугу</h3>
+        <input type="text" id="comment" placeholder="Комментарий к заказу" style="width: 90%; margin-bottom: 10px;">
+        <button onclick="makeOrder(500)">Купить за 500 руб.</button>
+    </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
+        const serverUrl = "https://твой-сервер.com"; // URL где запущен Python бот
+        const userId = tg.initDataUnsafe.user.id;
 
-        // Данные пользователя
-        const user = tg.initDataUnsafe?.user;
-        if (user) {
-            document.getElementById('display-id').innerText = user.id;
-            // Здесь в будущем можно сделать запрос к БД и получить реальный баланс
-            document.getElementById('user-balance').innerText = "1,250.00 ₽";
-        }
+        document.getElementById('userId').innerText = userId;
 
-        function switchTab(tabName) {
-            // Вибрация при переключении
-            tg.HapticFeedback.impactOccurred('light');
+        // Загрузка профиля
+        fetch(`${serverUrl}/get_profile?user_id=${userId}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('balance').innerText = data.balance;
+            });
 
-            // Переключение контента
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + tabName).classList.add('active');
-
-            // Переключение кнопок меню
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-
-            // Управляем кнопкой "Отправить" (скрываем в профиле)
-            if (tabName === 'order') {
-                tg.MainButton.show();
-            } else {
-                tg.MainButton.hide();
-            }
-        }
-
-        // Логика основной кнопки
-        tg.MainButton.setText("ОТПРАВИТЬ ЗАКАЗ").show();
-        tg.onEvent('mainButtonClicked', () => {
-            const service = document.querySelector('input[name="service"]:checked').value;
-            const text = document.getElementById('order-text').value;
+        async function makeOrder(price) {
+            const comment = document.getElementById('comment').value;
+            const response = await fetch(`${serverUrl}/create_order`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_id: userId, price: price, comment: comment })
+            });
             
-            if(text.length < 3) {
-                tg.showAlert("Пожалуйста, заполните описание");
-                return;
+            const result = await response.json();
+            if (result.success) {
+                alert("Заказ создан!");
+                document.getElementById('balance').innerText = result.new_balance;
+            } else {
+                alert("Ошибка: " + result.error);
             }
-
-            tg.sendData(JSON.stringify({service, text}));
-            tg.close();
-        });
+        }
+        tg.expand();
     </script>
 </body>
 </html>
