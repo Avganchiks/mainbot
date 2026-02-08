@@ -2,67 +2,76 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); padding: 15px; }
+        body { font-family: sans-serif; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); margin: 0; padding: 20px; }
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab { flex: 1; padding: 10px; border: none; background: var(--tg-theme-secondary-bg-color); border-radius: 8px; color: var(--tg-theme-hint-color); }
-        .tab.active { background: var(--tg-theme-button-color); color: white; }
+        .tab { flex: 1; padding: 12px; border: none; border-radius: 10px; background: var(--tg-theme-secondary-bg-color); color: var(--tg-theme-hint-color); font-weight: bold; }
+        .tab.active { background: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); }
         .content { display: none; }
         .content.active { display: block; }
-        .card { background: var(--tg-theme-secondary-bg-color); padding: 15px; border-radius: 10px; }
-        select, textarea { width: 100%; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
-        button.send { width: 100%; padding: 15px; background: var(--tg-theme-button-color); color: white; border: none; border-radius: 8px; font-weight: bold; }
+        .card { background: var(--tg-theme-secondary-bg-color); padding: 15px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        select, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); }
+        .main-btn { width: 100%; padding: 16px; background: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); border: none; border-radius: 12px; font-size: 16px; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <div class="tabs">
-        <button id="t1" class="tab active" onclick="tab('orders')">Заказы</button>
-        <button id="t2" class="tab" onclick="tab('profile')">Профиль</button>
+
+<div class="tabs">
+    <button id="btn-1" class="tab active" onclick="openTab('orders')">Заказы</button>
+    <button id="btn-2" class="tab" onclick="openTab('profile')">Профиль</button>
+</div>
+
+<div id="orders" class="content active">
+    <div class="card">
+        <label>Выберите услугу:</label>
+        <select id="service">
+            <option value="Архив">Архив (50$)</option>
+            <option value="Сео">Сео (100$)</option>
+            <option value="Залив">Залив (150$)</option>
+        </select>
+        <textarea id="task" rows="5" placeholder="Введите техническое задание..."></textarea>
+        <button class="main-btn" onclick="sendOrder()">Отправить и оплатить</button>
     </div>
+</div>
 
-    <div id="orders" class="content active">
-        <div class="card">
-            <select id="srv">
-                <option value="Архив">Архив (50$)</option>
-                <option value="Сео">Сео (100$)</option>
-                <option value="Залив">Залив (150$)</option>
-            </select>
-            <textarea id="tz" rows="5" placeholder="Ваше ТЗ..."></textarea>
-            <button class="send" onclick="sendData()">Отправить заказ</button>
-        </div>
+<div id="profile" class="content">
+    <div class="card">
+        <p>Ваш ID: <b id="user-id"></b></p>
+        <p>Баланс: <i>Обновляется в боте</i></p>
     </div>
+</div>
 
-    <div id="profile" class="content">
-        <div class="card">
-            <p>Ваш ID: <b id="myid"></b></p>
-            <p>Баланс: <i>Смотрите в чате бота</i></p>
-        </div>
-    </div>
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    document.getElementById('user-id').innerText = tg.initDataUnsafe.user?.id || "Неизвестно";
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        document.getElementById('myid').innerText = tg.initDataUnsafe.user.id;
+    function openTab(name) {
+        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(name).classList.add('active');
+        if(name === 'orders') document.getElementById('btn-1').classList.add('active');
+        else document.getElementById('btn-2').classList.add('active');
+    }
 
-        function tab(name) {
-            document.querySelectorAll('.content').forEach(e => e.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(e => e.classList.remove('active'));
-            document.getElementById(name).classList.add('active');
-            event.target.classList.add('active');
+    function sendOrder() {
+        const srv = document.getElementById('service').value;
+        const desc = document.getElementById('task').value.trim();
+
+        if (!desc) {
+            tg.showAlert("Вы не ввели ТЗ!");
+            return;
         }
 
-        function sendData() {
-            const data = {
-                service: document.getElementById('srv').value,
-                description: document.getElementById('tz').value
-            };
-            
-            if (!data.description) return alert("Введите ТЗ");
+        const data = {
+            service: srv,
+            description: desc
+        };
 
-            // ТЕПЕРЬ СРАБОТАЕТ, так как URL чистый
-            tg.sendData(JSON.stringify(data));
-        }
-    </script>
+        tg.sendData(JSON.stringify(data));
+    }
+</script>
 </body>
 </html>
