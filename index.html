@@ -1,60 +1,41 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --bg: var(--tg-theme-bg-color, #1a1c20);
-            --text: var(--tg-theme-text-color, #ffffff);
-            --hint: var(--tg-theme-hint-color, #707579);
-            --btn: var(--tg-theme-button-color, #3390ec);
-            --btn-txt: var(--tg-theme-button-text-color, #ffffff);
-            --sec-bg: var(--tg-theme-secondary-bg-color, #242a30);
-        }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab { flex: 1; padding: 12px; border: none; border-radius: 10px; background: var(--sec-bg); color: var(--hint); font-weight: bold; cursor: pointer; }
-        .tab.active { background: var(--btn); color: var(--btn-txt); }
-        .card { background: var(--sec-bg); padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .content { display: none; }
-        .content.active { display: block; }
-        select, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #3d444b; background: var(--bg); color: var(--text); box-sizing: border-box; }
-        .main-btn { width: 100%; padding: 16px; background: var(--btn); color: var(--btn-txt); border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #3d444b; padding-bottom: 10px; }
+        body { font-family: sans-serif; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); padding: 15px; }
+        .card { background: var(--tg-theme-secondary-bg-color); padding: 15px; border-radius: 12px; margin-top: 10px; }
+        select, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); box-sizing: border-box; }
+        .tabs { display: flex; gap: 10px; }
+        .tab { flex: 1; padding: 10px; border: none; border-radius: 8px; background: #333; color: #999; }
+        .tab.active { background: var(--tg-theme-button-color); color: white; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
 <div class="tabs">
-    <button id="b-orders" class="tab active" onclick="tab('orders')">Заказы</button>
-    <button id="b-profile" class="tab" onclick="tab('profile')">Профиль</button>
+    <button id="t1" class="tab active" onclick="show('ord')">Заказ</button>
+    <button id="t2" class="tab" onclick="show('prof')">Профиль</button>
 </div>
 
-<div id="orders" class="content active">
+<div id="ord">
     <div class="card">
-        <h3>Новый заказ</h3>
-        <select id="service">
+        <select id="srv" onchange="updateMainButton()">
             <option value="Архив">Архив (50$)</option>
             <option value="Сео">Сео (100$)</option>
             <option value="Залив">Залив (150$)</option>
         </select>
-        <textarea id="task" rows="5" placeholder="Введите ваше ТЗ здесь..."></textarea>
-        <button class="main-btn" onclick="send()">Отправить и оплатить</button>
+        <textarea id="task" rows="5" placeholder="Введите ТЗ..." oninput="updateMainButton()"></textarea>
     </div>
 </div>
 
-<div id="profile" class="content">
+<div id="prof" class="hidden">
     <div class="card">
-        <div class="info-row">
-            <span>Ваш ID:</span>
-            <span id="u_id" style="font-weight:bold;">...</span>
-        </div>
-        <div class="info-row">
-            <span>Ваш баланс:</span>
-            <span id="u_bal" style="color: #31b545; font-weight:bold;">0.00 $</span>
-        </div>
+        <p>Ваш ID: <b id="ui"></b></p>
+        <p>Баланс: <b id="ub"></b></p>
     </div>
 </div>
 
@@ -62,42 +43,60 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // ЧИТАЕМ ДАННЫЕ ИЗ URL (для надежности)
-    const urlParams = new URLSearchParams(window.location.search);
-    const idFromUrl = urlParams.get('id');
-    const balFromUrl = urlParams.get('bal');
+    // Парсим ID из URL
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get('id') || "Неизвестно";
+    const userBal = params.get('bal') || "0";
 
-    // Если в URL пусто, пробуем из системы TG
-    const finalId = idFromUrl || tg.initDataUnsafe.user?.id || "Неизвестно";
-    const finalBal = balFromUrl || "0.00";
+    document.getElementById('ui').innerText = userId;
+    document.getElementById('ub').innerText = userBal + "$";
 
-    document.getElementById('u_id').innerText = finalId;
-    document.getElementById('u_bal').innerText = finalBal + " $";
+    // Настройка главной кнопки Telegram
+    tg.MainButton.setText("ОТПРАВИТЬ ЗАКАЗ");
+    tg.MainButton.show();
 
-    function tab(name) {
-        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(name).classList.add('active');
-        document.getElementById('b-' + name).classList.add('active');
+    function updateMainButton() {
+        const desc = document.getElementById('task').value.trim();
+        if (desc.length > 3) {
+            tg.MainButton.enable();
+            tg.MainButton.setParams({color: "#248bed"}); 
+        } else {
+            tg.MainButton.setParams({color: "#666666"});
+        }
     }
 
-    function send() {
-        const srv = document.getElementById('service').value;
-        const tsk = document.getElementById('task').value.trim();
-
-        if (!tsk) {
-            tg.showAlert("Вы не ввели ТЗ!");
+    // Слушатель нажатия на кнопку Telegram
+    tg.onEvent('mainButtonClicked', function() {
+        const data = {
+            service: document.getElementById('srv').value,
+            description: document.getElementById('task').value.trim()
+        };
+        
+        if (data.description.length < 5) {
+            tg.showAlert("Слишком короткое ТЗ!");
             return;
         }
 
-        const result = {
-            service: srv,
-            description: tsk,
-            user_id: finalId
-        };
+        tg.sendData(JSON.stringify(data));
+    });
 
-        tg.sendData(JSON.stringify(result));
+    function show(id) {
+        if (id === 'ord') {
+            document.getElementById('ord').classList.remove('hidden');
+            document.getElementById('prof').classList.add('hidden');
+            document.getElementById('t1').classList.add('active');
+            document.getElementById('t2').classList.remove('active');
+            tg.MainButton.show();
+        } else {
+            document.getElementById('ord').classList.add('hidden');
+            document.getElementById('prof').classList.remove('hidden');
+            document.getElementById('t2').classList.add('active');
+            document.getElementById('t1').classList.remove('active');
+            tg.MainButton.hide();
+        }
     }
+    
+    updateMainButton();
 </script>
 </body>
 </html>
