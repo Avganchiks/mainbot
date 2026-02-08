@@ -5,14 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); padding: 15px; }
-        .card { background: var(--tg-theme-secondary-bg-color); padding: 15px; border-radius: 12px; margin-top: 10px; }
-        select, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); box-sizing: border-box; font-size: 16px; }
-        .tabs { display: flex; gap: 10px; }
-        .tab { flex: 1; padding: 10px; border: none; border-radius: 8px; background: #333; color: #999; cursor: pointer; }
+        body { font-family: sans-serif; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); padding: 15px; margin: 0; }
+        .card { background: var(--tg-theme-secondary-bg-color); padding: 20px; border-radius: 15px; margin-top: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        select, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #444; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); box-sizing: border-box; font-size: 16px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 10px; }
+        .tab { flex: 1; padding: 12px; border: none; border-radius: 10px; background: #333; color: #999; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .tab.active { background: var(--tg-theme-button-color); color: white; }
         .hidden { display: none; }
         b { color: var(--tg-theme-button-color); }
+        
+        /* Кнопка пополнения */
+        .dep-btn { width: 100%; background: #28a745; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }
+        .dep-btn:active { transform: scale(0.98); opacity: 0.9; }
     </style>
 </head>
 <body>
@@ -30,24 +34,26 @@
             <option value="Архив">Архив — 250 руб.</option>
             <option value="Залив">Залив — 100 руб.</option>
         </select>
-        <textarea id="task" rows="5" placeholder="Введите ваше ТЗ..." oninput="updateButton()"></textarea>
+        <textarea id="task" rows="5" placeholder="Опишите задачу (минимум 5 символов)..." oninput="updateButton()"></textarea>
     </div>
 </div>
 
 <div id="prof" class="hidden">
-    <div class="card">
-        <p>Ваш ID: <b id="ui"></b></p>
-        <p>Баланс: <b id="ub"></b></p>
+    <div class="card" style="text-align: center;">
+        <p style="margin: 5px 0; opacity: 0.8;">Ваш ID: <b id="ui"></b></p>
+        <h2 style="margin: 10px 0;">Баланс: <span id="ub" style="color: #28a745;"></span></h2>
+        <button class="dep-btn" onclick="startDeposit()">➕ Пополнить баланс</button>
+        <p style="font-size: 12px; color: #888; margin-top: 15px;">После пополнения в боте, перезайдите в приложение для обновления счета.</p>
     </div>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
-    // ОБНОВЛЕННЫЕ ЦЕНЫ В РУБЛЯХ
+    tg.expand(); // Развернуть на весь экран
+
     const prices = { "Сео": 130, "Архив": 250, "Залив": 100 };
-    
     const params = new URLSearchParams(window.location.search);
-    const userId = params.get('id') || "—";
+    const userId = params.get('id') || "Не определен";
     let balance = parseFloat(params.get('bal')) || 0;
 
     function refreshUI() {
@@ -56,17 +62,14 @@
     }
     refreshUI();
 
-    tg.MainButton.setText("ОТПРАВИТЬ ЗАКАЗ");
-    tg.MainButton.show();
-
     function updateButton() {
         const srv = document.getElementById('srv').value;
         const cost = prices[srv];
         const desc = document.getElementById('task').value.trim();
 
-        if (desc.length > 4) {
+        if (desc.length >= 5) {
             if (balance < cost) {
-                tg.MainButton.setParams({text: `МАЛО СРЕДСТВ (${cost} руб.)`, color: "#ff4444", is_active: false});
+                tg.MainButton.setParams({text: `НЕДОСТАТОЧНО СРЕДСТВ (${cost} руб.)`, color: "#e74c3c", is_active: false});
             } else {
                 tg.MainButton.setParams({text: `ОПЛАТИТЬ ${cost} РУБ.`, color: "#248bed", is_active: true});
             }
@@ -75,18 +78,20 @@
         }
     }
 
+    // Функция вызова пополнения
+    function startDeposit() {
+        tg.sendData(JSON.stringify({ action: "start_deposit" }));
+        tg.close();
+    }
+
     tg.onEvent('mainButtonClicked', function() {
         const srv = document.getElementById('srv').value;
-        const cost = prices[srv];
-        
-        balance -= cost; 
-        refreshUI();
-
+        const desc = document.getElementById('task').value;
         tg.sendData(JSON.stringify({
             service: srv,
-            description: document.getElementById('task').value
+            description: desc
         }));
-        setTimeout(() => tg.close(), 500);
+        tg.close();
     });
 
     function show(id) {
@@ -97,6 +102,8 @@
         id === 'ord' ? tg.MainButton.show() : tg.MainButton.hide();
     }
     
+    tg.MainButton.setText("ОТПРАВИТЬ ЗАКАЗ");
+    tg.MainButton.show();
     updateButton();
 </script>
 </body>
