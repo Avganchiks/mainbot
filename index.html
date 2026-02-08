@@ -60,19 +60,38 @@
         }
 
         function sendOrder(name, price) {
-            let comment = prompt("Введите ссылку или ТЗ:");
-            if (comment) {
-                tg.sendData(JSON.stringify({service: name, price: price, comment: comment}));
-            }
-        }
+    // 1. Берем текущий баланс из заголовка (убираем символ '₽' и переводим в число)
+    let currentBalElement = document.getElementById('u_bal');
+    let currentBal = parseInt(currentBalElement.innerText.replace('₽', ''));
 
-        // ПОЛУЧЕНИЕ ДАННЫХ ИЗ URL
-        const params = new URLSearchParams(window.location.search);
-        const myId = params.get('id');
-        const myBal = params.get('balance');
+    // 2. Проверяем, хватит ли денег (дублируем проверку для красоты)
+    if (currentBal < price) {
+        alert("Недостаточно средств на балансе!");
+        return;
+    }
 
-        if (myId) document.getElementById('u_id').innerText = myId;
-        if (myBal) document.getElementById('u_bal').innerText = myBal + '₽';
+    let comment = prompt("Введите ссылку или ТЗ:");
+    if (comment) {
+        // 3. ВИЗУАЛЬНОЕ ОБНОВЛЕНИЕ: вычитаем сумму прямо сейчас
+        let newBal = currentBal - price;
+        currentBalElement.innerText = newBal + '₽';
+        
+        // Добавим анимацию (опционально), чтобы юзер видел, что баланс изменился
+        currentBalElement.style.color = "#ff4444"; 
+        setTimeout(() => { currentBalElement.style.color = "#4CAF50"; }, 500);
+
+        // 4. Отправляем данные боту (он спишет деньги в реальной базе)
+        tg.sendData(JSON.stringify({
+            service: name, 
+            price: price, 
+            comment: comment
+        }));
+
+        // Если хочешь, чтобы приложение закрывалось сразу после заказа:
+        // tg.close(); 
+    }
+}
     </script>
 </body>
 </html>
+
