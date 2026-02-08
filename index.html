@@ -2,221 +2,217 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Premium Bot Shop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Premium Shop</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: var(--tg-theme-bg-color, #f4f7f9);
-            --text-color: var(--tg-theme-text-color, #1c1c1e);
-            --hint-color: var(--tg-theme-hint-color, #8e8e93);
-            --main-btn: var(--tg-theme-button-color, #007aff);
-            --main-btn-text: var(--tg-theme-button-text-color, #ffffff);
-            --secondary-bg: var(--tg-theme-secondary-bg-color, #ffffff);
-            --accent: #34c759;
+            --bg: var(--tg-theme-bg-color, #f4f7f9);
+            --sec-bg: var(--tg-theme-secondary-bg-color, #ffffff);
+            --text: var(--tg-theme-text-color, #1c1c1e);
+            --hint: var(--tg-theme-hint-color, #8e8e93);
+            --accent: var(--tg-theme-button-color, #007aff);
+            --accent-text: var(--tg-theme-button-text-color, #ffffff);
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: var(--bg);
+            color: var(--text);
             margin: 0;
             padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            animation: fadeIn 0.4s ease-out;
+            padding-bottom: 90px; /* Отступ под меню */
+            overflow-x: hidden;
             -webkit-user-select: none;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Табы */
-        .tabs {
-            display: flex;
-            background: var(--secondary-bg);
-            padding: 4px;
-            border-radius: 14px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-
-        .tab {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 11px;
-            background: transparent;
-            color: var(--hint-color);
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .tab.active {
-            background: var(--main-btn);
-            color: var(--main-btn-text);
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        /* Заголовки */
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            margin-left: 4px;
         }
 
         /* Карточки */
         .card {
-            background: var(--secondary-bg);
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--sec-bg);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.02);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .card-label {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
-            color: var(--hint-color);
+            color: var(--hint);
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
             display: block;
         }
 
-        /* Поля ввода */
+        /* Поля */
         select, textarea {
             width: 100%;
-            background: var(--bg-color);
-            border: 2px solid transparent;
-            border-radius: 16px;
-            padding: 16px;
+            background: var(--bg);
+            border: 1.5px solid transparent;
+            border-radius: 14px;
+            padding: 14px;
             font-size: 16px;
-            color: var(--text-color);
-            margin-top: 5px;
+            color: var(--text);
             outline: none;
-            transition: all 0.2s ease;
             box-sizing: border-box;
+            transition: 0.2s;
             font-family: inherit;
         }
 
-        select:focus, textarea:focus {
-            border-color: var(--main-btn);
-            background: var(--secondary-bg);
-            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
-        }
-
-        textarea { resize: none; }
+        select:focus, textarea:focus { border-color: var(--accent); }
 
         /* Профиль */
-        .balance-card {
-            background: linear-gradient(135deg, var(--main-btn), #0051ff);
+        .balance-box {
+            background: linear-gradient(135deg, var(--accent), #5856d6);
             color: white;
             text-align: center;
         }
-        
-        .balance-card .card-label { color: rgba(255,255,255,0.7); }
-        .balance-title { font-size: 38px; font-weight: 800; margin: 8px 0; }
-        .user-id { font-size: 13px; opacity: 0.8; }
+        .balance-val { font-size: 36px; font-weight: 800; margin: 8px 0; }
 
-        /* Кнопки */
+        /* НИЖНЕЕ МЕНЮ (Плитки) */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: var(--sec-bg);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--hint);
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--accent);
+        }
+
+        .nav-icon {
+            font-size: 22px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* Кнопки в профиле */
         .btn {
             width: 100%;
+            padding: 14px;
+            border-radius: 14px;
             border: none;
-            border-radius: 18px;
-            padding: 18px;
-            font-size: 16px;
-            font-weight: 700;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            transition: 0.2s;
+            margin-top: 10px;
         }
-
-        .btn:active { transform: scale(0.97); opacity: 0.9; }
-
-        .btn-deposit {
-            background: #ffffff;
-            color: var(--main-btn);
-            margin-top: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .btn-refresh {
-            background: rgba(142, 142, 147, 0.1);
-            color: var(--text-color);
-            margin-top: 12px;
-        }
+        .btn-main { background: var(--accent); color: white; }
+        .btn-sec { background: rgba(142,142,147,0.1); color: var(--text); }
 
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
-<div class="tabs">
-    <button id="t1" class="tab active" onclick="show('ord')">Магазин</button>
-    <button id="t2" class="tab" onclick="show('prof')">Профиль</button>
-</div>
-
-<div id="ord">
+<div id="ord-page">
+    <div class="page-title">Магазин</div>
     <div class="card">
-        <span class="card-label">Услуга</span>
+        <span class="card-label">Выберите тип услуги</span>
         <select id="srv" onchange="updateButton()">
             <option value="Сео">🔥 Сео продвижение — 130₽</option>
             <option value="Архив">📦 Сбор архива — 250₽</option>
             <option value="Залив">🚀 Быстрый залив — 100₽</option>
         </select>
     </div>
-
-    <div class="card" style="margin-top: 16px;">
-        <span class="card-label">Детали заказа</span>
-        <textarea id="task" rows="4" placeholder="Опишите ваше ТЗ..." oninput="updateButton()"></textarea>
-        <div style="font-size: 12px; color: var(--hint-color); margin-top: 8px; display: flex; justify-content: space-between;">
-            <span>Минимум 5 символов</span>
-            <span id="charCount">0</span>
-        </div>
+    <div class="card">
+        <span class="card-label">Техническое задание</span>
+        <textarea id="task" rows="4" placeholder="Введите детали заказа..." oninput="updateButton()"></textarea>
     </div>
 </div>
 
-<div id="prof" class="hidden">
-    <div class="card balance-card">
-        <span class="card-label">Доступные средства</span>
-        <div class="balance-title"><span id="ub">0</span> ₽</div>
-        <div class="user-id">ID: <span id="ui">000000</span></div>
-        
-        <button class="btn btn-deposit" onclick="sendAction('deposit')">
-            <span>➕</span> Пополнить
-        </button>
+<div id="prof-page" class="hidden">
+    <div class="page-title">Профиль</div>
+    <div class="card balance-box">
+        <span class="card-label" style="color: rgba(255,255,255,0.7)">Мой баланс</span>
+        <div class="balance-val"><span id="ub">0</span> ₽</div>
+        <div style="font-size: 12px; opacity: 0.8;">ID: <span id="ui">0</span></div>
     </div>
-    
-    <button class="btn btn-refresh" onclick="sendAction('refresh')">
-        <span>🔄</span> Обновить данные
-    </button>
+    <button class="btn btn-main" onclick="sendAction('deposit')">➕ Пополнить баланс</button>
+    <button class="btn btn-sec" onclick="sendAction('refresh')">🔄 Обновить данные</button>
 </div>
+
+<nav class="nav-bar">
+    <div id="nav-ord" class="nav-item active" onclick="showPage('ord')">
+        <span class="nav-icon">🛒</span>
+        <span class="nav-label">Заказы</span>
+    </div>
+    <div id="nav-prof" class="nav-item" onclick="showPage('prof')">
+        <span class="nav-icon">👤</span>
+        <span class="nav-label">Профиль</span>
+    </div>
+</nav>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
     tg.headerColor = 'secondary_bg_color';
-    tg.enableClosingConfirmation();
 
     const prices = { "Сео": 130, "Архив": 250, "Залив": 100 };
     const params = new URLSearchParams(window.location.search);
     
-    const userId = params.get('id') || "User";
+    document.getElementById('ui').innerText = params.get('id') || "User";
     const balance = parseFloat(params.get('bal')) || 0;
+    document.getElementById('ub').innerText = balance.toFixed(2);
 
-    document.getElementById('ui').innerText = userId;
-    document.getElementById('ub').innerText = balance.toLocaleString('ru-RU');
-
-    function show(id) {
-        document.getElementById('ord').classList.toggle('hidden', id !== 'ord');
-        document.getElementById('prof').classList.toggle('hidden', id !== 'prof');
-        document.getElementById('t1').classList.toggle('active', id === 'ord');
-        document.getElementById('t2').classList.toggle('active', id === 'prof');
+    function showPage(page) {
+        tg.HapticFeedback.impactOccurred('light');
         
-        if(id === 'ord') { 
-            tg.MainButton.show(); 
+        // Скрываем/Показываем страницы
+        document.getElementById('ord-page').classList.toggle('hidden', page !== 'ord');
+        document.getElementById('prof-page').classList.toggle('hidden', page !== 'prof');
+
+        // Активные классы в меню
+        document.getElementById('nav-ord').classList.toggle('active', page === 'ord');
+        document.getElementById('nav-prof').classList.toggle('active', page === 'prof');
+
+        if(page === 'ord') {
+            tg.MainButton.show();
             updateButton();
-        } else { 
-            tg.MainButton.hide(); 
+        } else {
+            tg.MainButton.hide();
         }
     }
 
@@ -224,49 +220,32 @@
         const srv = document.getElementById('srv').value;
         const cost = prices[srv];
         const desc = document.getElementById('task').value.trim();
-        document.getElementById('charCount').innerText = desc.length;
 
         if (desc.length >= 5) {
             if (balance < cost) {
-                tg.MainButton.setParams({
-                    text: `НЕДОСТАТОЧНО СРЕДСТВ (${cost}₽)`, 
-                    color: "#ff3b30", 
-                    is_active: false
-                });
+                tg.MainButton.setParams({ text: `НЕДОСТАТОЧНО СРЕДСТВ (${cost}₽)`, color: "#ff3b30", is_active: false });
             } else {
-                tg.MainButton.setParams({
-                    text: `ОПЛАТИТЬ (${cost}₽)`, 
-                    color: "#007aff", 
-                    is_active: true
-                });
+                tg.MainButton.setParams({ text: `ЗАКАЗАТЬ (${cost}₽)`, color: "#007aff", is_active: true });
             }
         } else {
-            tg.MainButton.setParams({
-                text: "ЗАПОЛНИТЕ ТЗ", 
-                color: "#8e8e93", 
-                is_active: false
-            });
+            tg.MainButton.setParams({ text: "ЗАПОЛНИТЕ ТЗ", color: "#8e8e93", is_active: false });
         }
     }
 
-    function sendAction(actionName) {
+    function sendAction(action) {
         tg.HapticFeedback.impactOccurred('medium');
-        tg.sendData(JSON.stringify({ action: actionName }));
+        tg.sendData(JSON.stringify({ action: action }));
         tg.close();
     }
 
     tg.onEvent('mainButtonClicked', function() {
         const srv = document.getElementById('srv').value;
         const desc = document.getElementById('task').value;
-        tg.HapticFeedback.notificationOccurred('success');
-        tg.sendData(JSON.stringify({
-            action: 'order',
-            service: srv,
-            description: desc
-        }));
+        tg.sendData(JSON.stringify({ action: 'order', service: srv, description: desc }));
         tg.close();
     });
 
+    // Стартовая настройка
     tg.MainButton.show();
     updateButton();
 </script>
