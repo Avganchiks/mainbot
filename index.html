@@ -1,89 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: #1a1d21; color: white; margin: 0; padding: 15px; }
-        .page { display: none; }
-        .active { display: block; }
-        .card { background: #2b2f36; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #3d434d; }
-        .flex { display: flex; justify-content: space-between; align-items: center; }
-        .price { color: #4CAF50; font-weight: bold; }
-        button { border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .buy { background: #2481cc; color: white; padding: 10px 15px; }
-        .refresh-btn { background: #3d434d; color: #aaa; padding: 8px 12px; width: 100%; margin-top: 10px; font-size: 13px; }
-        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #2b2f36; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #444; }
-        .tab { background: none; color: #888; font-size: 12px; }
-        .tab.active { color: #2481cc; }
+        body { font-family: sans-serif; background: #1a1d21; color: white; margin: 0; padding: 20px; }
+        .card { background: #2b2f36; padding: 15px; border-radius: 12px; border: 1px solid #3d434d; margin-top: 10px; }
+        .flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .btn-refresh { 
+            background: #2481cc; color: white; border: none; width: 100%; 
+            padding: 12px; border-radius: 10px; font-weight: bold; margin-top: 15px;
+        }
+        #u_bal { color: #4CAF50; font-weight: bold; }
+        .status { font-size: 12px; color: #888; text-align: center; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="shop" class="page active">
-        <h2>🛒 Магазин</h2>
-        <div class="card flex">
-            <div><b>Архив</b><br><span class="price">250₽</span></div>
-            <button class="buy" onclick="sendOrder('Архив', 250)">Заказать</button>
-        </div>
+    <h2>👤 Профиль</h2>
+    <div class="card">
+        <div class="flex"><span>Ваш ID:</span> <span id="u_id">Загрузка...</span></div>
+        <div class="flex"><span>Баланс:</span> <span id="u_bal">0₽</span></div>
     </div>
 
-    <div id="profile" class="page">
-        <h2>👤 Профиль</h2>
-        <div class="card">
-            <div class="flex"><span>ID:</span> <span id="u_id">0</span></div>
-            <div class="flex" style="margin-top:10px;"><span>Баланс:</span> <span id="u_bal" style="color:#4CAF50">0₽</span></div>
-            <button class="refresh-btn" onclick="refreshBalance()">🔄 Обновить баланс</button>
-        </div>
-        <p style="font-size: 11px; color: #666; text-align: center;">При обновлении приложение закроется, и бот пришлет новую ссылку.</p>
-    </div>
-
-    <div class="tab-bar">
-        <button class="tab active" id="btn-shop" onclick="tab('shop')">МАГАЗИН</button>
-        <button class="tab" id="btn-profile" onclick="tab('profile')">ПРОФИЛЬ</button>
-    </div>
+    <button class="btn-refresh" onclick="refresh()">🔄 Обновить баланс</button>
+    <p class="status">При нажатии приложение закроется,<br>и бот пришлет новую ссылку.</p>
 
     <script>
-        let tg = window.Telegram.WebApp;
+        const tg = window.Telegram.WebApp;
         tg.expand();
 
-        function tab(name) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(name).classList.add('active');
-            document.getElementById('btn-' + name).classList.add('active');
+        // ФУНКЦИЯ ПОЛУЧЕНИЯ ДАННЫХ
+        function loadData() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            const bal = params.get('balance');
+
+            if (id) document.getElementById('u_id').innerText = id;
+            if (bal) document.getElementById('u_bal').innerText = bal + '₽';
         }
 
-        // Функция заказа (с визуальным списанием)
-        function sendOrder(name, price) {
-            let balElem = document.getElementById('u_bal');
-            let currentBal = parseInt(balElem.innerText);
-            
-            if (currentBal < price) {
-                alert("Недостаточно средств!");
-                return;
-            }
+        // Вызываем сразу
+        loadData();
 
-            let comment = prompt("Введите ссылку:");
-            if (comment) {
-                balElem.innerText = (currentBal - price) + '₽'; // Списали визуально
-                tg.sendData(JSON.stringify({service: name, price: price, comment: comment}));
-            }
-        }
-
-        // ФУНКЦИЯ ОБНОВЛЕНИЯ
-        function refreshBalance() {
-            // Отправляем сигнал боту
+        function refresh() {
+            // Отправляем сигнал боту на перегенерацию ссылки
             tg.sendData(JSON.stringify({action: 'refresh'}));
-            // Закрываем приложение, так как бот должен прислать новое сообщение
             tg.close();
         }
-
-        // Загрузка данных из URL
-        const params = new URLSearchParams(window.location.search);
-        document.getElementById('u_id').innerText = params.get('id') || 'Неизвестно';
-        document.getElementById('u_bal').innerText = (params.get('balance') || '0') + '₽';
     </script>
 </body>
 </html>
