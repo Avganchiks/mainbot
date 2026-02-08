@@ -2,82 +2,94 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); margin: 0; padding: 15px; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 10px; border: none; background: var(--tg-theme-secondary-bg-color); color: var(--tg-theme-hint-color); border-radius: 8px; cursor: pointer; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); margin: 0; padding: 15px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; position: sticky; top: 0; background: var(--tg-theme-bg-color); padding-bottom: 10px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: var(--tg-theme-secondary-bg-color); color: var(--tg-theme-hint-color); border-radius: 10px; cursor: pointer; font-weight: 600; }
         .tab-btn.active { background: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); }
-        .content { display: none; }
+        .content { display: none; animation: fadeIn 0.3s ease; }
         .content.active { display: block; }
-        .card { background: var(--tg-theme-secondary-bg-color); padding: 15px; border-radius: 12px; margin-bottom: 10px; }
-        select, textarea { width: 100%; padding: 10px; margin-top: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
-        .main-btn { width: 100%; padding: 15px; background: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); border: none; border-radius: 12px; font-weight: bold; margin-top: 15px; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .card { background: var(--tg-theme-secondary-bg-color); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        label { font-size: 14px; color: var(--tg-theme-hint-color); margin-bottom: 8px; display: block; }
+        select, textarea { width: 100%; padding: 12px; margin-top: 5px; border-radius: 10px; border: 1px solid var(--tg-theme-hint-color); background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); box-sizing: border-box; font-size: 16px; }
+        .main-btn { width: 100%; padding: 16px; background: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); border: none; border-radius: 12px; font-weight: bold; font-size: 16px; margin-top: 20px; cursor: pointer; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 8px; }
     </style>
 </head>
 <body>
 
 <div class="tabs">
-    <button class="tab-btn active" onclick="openTab('orders')">Заказы</button>
-    <button class="tab-btn" onclick="openTab('profile')">Профиль</button>
+    <button id="btn-orders" class="tab-btn active" onclick="openTab('orders')">Заказы</button>
+    <button id="btn-profile" class="tab-btn" onclick="openTab('profile')">Профиль</button>
 </div>
 
 <div id="orders" class="content active">
     <div class="card">
-        <label>Выберите услугу:</label>
+        <label>Категория заказа:</label>
         <select id="service-type">
             <option value="Архив">Архив</option>
             <option value="Сео">Сео</option>
             <option value="Залив">Залив</option>
         </select>
         
-        <label style="display:block; margin-top:15px;">Техническое задание (ТЗ):</label>
-        <textarea id="task-desc" rows="4" placeholder="Опишите детали заказа..."></textarea>
+        <label style="margin-top:20px;">Техническое задание (ТЗ):</label>
+        <textarea id="task-desc" rows="5" placeholder="Введите подробности вашего заказа..."></textarea>
         
-        <button class="main-btn" onclick="sendData()">Отправить заказ</button>
+        <button class="main-btn" onclick="sendOrder()">Отправить заказ</button>
     </div>
 </div>
 
 <div id="profile" class="content">
     <div class="card">
-        <p><b>ID:</b> <span id="user-id"></span></p>
-        <p><b>Баланс:</b> 0.00 $</p>
+        <div class="info-row">
+            <span>Ваш ID:</span>
+            <b id="user-id">Загрузка...</b>
+        </div>
+        <div class="info-row">
+            <span>Ваш баланс:</span>
+            <b style="color: #31b545;">0.00 $</b>
+        </div>
     </div>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
-    tg.expand();
+    tg.expand(); // Развернуть на весь экран
+    tg.ready();
 
-    // Заполнение профиля данными из ТГ
-    document.getElementById('user-id').innerText = tg.initDataUnsafe.user.id;
+    // Заполнение ID из Telegram
+    const userId = tg.initDataUnsafe?.user?.id || "Неизвестно";
+    document.getElementById('user-id').innerText = userId;
 
     function openTab(tabName) {
         document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabName).classList.add('active');
-        event.currentTarget.classList.add('active');
+        if (tabName === 'orders') document.getElementById('btn-orders').classList.add('active');
+        else document.getElementById('btn-profile').classList.add('active');
     }
 
-    function sendData() {
+    function sendOrder() {
         const service = document.getElementById('service-type').value;
-        const description = document.getElementById('task-desc').value;
+        const description = document.getElementById('task-desc').value.trim();
 
         if (!description) {
-            alert("Пожалуйста, заполните ТЗ!");
+            tg.showAlert("Пожалуйста, заполните поле ТЗ!");
             return;
         }
 
         const data = {
-            type: "new_order",
+            action: "new_order",
             service: service,
-            desc: description,
-            user_id: tg.initDataUnsafe.user.id,
-            username: tg.initDataUnsafe.user.username || "n/a"
+            description: description
         };
 
+        // Отправка данных боту
         tg.sendData(JSON.stringify(data));
-        tg.close();
+        // Приложение закроется само после этого вызова
     }
 </script>
 </body>
