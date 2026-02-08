@@ -6,73 +6,67 @@
     <title>Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: #1a1d21; color: white; margin: 0; padding-bottom: 70px; }
-        .container { padding: 20px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #1a1d21; color: white; margin: 0; padding: 20px; }
         .page { display: none; }
         .active { display: block; }
-
-        /* Карточки */
-        .card { background: #2b2f36; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; }
-        .btn { width: 100%; background: #2481cc; border: none; padding: 15px; color: white; border-radius: 10px; font-weight: bold; margin-top: 10px; }
-
-        /* Профиль */
-        .profile-box { text-align: center; background: #2b2f36; padding: 20px; border-radius: 15px; }
+        .profile-card { background: #2b2f36; padding: 20px; border-radius: 15px; text-align: center; }
         .row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #3d434d; }
-
-        /* Табы */
-        .tab-bar { position: fixed; bottom: 0; width: 100%; background: #2b2f36; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #3d434d; }
-        .tab { color: #888; border: none; background: none; font-size: 14px; cursor: pointer; }
-        .tab.active { color: #2481cc; }
+        .balance { color: #4CAF50; font-weight: bold; }
+        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #2b2f36; display: flex; justify-content: space-around; padding: 10px 0; }
+        .tab { background: none; border: none; color: #888; font-size: 16px; cursor: pointer; }
+        .tab.active { color: #2481cc; font-weight: bold; }
+        .btn-refresh { width: 100%; margin-top: 20px; background: #444; border: none; color: white; padding: 12px; border-radius: 8px; }
     </style>
 </head>
 <body>
 
-    <div id="shop" class="page active container">
-        <h2>Магазин услуг</h2>
-        <div class="card"><span>Архив</span><b>250₽</b></div>
-        <div class="card"><span>SEO</span><b>130₽</b></div>
-        <textarea id="note" style="width:100%; height:60px; border-radius:10px; margin-top:10px;" placeholder="Ваше ТЗ..."></textarea>
-        <button class="btn" onclick="sendOrder()">Заказать</button>
+    <div id="shop" class="page">
+        <h2>Магазин</h2>
+        <p>Выберите услугу в меню...</p>
     </div>
 
-    <div id="profile" class="page container">
-        <div class="profile-box">
-            <h2 id="user-name">User</h2>
-            <div class="row"><span>Ваш ID:</span><span id="user-id">...</span></div>
-            <div class="row"><span>Баланс:</span><b id="user-balance" style="color: #4CAF50;">0₽</b></div>
+    <div id="profile" class="page active">
+        <div class="profile-card">
+            <h2 id="display-name">User</h2>
+            <div class="row">
+                <span>Ваш ID:</span>
+                <span id="user-id">Загрузка...</span>
+            </div>
+            <div class="row">
+                <span>Баланс:</span>
+                <span id="user-balance" class="balance">0₽</span>
+            </div>
         </div>
-        <button class="btn" style="background:#444;" onclick="window.location.reload()">Обновить данные</button>
+        <button class="btn-refresh" onclick="location.reload()">Обновить данные</button>
     </div>
 
     <div class="tab-bar">
-        <button class="tab active" onclick="showPage('shop', this)">🛒 Магазин</button>
-        <button class="tab" onclick="showPage('profile', this)">👤 Профиль</button>
+        <button class="tab" onclick="switchTab('shop', this)">Магазин</button>
+        <button class="tab active" onclick="switchTab('profile', this)">Профиль</button>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Читаем данные из URL
-        const params = new URLSearchParams(window.location.search);
-        document.getElementById('user-id').innerText = params.get('id') || '0000';
-        document.getElementById('user-balance').innerText = (params.get('balance') || '0') + '₽';
+        // ЛОГИКА ПОЛУЧЕНИЯ ДАННЫХ ИЗ URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+        const balance = urlParams.get('balance');
 
-        if (tg.initDataUnsafe.user) {
-            document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name;
+        if (userId) document.getElementById('user-id').innerText = userId;
+        if (balance) document.getElementById('user-balance').innerText = balance + '₽';
+        
+        // Берем имя из данных Telegram
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            document.getElementById('display-name').innerText = tg.initDataUnsafe.user.first_name;
         }
 
-        function showPage(pageId, btn) {
+        function switchTab(tabId, btn) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
             btn.classList.add('active');
-        }
-
-        function sendOrder() {
-            let text = document.getElementById('note').value;
-            if(!text) return alert("Введите ТЗ");
-            tg.sendData(JSON.stringify({type: 'order', price: 0, text: text}));
         }
     </script>
 </body>
