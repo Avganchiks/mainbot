@@ -146,28 +146,49 @@
             });
         }
 
-        async function createTopupRequest(amount) {
-            const user = tg.initDataUnsafe?.user;
-            document.getElementById('st').innerText = "Создаем счет...";
-            try {
-                const r = await fetch(`${URL}/api/create_topup`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
-                    body: JSON.stringify({ user_id: user.id, amount: parseFloat(amount) })
-                });
-                const res = await r.json();
-                if (res.pay_url) {
-                    tg.openLink(res.pay_url);
-                } else {
-                    tg.showAlert("Ошибка платежной системы");
-                }
-            } catch (e) {
-                tg.showAlert("Ошибка связи с сервером");
-            } finally {
-                document.getElementById('st').innerText = "";
-            }
+       async function createTopupRequest(amount) {
+    const user = tg.initDataUnsafe?.user;
+    if (!user) {
+        tg.showAlert("Ошибка: Данные пользователя не найдены");
+        return;
+    }
+
+    document.getElementById('st').innerText = "Создаем счет...";
+    
+    try {
+        // Обязательно преобразуем в число и проверяем
+        const numAmount = parseFloat(amount.replace(',', '.')); 
+        
+        const r = await fetch(`${URL}/api/create_topup`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'ngrok-skip-browser-warning': 'true' // Важно для работы через Ngrok
+            },
+            body: JSON.stringify({ 
+                user_id: user.id, 
+                amount: numAmount 
+            })
+        });
+
+        if (!r.ok) {
+            throw new Error(`Ошибка сервера: ${r.status}`);
         }
 
+        const res = await r.json();
+        
+        if (res.pay_url) {
+            tg.openLink(res.pay_url);
+        } else {
+            tg.showAlert("Ошибка: Сервер не прислал ссылку на оплату");
+        }
+    } catch (e) {
+        console.error(e);
+        tg.showAlert("Ошибка связи с сервером. Проверьте, запущен ли бэкенд и Ngrok.");
+    } finally {
+        document.getElementById('st').innerText = "";
+    }
+}
         async function load() {
             const user = tg.initDataUnsafe?.user;
             if (!user) return;
@@ -270,3 +291,4 @@
     </script>
 </body>
 </html>
+
