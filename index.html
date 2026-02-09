@@ -222,7 +222,8 @@
     tg.backgroundColor = '#0b0e11';
 
     // --- НАСТРОЙКИ API ---
-    const API_URL = "http://127.0.0.1:8000"; // ЗАМЕНИ НА СВОЙ URL ПОСЛЕ ЗАПУСКА NGROK
+    // ВСТАВЛЕН ТВОЙ АКТУАЛЬНЫЙ АДРЕС NGROK
+    const API_URL = "https://plenteously-unpromising-emilee.ngrok-free.dev"; 
     
     let selectedService = "Сео";
     const prices = { "Сео": 130, "Архив": 250, "Залив": 100 };
@@ -233,6 +234,7 @@
     async function fetchUserData() {
         if (!userId) {
             document.getElementById('ui').innerText = "DemoMode";
+            document.getElementById('ub').innerText = "0";
             return;
         }
         
@@ -246,6 +248,7 @@
             updateButton();
         } catch (e) {
             console.error("Ошибка API:", e);
+            document.getElementById('ub').innerText = "Error";
         }
     }
 
@@ -351,10 +354,8 @@
         tg.showAlert("Для пополнения напишите менеджеру или используйте команду /deposit в боте.");
     }
 
-    // Слушатель кнопки
     tg.onEvent('mainButtonClicked', handlePayment);
 
-    // Инициализация
     fetchUserData();
     tg.MainButton.show();
     updateButton();
