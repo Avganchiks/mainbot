@@ -3,29 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini App Store</title>
+    <title>Store App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: #1c2733; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: #242f3d; padding: 25px; border-radius: 20px; text-align: center; width: 280px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .tg-id { color: #64b5f6; font-size: 12px; margin-bottom: 10px; opacity: 0.8; }
-        .balance { font-size: 38px; font-weight: bold; color: #fff; margin: 10px 0; }
-        .btn { background: #3390ec; color: white; border: none; padding: 12px; border-radius: 12px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-buy { background: #ff5252; }
-        .btn:active { transform: scale(0.98); }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1c2733; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #242f3d; padding: 25px; border-radius: 20px; text-align: center; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .user-name { font-weight: bold; font-size: 18px; margin-bottom: 5px; }
+        .tg-id { color: #64b5f6; font-size: 12px; margin-bottom: 15px; opacity: 0.8; }
+        .balance-box { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; margin-bottom: 20px; }
+        .balance-val { font-size: 36px; font-weight: bold; color: #fff; display: block; }
+        .btn { background: #3390ec; color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-buy { background: #f44336; margin-top: 10px; }
+        .btn:active { transform: scale(0.97); opacity: 0.8; }
+        .btn:disabled { background: #555; cursor: not-allowed; }
         .status { font-size: 11px; color: #708499; margin-top: 15px; }
     </style>
 </head>
 <body>
     <div class="card">
-        <div id="name" style="font-weight: bold;">Загрузка...</div>
+        <div id="name" class="user-name">Загрузка...</div>
         <div id="user-id" class="tg-id">ID: 00000000</div>
         
-        <div style="color:#aaa; font-size: 14px;">Ваш баланс:</div>
-        <div class="balance"><span id="bal">0</span> ₽</div>
+        <div class="balance-box">
+            <span style="color:#aaa; font-size: 13px;">Ваш баланс:</span>
+            <span id="bal" class="balance-val">0</span>
+        </div>
         
-        <button class="btn" onclick="load()">Обновить баланс</button>
-        <button class="btn btn-buy" id="buy-btn" onclick="makeOrder()">Купить за 500 ₽</button>
+        <button class="btn" onclick="load()">🔄 Обновить баланс</button>
+        <button class="btn btn-buy" id="buy-btn" onclick="makeOrder()">🛒 Купить за 500 ₽</button>
         
         <div id="st" class="status">Синхронизация...</div>
     </div>
@@ -34,13 +39,17 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
+        // Проверь актуальность ссылки ngrok!
         const URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev';
 
         async function load() {
             const user = tg.initDataUnsafe?.user;
-            if (!user) return;
+            if (!user) {
+                document.getElementById('st').innerText = "Запустите из TG";
+                return;
+            }
 
-            document.getElementById('name').innerText = user.first_name;
+            document.getElementById('name').innerText = user.first_name + " " + (user.last_name || "");
             document.getElementById('user-id').innerText = "ID: " + user.id;
 
             try {
@@ -48,10 +57,10 @@
                     headers: { 'ngrok-skip-browser-warning': 'true' }
                 });
                 const data = await r.json();
-                document.getElementById('bal').innerText = Math.floor(data.balance);
-                document.getElementById('st').innerText = "Данные обновлены";
+                document.getElementById('bal').innerText = Math.floor(data.balance).toLocaleString() + " ₽";
+                document.getElementById('st').innerText = "Данные обновлены ✅";
             } catch (e) {
-                document.getElementById('st').innerText = "Ошибка связи";
+                document.getElementById('st').innerText = "Ошибка сервера ❌";
             }
         }
 
@@ -59,25 +68,33 @@
             const user = tg.initDataUnsafe?.user;
             const btn = document.getElementById('buy-btn');
             
-            if (!confirm("Списать 500₽ с баланса?")) return;
+            if (!confirm("Подтвердить покупку на 500₽?")) return;
 
             btn.disabled = true;
+            document.getElementById('st').innerText = "Оформление заказа...";
+
             try {
                 const r = await fetch(`${URL}/api/create_order`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
-                    body: JSON.stringify({ user_id: user.id })
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'ngrok-skip-browser-warning': 'true' 
+                    },
+                    body: JSON.stringify({ 
+                        user_id: user.id,
+                        user_name: user.first_name + (user.username ? ` (@${user.username})` : "")
+                    })
                 });
 
                 const res = await r.json();
                 if (r.ok) {
-                    tg.showPopup({ title: "Успех!", message: "Товар оплачен", buttons: [{type: "ok"}] });
+                    tg.showPopup({ title: "Успешно!", message: "Заказ отправлен сотрудникам", buttons: [{type: "ok"}] });
                     load();
                 } else {
                     tg.showAlert("Ошибка: " + res.error);
                 }
             } catch (e) {
-                tg.showAlert("Сервер не отвечает");
+                tg.showAlert("Ошибка связи с сервером");
             } finally {
                 btn.disabled = false;
             }
