@@ -8,51 +8,61 @@
     <style>
         body { font-family: sans-serif; background: #1c2733; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .card { background: #242f3d; padding: 30px; border-radius: 20px; text-align: center; width: 280px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .balance { font-size: 42px; font-weight: bold; color: #64b5f6; margin: 15px 0; }
+        .user-info { color: #aaa; font-size: 14px; margin-bottom: 5px; }
+        .tg-id { color: #64b5f6; font-family: monospace; font-size: 12px; margin-bottom: 15px; }
+        .balance { font-size: 42px; font-weight: bold; color: #64b5f6; margin: 10px 0; }
         .btn { background: #3390ec; color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; font-size: 16px; cursor: pointer; }
-        .status { font-size: 12px; color: #708499; margin-top: 10px; }
+        .status { font-size: 11px; color: #708499; margin-top: 10px; }
     </style>
 </head>
 <body>
     <div class="card">
-        <div id="name">Загрузка...</div>
-        <div style="margin-top:10px; color:#aaa;">Ваш баланс:</div>
+        <div id="name" class="user-info">Загрузка...</div>
+        <div id="user-id" class="tg-id">ID: 00000000</div>
+        
+        <div style="color:#aaa; font-size: 14px;">Ваш баланс:</div>
         <div class="balance"><span id="bal">0</span> ₽</div>
-        <button class="btn" onclick="load()">Обновить</button>
-        <div id="st" class="status">Проверка связи...</div>
+        
+        <button class="btn" onclick="load()">Обновить данные</button>
+        <div id="st" class="status">Синхронизация...</div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Проверь, что ссылка точно такая же, как в терминале ngrok!
         const URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev';
 
         async function load() {
-            const id = tg.initDataUnsafe?.user?.id;
+            const user = tg.initDataUnsafe?.user;
             const balEl = document.getElementById('bal');
             const stEl = document.getElementById('st');
 
-            if (!id) { stEl.innerText = "Ошибка: Запусти из Telegram"; return; }
+            if (!user?.id) { 
+                stEl.innerText = "Ошибка: Запусти из Telegram"; 
+                return; 
+            }
+
+            // Отображаем имя и ID
+            document.getElementById('name').innerText = "Привет, " + (user.first_name || "Друг");
+            document.getElementById('user-id').innerText = "ID: " + user.id;
 
             try {
-                // headers с 'ngrok-skip-browser-warning' — это ключ к успеху
-                const r = await fetch(`${URL}/api/balance?user_id=${id}`, {
+                const r = await fetch(`${URL}/api/balance?user_id=${user.id}`, {
                     headers: { 'ngrok-skip-browser-warning': 'true' }
                 });
                 
                 if (!r.ok) throw new Error();
                 const data = await r.json();
                 
-                balEl.innerText = Math.floor(data.balance);
-                stEl.innerText = "Синхронизировано ✅";
+                balEl.innerText = Math.floor(data.balance).toLocaleString();
+                stEl.innerText = "Данные обновлены ✅";
             } catch (e) {
-                stEl.innerText = "Сервер недоступен ❌";
+                stEl.innerText = "Ошибка сервера ❌";
             }
         }
 
-        document.getElementById('name').innerText = "Привет, " + (tg.initDataUnsafe?.user?.first_name || "Друг");
+        // Запуск при старте
         load();
     </script>
 </body>
