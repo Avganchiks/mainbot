@@ -3,146 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сервис Услуг</title>
+    <title>Service App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --tg-theme-bg-color: #fff;
-            --tg-theme-text-color: #000;
-            --tg-theme-button-color: #3390ec;
-            --tg-theme-button-text-color: #ffffff;
-            --tg-theme-hint-color: #707579;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
-            color: var(--tg-theme-text-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .card {
-            background-color: var(--tg-theme-bg-color);
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .balance-num {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--tg-theme-button-color);
-        }
-
-        select, textarea {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-            background: var(--tg-theme-bg-color);
-            color: var(--tg-theme-text-color);
-        }
-
-        textarea { height: 100px; resize: none; }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--tg-theme-button-color);
-            color: var(--tg-theme-button-text-color);
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .hint { color: var(--tg-theme-hint-color); font-size: 14px; }
+        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .balance-val { font-size: 28px; font-weight: bold; color: #3390ec; }
+        .btn { width: 100%; padding: 12px; background: #3390ec; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; }
+        .status { font-size: 12px; color: gray; margin-top: 5px; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h3>Привет, <span id="user-name">Гость</span>!</h3>
-        <p class="hint">Твой баланс:</p>
-        <div class="balance-num"><span id="balance">...</span> ₽</div>
+        <div>Привет, <span id="user-name">...</span>!</div>
+        <div style="margin-top: 10px;">Ваш баланс:</div>
+        <div class="balance-val"><span id="balance">0</span> ₽</div>
+        <div id="api-status" class="status">Обновление...</div>
     </div>
 
-    <div class="card">
-        <h3>Оформить заказ</h3>
-        <select id="service">
-            <option value="500">Дизайн логотипа (500 ₽)</option>
-            <option value="300">Написание текста (300 ₽)</option>
-            <option value="1000">Исправить баг (1000 ₽)</option>
-        </select>
-        <textarea id="tz" placeholder="Опишите задачу..."></textarea>
-        <button id="order-btn">Отправить и оплатить</button>
-    </div>
+    <button class="btn" onclick="location.reload()">Обновить баланс</button>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // НАСТРОЙКА API
-        const API_BASE_URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev'; // Ссылка из ngrok
-        let currentBalance = 0;
+        // СЮДА ВСТАВЬ СВОЮ ССЫЛКУ ИЗ NGROK
+        const API_URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev'; 
 
-        async function fetchBalance() {
+        async function getBalance() {
             const userId = tg.initDataUnsafe?.user?.id;
+            const status = document.getElementById('api-status');
+
             if (!userId) {
-                document.getElementById('balance').innerText = "Ошибка ID";
+                status.innerText = "Ошибка: ID не найден";
                 return;
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/balance?user_id=${userId}`);
+                const response = await fetch(`${API_URL}/api/balance?user_id=${userId}`);
                 const data = await response.json();
-                currentBalance = data.balance;
-                document.getElementById('balance').innerText = currentBalance;
+                document.getElementById('balance').innerText = data.balance;
+                status.innerText = "Данные синхронизированы";
             } catch (e) {
+                status.innerText = "Ошибка соединения с сервером";
                 console.error(e);
-                document.getElementById('balance').innerText = "0";
             }
         }
 
-        // Запускаем получение баланса
-        fetchBalance();
-
-        if (tg.initDataUnsafe?.user) {
-            document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name;
-        }
-
-        document.getElementById('order-btn').addEventListener('click', () => {
-            const serviceSelect = document.getElementById('service');
-            const price = parseInt(serviceSelect.value);
-            const tzText = document.getElementById('tz').value;
-
-            if (!tzText.trim()) {
-                tg.showAlert("Напишите ТЗ!");
-                return;
-            }
-
-            if (currentBalance < price) {
-                tg.showAlert("Недостаточно средств!");
-                return;
-            }
-
-            const data = {
-                service: serviceSelect.options[serviceSelect.selectedIndex].text,
-                price: price,
-                description: tzText
-            };
-
-            tg.sendData(JSON.stringify(data));
-        });
-
-        tg.ready();
+        document.getElementById('user-name').innerText = tg.initDataUnsafe?.user?.first_name || "Гость";
+        getBalance();
     </script>
 </body>
 </html>
-
