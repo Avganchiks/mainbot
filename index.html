@@ -233,13 +233,17 @@
     // --- ЗАГРУЗКА ДАННЫХ С СЕРВЕРА ---
     async function fetchUserData() {
         if (!userId) {
+            console.log("ID пользователя не найден (открыто не в Telegram?)");
             document.getElementById('ui').innerText = "DemoMode";
             document.getElementById('ub').innerText = "0";
             return;
         }
         
         try {
-            const response = await fetch(`${API_URL}/get_balance/${userId}`);
+            // Добавляем timestamp, чтобы браузер не кэшировал баланс
+            const response = await fetch(`${API_URL}/get_balance/${userId}?t=${Date.now()}`);
+            if (!response.ok) throw new Error('Ошибка сервера');
+            
             const data = await response.json();
             userBalance = data.balance;
             
@@ -248,7 +252,7 @@
             updateButton();
         } catch (e) {
             console.error("Ошибка API:", e);
-            document.getElementById('ub').innerText = "Error";
+            document.getElementById('ub').innerText = "Ошибка";
         }
     }
 
@@ -362,3 +366,4 @@
 </script>
 </body>
 </html>
+
