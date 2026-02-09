@@ -224,11 +224,15 @@
     let selectedService = "Сео";
     const prices = { "Сео": 130, "Архив": 250, "Залив": 100 };
     
+    // --- ПОЛУЧЕНИЕ ДАННЫХ ---
     const params = new URLSearchParams(window.location.search);
+    
+    // Пытаемся взять ID из Telegram, если нет - из URL
+    const userId = tg.initDataUnsafe?.user?.id || params.get('id') || "Unknown";
     const balance = parseFloat(params.get('bal')) || 0;
     const supportLink = params.get('support') || 'https://t.me/Alexandria_supp';
 
-    document.getElementById('ui').innerText = params.get('id') || "Неизвестен";
+    document.getElementById('ui').innerText = userId;
     document.getElementById('ub').innerText = balance.toLocaleString();
 
     function selectService(el, name) {
@@ -291,6 +295,7 @@
     }
 
     function sendDeposit() {
+        tg.HapticFeedback.notificationOccurred('warning');
         tg.sendData(JSON.stringify({action: 'deposit'}));
         tg.close();
     }
