@@ -3,72 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Service App</title>
+    <title>Mini App Balance</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .balance-val { font-size: 28px; font-weight: bold; color: #3390ec; }
-        .btn { width: 100%; padding: 12px; background: #3390ec; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; transition: 0.2s; }
-        .btn:active { background: #2870b8; transform: scale(0.98); }
-        .status { font-size: 12px; color: gray; margin-top: 5px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 280px; }
+        .user-name { color: #888; font-size: 14px; margin-bottom: 5px; }
+        .balance-label { font-size: 18px; color: #333; }
+        .balance-val { font-size: 36px; font-weight: bold; color: #3390ec; margin: 10px 0; }
+        .btn { background: #3390ec; color: white; border: none; padding: 12px 25px; border-radius: 12px; cursor: pointer; width: 100%; font-size: 16px; }
+        .status { font-size: 11px; color: #aaa; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <div>Привет, <span id="user-name">...</span>!</div>
-        <div style="margin-top: 10px;">Ваш баланс:</div>
-        <div class="balance-val"><span id="balance">...</span> ₽</div>
-        <div id="api-status" class="status">Подключение к серверу...</div>
-    </div>
+<div class="card">
+    <div class="user-name" id="user-name">Загрузка...</div>
+    <div class="balance-label">Ваш баланс</div>
+    <div class="balance-val"><span id="balance">0</span> ₽</div>
+    <button class="btn" onclick="fetchBalance()">Обновить</button>
+    <div id="status" class="status">Синхронизация...</div>
+</div>
 
-    <button class="btn" onclick="getBalance()">Обновить баланс</button>
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+    const API_URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev';
 
-        // Твоя актуальная ссылка (проверь, что она совпадает с той, что в терминале ngrok)
-        const API_URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev'; 
+    async function fetchBalance() {
+        const userId = tg.initDataUnsafe?.user?.id;
+        const statusEl = document.getElementById('status');
+        const balanceEl = document.getElementById('balance');
 
-        async function getBalance() {
-            const userId = tg.initDataUnsafe?.user?.id;
-            const balanceElement = document.getElementById('balance');
-            const status = document.getElementById('api-status');
-
-            if (!userId) {
-                status.innerText = "Ошибка: Запустите через Telegram";
-                return;
-            }
-
-            status.innerText = "Обновляю...";
-
-            try {
-                // Добавляем ?_t=..., чтобы браузер не показывал старый баланс из памяти
-                const response = await fetch(`${API_URL}/api/balance?user_id=${userId}&_t=${Date.now()}`);
-                
-                if (!response.ok) throw new Error("Сервер недоступен");
-
-                const data = await response.json();
-                
-                // Округляем 2000.0 до 2000 для красоты
-                const prettyBalance = Math.floor(data.balance);
-                
-                balanceElement.innerText = prettyBalance;
-                status.innerText = "Данные синхронизированы ✅";
-            } catch (e) {
-                status.innerText = "Ошибка! Проверь ngrok и нажми 'Visit Site'";
-                balanceElement.innerText = "0";
-                console.error("API Error:", e);
-            }
+        if (!userId) {
+            statusEl.innerText = "Ошибка: ID не найден";
+            return;
         }
 
-        // Подставляем имя
-        document.getElementById('user-name').innerText = tg.initDataUnsafe?.user?.first_name || "Гость";
-        
-        // Запускаем при открытии
-        getBalance();
-    </script>
+        try {
+            statusEl.innerText = "Обновление...";
+            // Добавляем timestamp для обхода кэша
+            const response = await fetch(`${API_URL}/api/balance?user_id=${userId}&v=${Date.now()}`);
+            if (!response.ok) throw new Error("Ошибка сети");
+            
+            const data = await response.json();
+            // Округляем до целого числа
+            balanceEl.innerText = Math.floor(data.balance).toLocaleString();
+            statusEl.innerText = "Данные актуальны ✅";
+        } catch (e) {
+            statusEl.innerText = "Сервер недоступен ❌";
+            console.error(e);
+        }
+    }
+
+    document.getElementById('user-name').innerText = tg.initDataUnsafe?.user?.first_name || "Пользователь";
+    fetchBalance();
+</script>
+
 </body>
 </html>
