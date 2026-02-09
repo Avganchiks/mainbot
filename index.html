@@ -129,7 +129,7 @@
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            width: 85%;
+            width: 90%;
             background: rgba(20, 20, 20, 0.8);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -149,6 +149,7 @@
             font-weight: 700;
             text-transform: uppercase;
             transition: 0.3s;
+            cursor: pointer;
         }
         .dock-item.active { background: rgba(255,255,255,0.1); color: #fff; }
 
@@ -212,6 +213,7 @@
 <div class="dock">
     <div id="nav-shop" class="dock-item active" onclick="switchTab('shop')">Услуги</div>
     <div id="nav-profile" class="dock-item" onclick="switchTab('profile')">Профиль</div>
+    <div id="nav-support" class="dock-item" onclick="openSupport()">Поддержка</div>
 </div>
 
 <script>
@@ -224,6 +226,7 @@
     
     const params = new URLSearchParams(window.location.search);
     const balance = parseFloat(params.get('bal')) || 0;
+    const supportLink = params.get('support') || 'https://t.me/Alexandria_supp';
 
     document.getElementById('ui').innerText = params.get('id') || "Неизвестен";
     document.getElementById('ub').innerText = balance.toLocaleString();
@@ -240,6 +243,7 @@
         tg.HapticFeedback.impactOccurred('medium');
         document.getElementById('shop-page').classList.toggle('hidden', tab !== 'shop');
         document.getElementById('profile-page').classList.toggle('hidden', tab !== 'profile');
+        
         document.getElementById('nav-shop').classList.toggle('active', tab === 'shop');
         document.getElementById('nav-profile').classList.toggle('active', tab === 'profile');
         
@@ -248,6 +252,11 @@
         } else {
             tg.MainButton.hide();
         }
+    }
+
+    function openSupport() {
+        tg.HapticFeedback.impactOccurred('medium');
+        tg.openTelegramLink(supportLink);
     }
 
     function updateButton() {
@@ -286,19 +295,16 @@
         tg.close();
     }
 
-    // Слушатель нажатия на главную кнопку
     tg.onEvent('mainButtonClicked', function() {
         const currentTask = document.getElementById('task').value.trim();
         const cost = prices[selectedService];
 
         if (balance < cost) {
-            // Если баланса не хватает
             tg.sendData(JSON.stringify({
                 action: 'deposit',
                 required: cost
             }));
         } else {
-            // Если всё ок, отправляем заказ с ТЗ
             const orderData = {
                 action: 'order',
                 service: selectedService,
@@ -310,7 +316,6 @@
         tg.close();
     });
 
-    // Стартовая инициализация
     tg.MainButton.show();
     updateButton();
 </script>
