@@ -204,8 +204,8 @@
     <div class="header-section"><h1>Профиль</h1></div>
     <div class="balance-card">
         <span class="label" style="color: #4b5563">Ваш баланс</span>
-        <div class="balance-amount"><span id="ub">0</span> ₽</div>
-        <div style="font-weight: 600; opacity: 0.6;">ID: <span id="ui">0</span></div>
+        <div class="balance-amount"><span id="ub">...</span> ₽</div>
+        <div style="font-weight: 600; opacity: 0.6;">ID: <span id="ui">...</span></div>
     </div>
     <button class="action-btn" onclick="sendDeposit()">Пополнить баланс</button>
 </div>
@@ -221,19 +221,74 @@
     tg.expand();
     tg.backgroundColor = '#0b0e11';
 
+    // --- НАСТРОЙКИ API ---
+    const API_URL = "http://127.0.0.1:8000"; // ЗАМЕНИ НА СВОЙ URL ПОСЛЕ ЗАПУСКА NGROK
+    
     let selectedService = "Сео";
     const prices = { "Сео": 130, "Архив": 250, "Залив": 100 };
-    
-    // --- ПОЛУЧЕНИЕ ДАННЫХ ---
-    const params = new URLSearchParams(window.location.search);
-    
-    // Пытаемся взять ID из Telegram, если нет - из URL
-    const userId = tg.initDataUnsafe?.user?.id || params.get('id') || "Unknown";
-    const balance = parseFloat(params.get('bal')) || 0;
-    const supportLink = params.get('support') || 'https://t.me/Alexandria_supp';
+    let userBalance = 0;
+    const userId = tg.initDataUnsafe?.user?.id;
 
-    document.getElementById('ui').innerText = userId;
-    document.getElementById('ub').innerText = balance.toLocaleString();
+    // --- ЗАГРУЗКА ДАННЫХ С СЕРВЕРА ---
+    async function fetchUserData() {
+        if (!userId) {
+            document.getElementById('ui').innerText = "DemoMode";
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${API_URL}/get_balance/${userId}`);
+            const data = await response.json();
+            userBalance = data.balance;
+            
+            document.getElementById('ui').innerText = userId;
+            document.getElementById('ub').innerText = userBalance.toLocaleString();
+            updateButton();
+        } catch (e) {
+            console.error("Ошибка API:", e);
+        }
+    }
+
+    // --- ОБРАБОТКА ОПЛАТЫ ЧЕРЕЗ СЕРВЕР ---
+    async function handlePayment() {
+        const taskText = document.getElementById('task').value.trim();
+        const cost = prices[selectedService];
+
+        if (userBalance < cost) {
+            tg.showAlert("Недостаточно средств. Пополните баланс в профиле.");
+            return;
+        }
+
+        tg.MainButton.showProgress();
+
+        try {
+            const response = await fetch(`${API_URL}/create_order`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    user_id: userId,
+                    service: selectedService,
+                    desc: taskText,
+                    price: cost
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.status === "success") {
+                tg.HapticFeedback.notificationOccurred('success');
+                tg.showAlert(`Заказ принят! Новый баланс: ${result.new_balance}₽`, () => {
+                    tg.close();
+                });
+            } else {
+                tg.showAlert("Ошибка: " + result.message);
+            }
+        } catch (e) {
+            tg.showAlert("Сервер временно недоступен. Попробуйте позже.");
+        } finally {
+            tg.MainButton.hideProgress();
+        }
+    }
 
     function selectService(el, name) {
         tg.HapticFeedback.impactOccurred('light');
@@ -259,8 +314,7 @@
     }
 
     function openSupport() {
-        tg.HapticFeedback.impactOccurred('medium');
-        tg.openTelegramLink(supportLink);
+        tg.openTelegramLink('https://t.me/Alexandria_supp');
     }
 
     function updateButton() {
@@ -269,11 +323,10 @@
         const hasText = taskInput.value.trim().length >= 5;
 
         if (hasText) {
-            if (balance < cost) {
+            if (userBalance < cost) {
                 tg.MainButton.setParams({ 
-                    text: `ПОПОЛНИТЬ (${cost}₽)`, 
+                    text: `НЕДОСТАТОЧНО СРЕДСТВ (${cost}₽)`, 
                     color: "#ef4444", 
-                    text_color: "#ffffff",
                     is_active: true 
                 });
             } else {
@@ -295,32 +348,14 @@
     }
 
     function sendDeposit() {
-        tg.HapticFeedback.notificationOccurred('warning');
-        tg.sendData(JSON.stringify({action: 'deposit'}));
-        tg.close();
+        tg.showAlert("Для пополнения напишите менеджеру или используйте команду /deposit в боте.");
     }
 
-    tg.onEvent('mainButtonClicked', function() {
-        const currentTask = document.getElementById('task').value.trim();
-        const cost = prices[selectedService];
+    // Слушатель кнопки
+    tg.onEvent('mainButtonClicked', handlePayment);
 
-        if (balance < cost) {
-            tg.sendData(JSON.stringify({
-                action: 'deposit',
-                required: cost
-            }));
-        } else {
-            const orderData = {
-                action: 'order',
-                service: selectedService,
-                desc: currentTask,
-                price: cost
-            };
-            tg.sendData(JSON.stringify(orderData));
-        }
-        tg.close();
-    });
-
+    // Инициализация
+    fetchUserData();
     tg.MainButton.show();
     updateButton();
 </script>
