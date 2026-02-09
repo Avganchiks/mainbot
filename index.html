@@ -21,10 +21,20 @@
         /* Баланс */
         .balance-box { 
             background: rgba(100, 181, 246, 0.1); border: 1px solid rgba(100, 181, 246, 0.2);
-            padding: 15px; border-radius: 18px; margin-bottom: 20px; 
+            padding: 15px; border-radius: 18px; margin-bottom: 20px; position: relative;
         }
         .balance-label { color: #8ab4f8; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
         .balance-val { font-size: 32px; font-weight: 800; color: #fff; display: block; margin-top: 5px; }
+
+        /* Кнопки управления балансом */
+        .balance-actions { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+        .mini-btn {
+            background: rgba(255, 255, 255, 0.1); border: none; color: white;
+            padding: 6px 12px; border-radius: 10px; font-size: 12px; cursor: pointer;
+            transition: 0.2s;
+        }
+        .mini-btn:active { transform: scale(0.9); }
+        .btn-plus { background: #3390ec; font-weight: bold; }
 
         /* Плитки услуг */
         .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
@@ -53,8 +63,7 @@
             border: none; padding: 16px; border-radius: 14px; font-size: 16px; 
             font-weight: 600; cursor: pointer; transition: all 0.2s ease; 
         }
-        .btn-refresh { background: rgba(255,255,255,0.08); color: #fff; }
-        .btn-buy { background: #3390ec; color: white; }
+        .btn-buy { background: #3390ec; color: white; width: 100%; }
         .btn:active { transform: scale(0.96); opacity: 0.9; }
         .btn:disabled { background: #3d4b59; color: #708499; cursor: not-allowed; }
         
@@ -69,6 +78,10 @@
         <div class="balance-box">
             <span class="balance-label">Ваш баланс</span>
             <span id="bal" class="balance-val">0 ₽</span>
+            <div class="balance-actions">
+                <button class="mini-btn" onclick="load()">🔄 Обновить</button>
+                <button class="mini-btn btn-plus" onclick="topUp()">➕ Пополнить</button>
+            </div>
         </div>
 
         <div class="services-grid" id="services">
@@ -93,7 +106,6 @@
         
         <div class="btn-group">
             <button class="btn btn-buy" id="buy-btn" onclick="makeOrder()">🛒 Заказать за <span id="current-price">130</span> ₽</button>
-            <button class="btn btn-refresh" onclick="load()">🔄 Обновить баланс</button>
         </div>
         
         <div id="st" class="status"></div>
@@ -104,7 +116,7 @@
         tg.expand();
         tg.enableClosingConfirmation();
 
-        // ССЫЛКА НА ТВОЙ BACKEND
+        // ССЫЛКА НА ТВОЙ BACKEND (БЕЗ слэша в конце)
         const URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev';
         let selectedService = { name: 'SEO', price: 130 };
 
@@ -115,6 +127,45 @@
             
             selectedService = { name, price };
             document.getElementById('current-price').innerText = price;
+        }
+
+        // РУЧНОЕ ПОПОЛНЕНИЕ
+        function topUp() {
+            tg.showPopup({
+                title: 'Пополнение баланса',
+                message: 'Введите сумму, на которую хотите пополнить кошелек',
+                buttons: [{id: 'ok', type: 'default', text: 'Ввести сумму'}, {type: 'cancel'}]
+            }, (btnId) => {
+                if (btnId === 'ok') {
+                    // Используем prompt для простоты или можно сделать свой input
+                    const amount = prompt("Введите сумму пополнения (₽):", "100");
+                    if (!amount || isNaN(amount) || amount <= 0) return;
+                    
+                    createTopupRequest(amount);
+                }
+            });
+        }
+
+        async function createTopupRequest(amount) {
+            const user = tg.initDataUnsafe?.user;
+            document.getElementById('st').innerText = "Создаем счет...";
+            try {
+                const r = await fetch(`${URL}/api/create_topup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+                    body: JSON.stringify({ user_id: user.id, amount: parseFloat(amount) })
+                });
+                const res = await r.json();
+                if (res.pay_url) {
+                    tg.openLink(res.pay_url);
+                } else {
+                    tg.showAlert("Ошибка платежной системы");
+                }
+            } catch (e) {
+                tg.showAlert("Ошибка связи с сервером");
+            } finally {
+                document.getElementById('st').innerText = "";
+            }
         }
 
         async function load() {
@@ -148,7 +199,6 @@
 
             tg.HapticFeedback.impactOccurred('medium');
             
-            // Заменяем стандартный confirm на Telegram Popup для стиля
             tg.showPopup({
                 title: 'Подтверждение',
                 message: `Заказать "${selectedService.name}" за ${selectedService.price}₽?`,
@@ -191,7 +241,6 @@
                             load();
                         });
                     } else if (res.error === 'need_topup') {
-                        // КЕЙС: НЕ ХВАТАЕТ ДЕНЕГ - ПОДКЛЮЧАЕМ CRYSTAL PAY
                         tg.HapticFeedback.notificationOccurred('warning');
                         tg.showPopup({
                             title: "Недостаточно средств",
@@ -202,7 +251,7 @@
                             ]
                         }, (buttonId) => {
                             if (buttonId === "pay") {
-                                tg.openLink(res.pay_url); // Открываем ссылку на CrystalPay
+                                tg.openLink(res.pay_url);
                             }
                         });
                     } else {
