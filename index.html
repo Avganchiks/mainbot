@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Premium Store</title>
+    <title>Alexandria Premium Store</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -37,7 +37,7 @@
         }
 
         .tab {
-            flex: 1; padding: 10px 5px; text-align: center;
+            flex: 1; padding: 12px 5px; text-align: center;
             font-weight: 600; font-size: 13px; cursor: pointer;
             border-radius: 12px; transition: 0.3s; color: var(--text-secondary);
         }
@@ -46,7 +46,7 @@
 
         .container {
             padding: 0 20px 120px 20px;
-            display: none; animation: fadeIn 0.4s ease forwards;
+            display: none; animation: fadeIn 0.3s ease forwards;
         }
         .container.active { display: block; }
 
@@ -67,20 +67,19 @@
             width: 70px; height: 70px; background: var(--accent-gradient);
             border-radius: 50%; margin: 0 auto 10px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 28px; font-weight: bold;
+            font-size: 28px; font-weight: bold; box-shadow: 0 0 20px rgba(162, 89, 255, 0.3);
         }
 
-        /* Кнопки-ссылки в Поддержке */
+        /* Кнопки-ссылки */
         .info-link {
             display: flex; align-items: center; gap: 15px;
             background: rgba(255, 255, 255, 0.05);
             padding: 16px; border-radius: 18px;
             margin-bottom: 10px; text-decoration: none;
             color: white; border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: 0.2s;
+            transition: 0.2s; cursor: pointer;
         }
         .info-link:active { background: rgba(255, 255, 255, 0.1); transform: scale(0.98); }
-        .info-link i { font-size: 20px; }
         .info-text h4 { margin: 0; font-size: 15px; }
         .info-text p { margin: 2px 0 0; font-size: 12px; color: var(--text-secondary); }
 
@@ -89,127 +88,134 @@
         .service-card {
             background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08);
             padding: 15px; border-radius: 20px; text-align: center; transition: 0.3s;
+            cursor: pointer;
         }
-        .service-card.active { border-color: #a259ff; background: rgba(162, 89, 255, 0.1); }
+        .service-card.active { border-color: #a259ff; background: rgba(162, 89, 255, 0.15); box-shadow: 0 0 15px rgba(162, 89, 255, 0.2); }
 
-        /* Кнопка заказа */
+        /* Кнопки */
         .main-btn {
             position: fixed; bottom: calc(20px + var(--safe-bottom));
             left: 20px; right: 20px;
             background: var(--accent-gradient); color: white;
             border: none; padding: 18px; border-radius: 20px;
             font-size: 16px; font-weight: 700; z-index: 100;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            transition: 0.2s;
+        }
+        .main-btn:active { transform: scale(0.97); opacity: 0.9; }
+
+        .secondary-btn {
+            background: rgba(255, 255, 255, 0.1); color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 14px; border-radius: 16px; width: 100%;
+            font-weight: 600; margin-top: 10px; cursor: pointer;
         }
 
         textarea {
-            width: 100%; background: rgba(0,0,0,0.2);
+            width: 100%; background: rgba(0,0,0,0.3);
             border: 1px solid rgba(255,255,255,0.1); border-radius: 15px;
-            padding: 12px; color: white; font-size: 14px; min-height: 80px;
-            box-sizing: border-box; outline: none;
+            padding: 12px; color: white; font-size: 14px; min-height: 100px;
+            box-sizing: border-box; outline: none; transition: 0.3s;
         }
+        textarea:focus { border-color: #3390ec; background: rgba(0,0,0,0.4); }
     </style>
 </head>
 <body>
 
     <div class="tabs">
-        <div class="tab active" onclick="switchTab('profile')">👤 Профиль</div>
-        <div class="tab" onclick="switchTab('orders')">📦 Заказать</div>
-        <div class="tab" onclick="switchTab('support')">💎 Инфо</div>
+        <div class="tab active" id="tab-profile" onclick="switchTab('profile')">👤 Профиль</div>
+        <div class="tab" id="tab-orders" onclick="switchTab('orders')">📦 Заказать</div>
+        <div class="tab" id="tab-support" onclick="switchTab('support')">💎 Инфо</div>
     </div>
 
     <div id="profile" class="container active">
         <div class="premium-card user-info">
             <div class="avatar-circle" id="avatar-icon">?</div>
-            <h2 id="name" style="margin: 5px 0;">Загрузка...</h2>
-            <div id="user-id" style="color: var(--text-secondary); font-size: 13px;">ID: 000000</div>
+            <h2 id="name" style="margin: 5px 0;">Пользователь</h2>
+            <div id="user-id" style="color: var(--text-secondary); font-size: 13px;">ID: 00000000</div>
         </div>
         <div class="premium-card">
-            <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase;">Баланс</div>
-            <div id="bal" style="font-size: 32px; font-weight: 800; margin: 5px 0;">0 ₽</div>
-            <button class="main-btn" style="position: static; width: 100%; margin-top: 15px;" onclick="topUp()">➕ Пополнить</button>
+            <div style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Ваш баланс</div>
+            <div id="bal" style="font-size: 36px; font-weight: 800; margin: 5px 0; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">0 ₽</div>
+            <button class="secondary-btn" onclick="topUp()">➕ Пополнить баланс</button>
         </div>
     </div>
 
     <div id="orders" class="container">
         <div class="services-grid">
             <div class="service-card active" onclick="selectService(this, 'SEO', 130)">
-                <div style="font-size: 24px;">🚀</div>
+                <div style="font-size: 28px; margin-bottom: 5px;">🚀</div>
                 <div style="font-weight: bold;">SEO</div>
-                <div style="font-size: 12px; color: var(--text-secondary);">130 ₽</div>
+                <div style="font-size: 13px; color: #3390ec; font-weight: 600;">130 ₽</div>
             </div>
             <div class="service-card" onclick="selectService(this, 'Архив', 250)">
-                <div style="font-size: 24px;">📂</div>
+                <div style="font-size: 28px; margin-bottom: 5px;">📂</div>
                 <div style="font-weight: bold;">Архив</div>
-                <div style="font-size: 12px; color: var(--text-secondary);">250 ₽</div>
+                <div style="font-size: 13px; color: #3390ec; font-weight: 600;">250 ₽</div>
             </div>
         </div>
         <div style="margin-top: 20px;">
-            <label style="font-size: 13px; color: var(--text-secondary); display: block; margin-bottom: 8px;">Техническое задание:</label>
-            <textarea id="service-desc" placeholder="Опишите детали..."></textarea>
+            <label style="font-size: 13px; color: var(--text-secondary); display: block; margin-bottom: 10px; margin-left: 5px;">Техническое задание:</label>
+            <textarea id="service-desc" placeholder="Вставьте ссылку или опишите задачу..."></textarea>
         </div>
         <button class="main-btn" id="buy-btn" onclick="makeOrder()">🛒 Купить за <span id="current-price">130</span> ₽</button>
     </div>
 
     <div id="support" class="container">
         <div class="premium-card">
-            <h3 style="margin-top: 0;">Помощь и ссылки</h3>
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">Помощь и информация</h3>
             
-            <a href="https://t.me/Alexandria_supp" class="info-link">
+            <div class="info-link" onclick="tg.openTelegramLink('https://t.me/Alexandria_supp')">
                 <span>🎧</span>
                 <div class="info-text">
-                    <h4>Поддержка</h4>
-                    <p>Связаться с администратором</p>
+                    <h4>Написать в поддержку</h4>
+                    <p>Связаться с администратором @Alexandria_supp</p>
                 </div>
-            </a>
+            </div>
 
             <div class="info-link" onclick="showDetails()">
                 <span>📖</span>
                 <div class="info-text">
-                    <h4>Подробнее о нас</h4>
-                    <p>Правила и описание на форуме</p>
+                    <h4>Подробнее о сервисе</h4>
+                    <p>Правила и полная тема на форуме Lolz</p>
                 </div>
             </div>
 
-            <a href="https://t.me/transferalexandria" class="info-link">
+            <div class="info-link" onclick="tg.openTelegramLink('https://t.me/transferalexandria')">
                 <span>🌟</span>
                 <div class="info-text">
-                    <h4>Услуги и отзывы</h4>
-                    <p>Наш канал со всеми работами</p>
+                    <h4>Все услуги и отзывы</h4>
+                    <p>Наш канал с портфолио и отзывами</p>
                 </div>
-            </a>
+            </div>
         </div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-
-        function switchTab(tabId) {
-            tg.HapticFeedback.selectionChanged();
-            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
-
-            // Показывать кнопку заказа только на вкладке заказов
-            document.getElementById('buy-btn').style.display = (tabId === 'orders') ? 'block' : 'none';
-        }
-
-        function showDetails() {
-            tg.showPopup({
-                title: 'О сервисе',
-                message: 'Более подробную информацию вы можете посмотреть в теме на форуме. Там описаны все условия и детали сотрудничества.',
-                buttons: [
-                    {id: 'link', type: 'default', text: 'Открыть форум'},
-                    {type: 'cancel', text: 'Закрыть'}
-                ]
-            }, (btnId) => {
-                if (btnId === 'link') tg.openLink('https://lolz.live/threads/4702384/page-2#post-61817081');
-            });
-        }
+        tg.enableClosingConfirmation();
 
         let selectedService = { name: 'SEO', price: 130 };
+
+        // Переключение вкладок
+        function switchTab(tabId) {
+            tg.HapticFeedback.selectionChanged();
+            
+            // Скрываем все контейнеры
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            
+            // Активируем нужный
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+
+            // Показываем плавающую кнопку покупки только во вкладке заказов
+            const buyBtn = document.getElementById('buy-btn');
+            buyBtn.style.display = (tabId === 'orders') ? 'block' : 'none';
+        }
+
+        // Выбор услуги
         function selectService(el, name, price) {
             tg.HapticFeedback.impactOccurred('light');
             document.querySelectorAll('.service-card').forEach(c => c.classList.remove('active'));
@@ -218,21 +224,76 @@
             document.getElementById('current-price').innerText = price;
         }
 
-        // Заглушки функций (используй свой старый JS для fetch)
-        async function load() {
-            const user = tg.initDataUnsafe?.user;
-            if (user) {
-                document.getElementById('name').innerText = user.first_name;
-                document.getElementById('user-id').innerText = "ID: " + user.id;
-                document.getElementById('avatar-icon').innerText = user.first_name.charAt(0);
-            }
+        // Логика пополнения
+        function topUp() {
+            tg.HapticFeedback.impactOccurred('medium');
+            tg.showPopup({
+                title: 'Пополнение баланса',
+                message: 'Для пополнения баланса перейдите в нашего платежного бота. Средства будут зачислены в течение 1-5 минут после оплаты.',
+                buttons: [
+                    {id: 'pay', type: 'default', text: 'Перейти к оплате'},
+                    {type: 'cancel', text: 'Отмена'}
+                ]
+            }, (btnId) => {
+                if (btnId === 'pay') {
+                    // Укажите ссылку на ваш бот для оплаты
+                    tg.openTelegramLink('https://t.me/Alexandria_pay_bot');
+                }
+            });
         }
 
-        function topUp() { tg.showAlert("Переход к оплате..."); }
-        function makeOrder() { tg.showAlert("Заказ отправлен!"); }
+        // Всплывающее окно "Подробнее"
+        function showDetails() {
+            tg.showPopup({
+                title: 'Информация',
+                message: 'Более подробную информацию вы можете посмотреть в теме на форуме. Также там доступны отзывы и история обновлений.',
+                buttons: [
+                    {id: 'link', type: 'default', text: 'Открыть форум'},
+                    {type: 'cancel', text: 'Закрыть'}
+                ]
+            }, (btnId) => {
+                if (btnId === 'link') {
+                    tg.openLink('https://lolz.live/threads/4702384/page-2#post-61817081');
+                }
+            });
+        }
 
-        load();
-        switchTab('profile');
+        // Оформление заказа
+        function makeOrder() {
+            const description = document.getElementById('service-desc').value;
+            
+            if (description.length < 5) {
+                tg.showAlert("Пожалуйста, заполните техническое задание (минимум 5 символов)");
+                return;
+            }
+
+            tg.HapticFeedback.notificationOccurred('success');
+            
+            // Собираем данные для бота
+            const orderData = {
+                action: 'buy',
+                service: selectedService.name,
+                price: selectedService.price,
+                details: description
+            };
+
+            // Отправляем данные боту и закрываем мини-апп
+            tg.sendData(JSON.stringify(orderData));
+        }
+
+        // Загрузка данных пользователя
+        function init() {
+            const user = tg.initDataUnsafe?.user;
+            if (user) {
+                document.getElementById('name').innerText = user.first_name || "Пользователь";
+                document.getElementById('user-id').innerText = "ID: " + user.id;
+                document.getElementById('avatar-icon').innerText = (user.first_name || "U").charAt(0).toUpperCase();
+            }
+            // Скрываем кнопку заказа при старте (т.к. стартуем с профиля)
+            document.getElementById('buy-btn').style.display = 'none';
+        }
+
+        init();
     </script>
 </body>
 </html>
