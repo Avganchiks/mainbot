@@ -3,107 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Store Mini App</title>
+    <title>Premium Store</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: var(--tg-theme-bg-color, #1c2733);
-            --sec-bg: var(--tg-theme-secondary-bg-color, #242f3d);
-            --text-color: var(--tg-theme-text-color, #ffffff);
-            --hint-color: var(--tg-theme-hint-color, #708499);
-            --link-color: var(--tg-theme-link-color, #64b5f6);
-            --button-color: var(--tg-theme-button-color, #3390ec);
-            --button-text: var(--tg-theme-button-text-color, #ffffff);
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.08);
         }
 
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            background: var(--bg-color); color: var(--text-color);
-            margin: 0; padding: 0; padding-bottom: 90px; overflow-x: hidden;
+            font-family: 'SF Pro Display', -apple-system, system-ui, sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at top right, #1e1b4b, #0f172a);
+            color: var(--text-main);
+            margin: 0; padding: 0 0 100px 0;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Навигация (Tab Bar) */
+        /* Навигация */
         .tab-bar {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: var(--sec-bg); display: flex; justify-content: space-around;
-            padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.05); z-index: 1000;
-            backdrop-filter: blur(10px);
+            position: fixed; bottom: 20px; left: 20px; right: 20px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            display: flex; justify-content: space-around;
+            padding: 12px; border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            z-index: 1000;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
         .tab-item {
             display: flex; flex-direction: column; align-items: center;
-            font-size: 12px; color: var(--hint-color); cursor: pointer; transition: 0.2s;
-            flex: 1;
+            color: var(--text-dim); cursor: pointer; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex: 1; font-weight: 500; font-size: 11px;
         }
-        .tab-item.active { color: var(--button-color); }
-        .tab-icon { font-size: 22px; margin-bottom: 4px; }
+        .tab-item.active { color: #fff; transform: translateY(-2px); }
+        .tab-icon { font-size: 20px; margin-bottom: 4px; opacity: 0.5; transition: 0.3s; }
+        .tab-item.active .tab-icon { opacity: 1; filter: drop-shadow(0 0 8px #6366f1); }
 
-        /* Контейнеры страниц */
-        .page { display: none; padding: 20px; animation: fadeIn 0.2s ease-out; }
+        /* Контент */
+        .page { display: none; padding: 25px 20px; animation: pageIn 0.4s ease-out; }
         .page.active { display: block; }
 
-        @keyframes fadeIn { 
-            from { opacity: 0; transform: translateY(8px); } 
-            to { opacity: 1; transform: translateY(0); } 
+        @keyframes pageIn { 
+            from { opacity: 0; transform: scale(0.98); filter: blur(10px); } 
+            to { opacity: 1; transform: scale(1); filter: blur(0); } 
         }
 
-        h2 { margin-top: 0; font-size: 24px; font-weight: 700; }
+        h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 25px; }
 
-        /* Сетка плиток (Заказы) */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+        /* Сетка услуг */
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .tile {
-            background: var(--sec-bg); border-radius: 18px; padding: 22px 12px;
-            text-align: center; border: 2px solid transparent; transition: all 0.2s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            background: var(--card-bg); border-radius: 20px; padding: 20px 10px;
+            text-align: center; border: 1px solid var(--glass-border);
+            transition: 0.3s; position: relative; overflow: hidden;
         }
-        .tile.active { 
-            border-color: var(--button-color); 
-            background: rgba(51, 144, 236, 0.1); 
-            transform: scale(1.02);
+        .tile.active {
+            border-color: #6366f1;
+            background: rgba(99, 102, 241, 0.15);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
         }
-        .tile .title { font-weight: 700; font-size: 17px; display: block; }
-        .tile .price { color: var(--link-color); font-size: 14px; margin-top: 6px; display: block; font-weight: 500; }
+        .tile .title { font-weight: 600; font-size: 15px; display: block; }
+        .tile .price { color: var(--text-dim); font-size: 12px; margin-top: 5px; display: block; }
+        .tile.active .price { color: #a5b4fc; }
 
-        /* Поле ввода ТЗ */
-        .input-box { margin-top: 25px; }
-        label { font-size: 14px; color: var(--hint-color); display: block; margin-bottom: 8px; margin-left: 5px;}
+        /* Ввод ТЗ */
+        .input-box { margin-top: 30px; }
+        label { font-size: 13px; color: var(--text-dim); margin-left: 5px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
         textarea {
-            width: 100%; height: 110px; background: var(--sec-bg); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 16px; color: white; padding: 15px; box-sizing: border-box; 
-            resize: none; outline: none; font-size: 15px; transition: 0.2s;
+            width: 100%; height: 120px; background: var(--card-bg); border: 1px solid var(--glass-border);
+            border-radius: 20px; color: white; padding: 18px; box-sizing: border-box; 
+            margin-top: 10px; outline: none; font-size: 15px; transition: 0.3s;
         }
-        textarea:focus { border-color: var(--button-color); }
+        textarea:focus { border-color: #6366f1; background: rgba(30, 41, 59, 0.9); }
 
-        /* Профиль */
+        /* Профиль Премиум */
         .profile-card {
-            background: var(--sec-bg); padding: 30px 20px; border-radius: 24px;
-            text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            margin-top: 10px;
+            background: var(--accent-gradient); padding: 40px 20px; border-radius: 32px;
+            text-align: center; box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+            position: relative; overflow: hidden;
         }
-        .balance-val { font-size: 42px; font-weight: 800; display: block; margin: 15px 0; color: #fff; }
-        .user-name { font-size: 24px; font-weight: 800; margin-bottom: 5px; }
+        .profile-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+        .balance-label { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.8; }
+        .balance-val { font-size: 48px; font-weight: 800; display: block; margin: 10px 0; }
         
         /* Кнопки */
         .btn {
-            background: var(--button-color); color: var(--button-text);
-            border: none; width: 100%; padding: 18px; border-radius: 16px;
-            font-size: 16px; font-weight: 700; margin-top: 20px; cursor: pointer;
-            transition: 0.2s;
+            background: var(--accent-gradient); color: #fff;
+            border: none; width: 100%; padding: 20px; border-radius: 20px;
+            font-size: 16px; font-weight: 700; margin-top: 25px; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2); transition: 0.3s;
         }
-        .btn:active { transform: scale(0.97); opacity: 0.9; }
-        .btn:disabled { background: var(--hint-color); opacity: 0.6; }
+        .btn:active { transform: translateY(2px); filter: brightness(1.1); }
         
-        .btn-refresh { 
-            background: rgba(255,255,255,0.08); 
-            margin-top: 12px; font-size: 14px; padding: 12px;
+        .btn-outline {
+            background: transparent; border: 1px solid var(--glass-border);
+            margin-top: 15px; font-size: 14px; padding: 15px; color: var(--text-dim);
         }
 
-        #st { text-align: center; font-size: 13px; color: var(--hint-color); margin-top: 15px; min-height: 1.2em;}
+        #st { text-align: center; font-size: 12px; color: #6366f1; margin-top: 15px; font-weight: 500; }
     </style>
 </head>
 <body>
 
     <div id="page-orders" class="page active">
-        <h2>Новый заказ</h2>
+        <h2>Premium Store</h2>
         <div class="grid">
             <div class="tile active" onclick="selectService(this, 'SEO', 130)">
                 <span class="title">SEO</span>
@@ -117,39 +128,34 @@
                 <span class="title">Залив</span>
                 <span class="price">100 ₽</span>
             </div>
-            <div class="tile" onclick="selectService(this, 'Пролив', 500)">
-                <span class="title">Пролив</span>
-                <span class="price">500 ₽</span>
-            </div>
         </div>
 
         <div class="input-box">
-            <label>Техническое задание (ТЗ):</label>
-            <textarea id="service-desc" placeholder="Опишите, что именно нужно сделать воркерам..."></textarea>
+            <label>Детали заказа</label>
+            <textarea id="service-desc" placeholder="Введите ваше ТЗ или ссылку..."></textarea>
         </div>
 
-        <button class="btn" id="buy-btn" onclick="makeOrder()">🛒 Купить за <span id="current-price">130</span> ₽</button>
+        <button class="btn" id="buy-btn" onclick="makeOrder()">Купить за <span id="current-price">130</span> ₽</button>
         <div id="st"></div>
     </div>
 
     <div id="page-profile" class="page">
-        <h2>Мой профиль</h2>
+        <h2>Кабинет</h2>
         <div class="profile-card">
-            <div class="user-info">
-                <div id="name" class="user-name">Загрузка...</div>
-                <div id="user-id" style="color:var(--hint-color); font-size:15px; margin-bottom: 20px;">ID: 000000</div>
-            </div>
-            <span style="color:var(--hint-color); font-size:13px; text-transform:uppercase; letter-spacing: 1px;">Доступный баланс</span>
+            <div id="name" style="font-size: 20px; font-weight: 700; margin-bottom: 5px;">Пользователь</div>
+            <div id="user-id" style="font-size: 12px; opacity: 0.7; margin-bottom: 30px;">ID: 00000000</div>
+            <div class="balance-label">Ваш баланс</div>
             <span id="bal" class="balance-val">0 ₽</span>
-            <button class="btn" onclick="topUp()">➕ Пополнить баланс</button>
-            <button class="btn btn-refresh" onclick="load()">🔄 Обновить</button>
         </div>
+        
+        <button class="btn" onclick="topUp()">Пополнить баланс</button>
+        <button class="btn btn-outline" onclick="load()">Обновить данные</button>
     </div>
 
     <div class="tab-bar">
         <div class="tab-item active" onclick="showPage('orders', this)">
-            <span class="tab-icon">🛒</span>
-            <span>Заказы</span>
+            <span class="tab-icon">💎</span>
+            <span>Услуги</span>
         </div>
         <div class="tab-item" onclick="showPage('profile', this)">
             <span class="tab-icon">👤</span>
@@ -160,33 +166,28 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.enableClosingConfirmation();
+        tg.backgroundColor = '#0f172a';
+        tg.headerColor = '#0f172a';
 
-        // --- НАСТРОЙКИ ---
-        const URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev'; // ЗАМЕНИ НА СВОЙ URL
+        const URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev'; 
         let selectedService = { name: 'SEO', price: 130 };
 
-        // Переключение вкладок
         function showPage(pageId, el) {
-            tg.HapticFeedback.impactOccurred('light');
+            tg.HapticFeedback.impactOccurred('medium');
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            
             document.getElementById('page-' + pageId).classList.add('active');
             el.classList.add('active');
         }
 
-        // Выбор плитки
         function selectService(el, name, price) {
             tg.HapticFeedback.selectionChanged();
             document.querySelectorAll('.tile').forEach(c => c.classList.remove('active'));
             el.classList.add('active');
-            
             selectedService = { name, price };
             document.getElementById('current-price').innerText = price;
         }
 
-        // Загрузка данных пользователя
         async function load() {
             const user = tg.initDataUnsafe?.user;
             if (!user) return;
@@ -199,99 +200,62 @@
                 });
                 const data = await r.json();
                 document.getElementById('bal').innerText = Math.floor(data.balance).toLocaleString() + " ₽";
-                document.getElementById('st').innerText = "Данные обновлены";
-                setTimeout(() => { document.getElementById('st').innerText = ""; }, 2000);
-            } catch (e) {
-                document.getElementById('st').innerText = "Ошибка обновления ❌";
-            }
+            } catch (e) { console.error(e); }
         }
 
-        // Функция пополнения
         function topUp() {
-            const amount = prompt("Введите сумму пополнения (₽):", "100");
-            if (!amount || isNaN(amount) || amount <= 0) return;
-            createTopupRequest(amount);
+            const amount = prompt("Сумма пополнения:", "500");
+            if (amount > 0) createTopupRequest(amount);
         }
 
         async function createTopupRequest(amount) {
             const user = tg.initDataUnsafe?.user;
-            document.getElementById('st').innerText = "Создаем счет...";
-            
             try {
-                const numAmount = parseFloat(amount.replace(',', '.')); 
                 const r = await fetch(`${URL}/api/create_topup`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
-                    body: JSON.stringify({ user_id: user.id, amount: numAmount })
+                    body: JSON.stringify({ user_id: user.id, amount: parseFloat(amount) })
                 });
                 const res = await r.json();
                 if (res.pay_url) tg.openLink(res.pay_url);
-            } catch (e) {
-                tg.showAlert("Ошибка при создании счета");
-            } finally {
-                document.getElementById('st').innerText = "";
-            }
+            } catch (e) { tg.showAlert("Ошибка платежа"); }
         }
 
-        // Создание заказа
         async function makeOrder() {
             const user = tg.initDataUnsafe?.user;
             const desc = document.getElementById('service-desc').value;
-            const btn = document.getElementById('buy-btn');
-
-            if (!desc.trim()) {
-                tg.showAlert("Пожалуйста, заполните ТЗ!");
-                return;
-            }
+            if (!desc.trim()) return tg.showAlert("Опишите задачу");
 
             tg.showPopup({
-                title: 'Подтверждение',
-                message: `Заказать "${selectedService.name}" за ${selectedService.price}₽?`,
-                buttons: [{id: 'yes', type: 'default', text: 'Оплатить'}, {type: 'cancel'}]
-            }, async (btnId) => {
-                if (btnId !== 'yes') return;
-
-                btn.disabled = true;
-                document.getElementById('st').innerText = "Обработка...";
-
+                title: 'Подтвердите оплату',
+                message: `Списать ${selectedService.price}₽ за "${selectedService.name}"?`,
+                buttons: [{id: 'ok', type: 'default', text: 'Оплатить'}, {type: 'cancel'}]
+            }, async (id) => {
+                if (id !== 'ok') return;
                 try {
                     const r = await fetch(`${URL}/api/create_order`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
                         body: JSON.stringify({ 
                             user_id: user.id,
-                            user_name: user.first_name + (user.username ? ` (@${user.username})` : ""),
+                            user_name: user.first_name,
                             service_name: selectedService.name,
                             description: desc,
                             price: selectedService.price
                         })
                     });
                     const res = await r.json();
-
                     if (r.ok) {
                         tg.HapticFeedback.notificationOccurred('success');
-                        tg.showAlert("Заказ успешно создан!");
-                        document.getElementById('service-desc').value = "";
+                        tg.showAlert("Готово! Заказ в работе.");
                         load();
                     } else if (res.error === 'need_topup') {
-                        tg.showPopup({
-                            title: "Недостаточно средств",
-                            message: `Вам не хватает ${selectedService.price - (res.balance || 0)}₽. Пополнить?`,
-                            buttons: [{id: "pay", type: "default", text: "Перейти к оплате"}, {type: "cancel"}]
-                        }, (id) => { if(id === 'pay') tg.openLink(res.pay_url); });
-                    } else {
-                        tg.showAlert("Ошибка: " + res.error);
+                        tg.openLink(res.pay_url);
                     }
-                } catch (e) {
-                    tg.showAlert("Сервер недоступен");
-                } finally {
-                    btn.disabled = false;
-                    document.getElementById('st').innerText = "";
-                }
+                } catch (e) { tg.showAlert("Ошибка связи"); }
             });
         }
 
-        // Первоначальная загрузка
         load();
     </script>
 </body>
