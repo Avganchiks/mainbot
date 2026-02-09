@@ -32,8 +32,6 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
-        h2, h3 { margin-top: 0; }
-
         .balance-num {
             font-size: 24px;
             font-weight: bold;
@@ -47,7 +45,6 @@
             border: 1px solid #ccc;
             border-radius: 8px;
             box-sizing: border-box;
-            font-family: inherit;
             background: var(--tg-theme-bg-color);
             color: var(--tg-theme-text-color);
         }
@@ -63,10 +60,7 @@
             border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 16px;
         }
-
-        button:active { transform: scale(0.98); }
 
         .hint { color: var(--tg-theme-hint-color); font-size: 14px; }
     </style>
@@ -76,68 +70,74 @@
     <div class="card">
         <h3>Привет, <span id="user-name">Гость</span>!</h3>
         <p class="hint">Твой баланс:</p>
-        <div class="balance-num"><span id="balance">Загрузка...</span> ₽</div>
+        <div class="balance-num"><span id="balance">...</span> ₽</div>
     </div>
 
     <div class="card">
         <h3>Оформить заказ</h3>
-        <label for="service">Выберите услугу:</label>
         <select id="service">
-            <option value="design" data-price="500">Дизайн логотипа (500 ₽)</option>
-            <option value="text" data-price="300">Написание текста (300 ₽)</option>
-            <option value="code" data-price="1000">Исправить баг (1000 ₽)</option>
+            <option value="500">Дизайн логотипа (500 ₽)</option>
+            <option value="300">Написание текста (300 ₽)</option>
+            <option value="1000">Исправить баг (1000 ₽)</option>
         </select>
-
-        <label for="tz">Техническое задание (ТЗ):</label>
-        <textarea id="tz" placeholder="Опишите, что нужно сделать..."></textarea>
-
-        <button id="order-btn">Отправить заказ и оплатить</button>
+        <textarea id="tz" placeholder="Опишите задачу..."></textarea>
+        <button id="order-btn">Отправить и оплатить</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // --- ЛОГИКА ПОЛУЧЕНИЯ БАЛАНСА ---
-        // Ищем параметр ?balance=... в ссылке
-        const urlParams = new URLSearchParams(window.location.search);
-        const currentBalance = urlParams.get('balance') || "0";
-        
-        // Устанавливаем баланс в текстовый блок
-        document.getElementById('balance').innerText = currentBalance;
+        // НАСТРОЙКА API
+        const API_BASE_URL = 'ВАШ_ПУБЛИЧНЫЙ_URL_API'; // Ссылка из ngrok
+        let currentBalance = 0;
 
-        // Выводим имя
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name;
-        }
-
-        // Логика нажатия кнопки
-        document.getElementById('order-btn').addEventListener('click', () => {
-            const serviceSelect = document.getElementById('service');
-            const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
-            const price = parseInt(selectedOption.getAttribute('data-price'));
-            const tzText = document.getElementById('tz').value;
-
-            // Простая проверка на ТЗ
-            if (!tzText.trim()) {
-                tg.showAlert("Пожалуйста, напишите ТЗ!");
+        async function fetchBalance() {
+            const userId = tg.initDataUnsafe?.user?.id;
+            if (!userId) {
+                document.getElementById('balance').innerText = "Ошибка ID";
                 return;
             }
 
-            // Проверка баланса прямо в приложении (для удобства)
-            if (parseInt(currentBalance) < price) {
-                tg.showAlert("У вас недостаточно средств на балансе!");
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/balance?user_id=${userId}`);
+                const data = await response.json();
+                currentBalance = data.balance;
+                document.getElementById('balance').innerText = currentBalance;
+            } catch (e) {
+                console.error(e);
+                document.getElementById('balance').innerText = "0";
+            }
+        }
+
+        // Запускаем получение баланса
+        fetchBalance();
+
+        if (tg.initDataUnsafe?.user) {
+            document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name;
+        }
+
+        document.getElementById('order-btn').addEventListener('click', () => {
+            const serviceSelect = document.getElementById('service');
+            const price = parseInt(serviceSelect.value);
+            const tzText = document.getElementById('tz').value;
+
+            if (!tzText.trim()) {
+                tg.showAlert("Напишите ТЗ!");
+                return;
+            }
+
+            if (currentBalance < price) {
+                tg.showAlert("Недостаточно средств!");
                 return;
             }
 
             const data = {
-                type: "new_order",
-                service: selectedOption.text,
+                service: serviceSelect.options[serviceSelect.selectedIndex].text,
                 price: price,
                 description: tzText
             };
 
-            // Отправляем данные боту
             tg.sendData(JSON.stringify(data));
         });
 
