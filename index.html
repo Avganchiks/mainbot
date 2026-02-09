@@ -42,12 +42,14 @@
 
         select, textarea {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin: 10px 0;
             border: 1px solid #ccc;
             border-radius: 8px;
             box-sizing: border-box;
             font-family: inherit;
+            background: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
         }
 
         textarea { height: 100px; resize: none; }
@@ -74,7 +76,7 @@
     <div class="card">
         <h3>Привет, <span id="user-name">Гость</span>!</h3>
         <p class="hint">Твой баланс:</p>
-        <div class="balance-num"><span id="balance">0</span> ₽</div>
+        <div class="balance-num"><span id="balance">Загрузка...</span> ₽</div>
     </div>
 
     <div class="card">
@@ -93,11 +95,18 @@
     </div>
 
     <script>
-        // Инициализация Telegram WebApp
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Разворачиваем приложение на весь экран
+        tg.expand();
 
-        // Выводим имя пользователя
+        // --- ЛОГИКА ПОЛУЧЕНИЯ БАЛАНСА ---
+        // Ищем параметр ?balance=... в ссылке
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentBalance = urlParams.get('balance') || "0";
+        
+        // Устанавливаем баланс в текстовый блок
+        document.getElementById('balance').innerText = currentBalance;
+
+        // Выводим имя
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name;
         }
@@ -106,26 +115,32 @@
         document.getElementById('order-btn').addEventListener('click', () => {
             const serviceSelect = document.getElementById('service');
             const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+            const price = parseInt(selectedOption.getAttribute('data-price'));
             const tzText = document.getElementById('tz').value;
 
+            // Простая проверка на ТЗ
             if (!tzText.trim()) {
-                alert("Пожалуйста, напишите ТЗ!");
+                tg.showAlert("Пожалуйста, напишите ТЗ!");
                 return;
             }
 
-            // Формируем данные для отправки боту
+            // Проверка баланса прямо в приложении (для удобства)
+            if (parseInt(currentBalance) < price) {
+                tg.showAlert("У вас недостаточно средств на балансе!");
+                return;
+            }
+
             const data = {
                 type: "new_order",
                 service: selectedOption.text,
-                price: parseInt(selectedOption.getAttribute('data-price')),
+                price: price,
                 description: tzText
             };
 
-            // Отправляем данные боту (закрывает Mini App)
+            // Отправляем данные боту
             tg.sendData(JSON.stringify(data));
         });
 
-        // Сообщаем ТГ, что всё готово
         tg.ready();
     </script>
 </body>
