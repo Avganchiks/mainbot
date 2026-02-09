@@ -230,6 +230,18 @@
     let userBalance = 0;
     const userId = tg.initDataUnsafe?.user?.id;
 
+
+
+    async function loadBalance() {
+    try {
+        const response = await fetch(`${API_URL}/get_balance/${userId}`);
+        const data = await response.json();
+        document.getElementById('balance').innerText = data.balance.toFixed(2) + ' руб.';
+    } catch (e) {
+        console.error("Ошибка загрузки баланса:", e);
+    }
+}
+
     // --- ЗАГРУЗКА ДАННЫХ С СЕРВЕРА ---
    async function fetchUserData() {
         if (!userId) {
@@ -366,5 +378,6 @@
 </script>
 </body>
 </html>
+
 
 
