@@ -3,63 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini App Balance</title>
+    <title>Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 280px; }
-        .user-name { color: #888; font-size: 14px; margin-bottom: 5px; }
-        .balance-label { font-size: 18px; color: #333; }
-        .balance-val { font-size: 36px; font-weight: bold; color: #3390ec; margin: 10px 0; }
-        .btn { background: #3390ec; color: white; border: none; padding: 12px 25px; border-radius: 12px; cursor: pointer; width: 100%; font-size: 16px; }
-        .status { font-size: 11px; color: #aaa; margin-top: 15px; }
+        body { font-family: sans-serif; background: #1c2733; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #242f3d; padding: 30px; border-radius: 20px; text-align: center; width: 80%; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .balance { font-size: 42px; font-weight: bold; color: #64b5f6; margin: 15px 0; }
+        .btn { background: #3390ec; color: white; border: none; padding: 12px 20px; border-radius: 10px; width: 100%; font-size: 16px; cursor: pointer; }
+        .status { font-size: 12px; color: #708499; margin-top: 10px; }
     </style>
 </head>
 <body>
+    <div class="card">
+        <div id="name">Загрузка...</div>
+        <div style="margin-top:10px; color:#aaa;">Ваш баланс:</div>
+        <div class="balance"><span id="bal">0</span> ₽</div>
+        <button class="btn" onclick="load()">Обновить</button>
+        <div id="st" class="status">Проверка связи...</div>
+    </div>
 
-<div class="card">
-    <div class="user-name" id="user-name">Загрузка...</div>
-    <div class="balance-label">Ваш баланс</div>
-    <div class="balance-val"><span id="balance">0</span> ₽</div>
-    <button class="btn" onclick="fetchBalance()">Обновить</button>
-    <div id="status" class="status">Синхронизация...</div>
-</div>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
 
-<script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
+        // СЮДА СТАВИШЬ СВОЮ АКТУАЛЬНУЮ ССЫЛКУ ИЗ NGROK
+        const URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev';
 
-    const API_URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev';
+        async function load() {
+            const id = tg.initDataUnsafe?.user?.id;
+            const balEl = document.getElementById('bal');
+            const stEl = document.getElementById('st');
 
-    async function fetchBalance() {
-        const userId = tg.initDataUnsafe?.user?.id;
-        const statusEl = document.getElementById('status');
-        const balanceEl = document.getElementById('balance');
+            if (!id) { stEl.innerText = "Запустите в Telegram"; return; }
 
-        if (!userId) {
-            statusEl.innerText = "Ошибка: ID не найден";
-            return;
+            try {
+                // Заголовок ngrok-skip-browser-warning обязателен, чтобы не видеть 404/Warning
+                const r = await fetch(`${URL}/api/balance?user_id=${id}`, {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                
+                if (!r.ok) throw new Error();
+                const data = await r.json();
+                
+                balEl.innerText = Math.floor(data.balance);
+                stEl.innerText = "Данные обновлены ✅";
+            } catch (e) {
+                stEl.innerText = "Ошибка: проверь сервер и ngrok ❌";
+            }
         }
 
-        try {
-            statusEl.innerText = "Обновление...";
-            // Добавляем timestamp для обхода кэша
-            const response = await fetch(`${API_URL}/api/balance?user_id=${userId}&v=${Date.now()}`);
-            if (!response.ok) throw new Error("Ошибка сети");
-            
-            const data = await response.json();
-            // Округляем до целого числа
-            balanceEl.innerText = Math.floor(data.balance).toLocaleString();
-            statusEl.innerText = "Данные актуальны ✅";
-        } catch (e) {
-            statusEl.innerText = "Сервер недоступен ❌";
-            console.error(e);
-        }
-    }
-
-    document.getElementById('user-name').innerText = tg.initDataUnsafe?.user?.first_name || "Пользователь";
-    fetchBalance();
-</script>
-
+        document.getElementById('name').innerText = "Привет, " + (tg.initDataUnsafe?.user?.first_name || "Carrera_Blanca");
+        load();
+    </script>
 </body>
 </html>
