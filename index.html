@@ -9,7 +9,8 @@
         body { font-family: sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
         .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .balance-val { font-size: 28px; font-weight: bold; color: #3390ec; }
-        .btn { width: 100%; padding: 12px; background: #3390ec; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; }
+        .btn { width: 100%; padding: 12px; background: #3390ec; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; transition: 0.2s; }
+        .btn:active { background: #2870b8; transform: scale(0.98); }
         .status { font-size: 12px; color: gray; margin-top: 5px; }
     </style>
 </head>
@@ -18,40 +19,55 @@
     <div class="card">
         <div>Привет, <span id="user-name">...</span>!</div>
         <div style="margin-top: 10px;">Ваш баланс:</div>
-        <div class="balance-val"><span id="balance">0</span> ₽</div>
-        <div id="api-status" class="status">Обновление...</div>
+        <div class="balance-val"><span id="balance">...</span> ₽</div>
+        <div id="api-status" class="status">Подключение к серверу...</div>
     </div>
 
-    <button class="btn" onclick="location.reload()">Обновить баланс</button>
+    <button class="btn" onclick="getBalance()">Обновить баланс</button>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // СЮДА ВСТАВЬ СВОЮ ССЫЛКУ ИЗ NGROK
+        // Твоя актуальная ссылка (проверь, что она совпадает с той, что в терминале ngrok)
         const API_URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev'; 
 
         async function getBalance() {
             const userId = tg.initDataUnsafe?.user?.id;
+            const balanceElement = document.getElementById('balance');
             const status = document.getElementById('api-status');
 
             if (!userId) {
-                status.innerText = "Ошибка: ID не найден";
+                status.innerText = "Ошибка: Запустите через Telegram";
                 return;
             }
 
+            status.innerText = "Обновляю...";
+
             try {
-                const response = await fetch(`${API_URL}/api/balance?user_id=${userId}`);
+                // Добавляем ?_t=..., чтобы браузер не показывал старый баланс из памяти
+                const response = await fetch(`${API_URL}/api/balance?user_id=${userId}&_t=${Date.now()}`);
+                
+                if (!response.ok) throw new Error("Сервер недоступен");
+
                 const data = await response.json();
-                document.getElementById('balance').innerText = data.balance;
-                status.innerText = "Данные синхронизированы";
+                
+                // Округляем 2000.0 до 2000 для красоты
+                const prettyBalance = Math.floor(data.balance);
+                
+                balanceElement.innerText = prettyBalance;
+                status.innerText = "Данные синхронизированы ✅";
             } catch (e) {
-                status.innerText = "Ошибка соединения с сервером";
-                console.error(e);
+                status.innerText = "Ошибка! Проверь ngrok и нажми 'Visit Site'";
+                balanceElement.innerText = "0";
+                console.error("API Error:", e);
             }
         }
 
+        // Подставляем имя
         document.getElementById('user-name').innerText = tg.initDataUnsafe?.user?.first_name || "Гость";
+        
+        // Запускаем при открытии
         getBalance();
     </script>
 </body>
