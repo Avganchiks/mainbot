@@ -2,113 +2,159 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Store App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Store Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #1c2733);
+            --sec-bg: var(--tg-theme-secondary-bg-color, #242f3d);
+            --text-color: var(--tg-theme-text-color, #ffffff);
+            --hint-color: var(--tg-theme-hint-color, #708499);
+            --link-color: var(--tg-theme-link-color, #64b5f6);
+            --button-color: var(--tg-theme-button-color, #3390ec);
+            --button-text: var(--tg-theme-button-text-color, #ffffff);
+        }
+
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            background: #1c2733; color: white; display: flex; justify-content: center; align-items: center; 
-            min-height: 100vh; margin: 0; overflow-x: hidden;
+            background: var(--bg-color); color: var(--text-color);
+            margin: 0; padding: 0; padding-bottom: 90px; overflow-x: hidden;
         }
-        .card { 
-            background: #242f3d; padding: 25px; border-radius: 24px; text-align: center; 
-            width: 85%; max-width: 320px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); 
-        }
-        .user-name { font-weight: bold; font-size: 20px; margin-bottom: 4px; color: #fff; }
-        .tg-id { color: #64b5f6; font-size: 13px; margin-bottom: 20px; opacity: 0.8; }
-        
-        /* Баланс */
-        .balance-box { 
-            background: rgba(100, 181, 246, 0.1); border: 1px solid rgba(100, 181, 246, 0.2);
-            padding: 15px; border-radius: 18px; margin-bottom: 20px; position: relative;
-        }
-        .balance-label { color: #8ab4f8; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-        .balance-val { font-size: 32px; font-weight: 800; color: #fff; display: block; margin-top: 5px; }
 
-        /* Кнопки управления балансом */
-        .balance-actions { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
-        .mini-btn {
-            background: rgba(255, 255, 255, 0.1); border: none; color: white;
-            padding: 6px 12px; border-radius: 10px; font-size: 12px; cursor: pointer;
-            transition: 0.2s;
+        /* Навигация (Tab Bar) */
+        .tab-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--sec-bg); display: flex; justify-content: space-around;
+            padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.05); z-index: 1000;
+            backdrop-filter: blur(10px);
         }
-        .mini-btn:active { transform: scale(0.9); }
-        .btn-plus { background: #3390ec; font-weight: bold; }
+        .tab-item {
+            display: flex; flex-direction: column; align-items: center;
+            font-size: 12px; color: var(--hint-color); cursor: pointer; transition: 0.2s;
+            flex: 1;
+        }
+        .tab-item.active { color: var(--button-color); }
+        .tab-icon { font-size: 22px; margin-bottom: 4px; }
 
-        /* Плитки услуг */
-        .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
-        .service-card {
-            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px 5px; border-radius: 14px; cursor: pointer; transition: all 0.2s ease;
+        /* Контейнеры страниц */
+        .page { display: none; padding: 20px; animation: fadeIn 0.2s ease-out; }
+        .page.active { display: block; }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(8px); } 
+            to { opacity: 1; transform: translateY(0); } 
         }
-        .service-card.active {
-            background: rgba(51, 144, 236, 0.2); border-color: #3390ec; transform: translateY(-2px);
+
+        h2 { margin-top: 0; font-size: 24px; font-weight: 700; }
+
+        /* Сетка плиток (Заказы) */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+        .tile {
+            background: var(--sec-bg); border-radius: 18px; padding: 22px 12px;
+            text-align: center; border: 2px solid transparent; transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-        .service-card .title { font-size: 13px; font-weight: bold; display: block; }
-        .service-card .price { font-size: 11px; color: #8ab4f8; margin-top: 4px; display: block; }
+        .tile.active { 
+            border-color: var(--button-color); 
+            background: rgba(51, 144, 236, 0.1); 
+            transform: scale(1.02);
+        }
+        .tile .title { font-weight: 700; font-size: 17px; display: block; }
+        .tile .price { color: var(--link-color); font-size: 14px; margin-top: 6px; display: block; font-weight: 500; }
 
         /* Поле ввода ТЗ */
-        .input-group { text-align: left; margin-bottom: 20px; }
-        .input-group label { font-size: 12px; color: #8ab4f8; margin-left: 5px; }
-        textarea { 
-            width: 100%; padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);
-            background: #17212b; color: white; font-size: 14px; margin-top: 5px; box-sizing: border-box;
-            height: 80px; resize: none; outline: none;
+        .input-box { margin-top: 25px; }
+        label { font-size: 14px; color: var(--hint-color); display: block; margin-bottom: 8px; margin-left: 5px;}
+        textarea {
+            width: 100%; height: 110px; background: var(--sec-bg); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px; color: white; padding: 15px; box-sizing: border-box; 
+            resize: none; outline: none; font-size: 15px; transition: 0.2s;
         }
-        textarea:focus { border-color: #3390ec; }
-        
-        .btn-group { display: flex; flex-direction: column; gap: 10px; }
-        .btn { 
-            border: none; padding: 16px; border-radius: 14px; font-size: 16px; 
-            font-weight: 600; cursor: pointer; transition: all 0.2s ease; 
+        textarea:focus { border-color: var(--button-color); }
+
+        /* Профиль */
+        .profile-card {
+            background: var(--sec-bg); padding: 30px 20px; border-radius: 24px;
+            text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            margin-top: 10px;
         }
-        .btn-buy { background: #3390ec; color: white; width: 100%; }
-        .btn:active { transform: scale(0.96); opacity: 0.9; }
-        .btn:disabled { background: #3d4b59; color: #708499; cursor: not-allowed; }
+        .balance-val { font-size: 42px; font-weight: 800; display: block; margin: 15px 0; color: #fff; }
+        .user-name { font-size: 24px; font-weight: 800; margin-bottom: 5px; }
         
-        .status { font-size: 12px; color: #708499; margin-top: 15px; min-height: 15px; }
+        /* Кнопки */
+        .btn {
+            background: var(--button-color); color: var(--button-text);
+            border: none; width: 100%; padding: 18px; border-radius: 16px;
+            font-size: 16px; font-weight: 700; margin-top: 20px; cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn:active { transform: scale(0.97); opacity: 0.9; }
+        .btn:disabled { background: var(--hint-color); opacity: 0.6; }
+        
+        .btn-refresh { 
+            background: rgba(255,255,255,0.08); 
+            margin-top: 12px; font-size: 14px; padding: 12px;
+        }
+
+        #st { text-align: center; font-size: 13px; color: var(--hint-color); margin-top: 15px; min-height: 1.2em;}
     </style>
 </head>
 <body>
-    <div class="card">
-        <div id="name" class="user-name">Загрузка...</div>
-        <div id="user-id" class="tg-id">ID: 00000000</div>
-        
-        <div class="balance-box">
-            <span class="balance-label">Ваш баланс</span>
-            <span id="bal" class="balance-val">0 ₽</span>
-            <div class="balance-actions">
-                <button class="mini-btn" onclick="load()">🔄 Обновить</button>
-                <button class="mini-btn btn-plus" onclick="topUp()">➕ Пополнить</button>
-            </div>
-        </div>
 
-        <div class="services-grid" id="services">
-            <div class="service-card active" onclick="selectService(this, 'SEO', 130)">
+    <div id="page-orders" class="page active">
+        <h2>Новый заказ</h2>
+        <div class="grid">
+            <div class="tile active" onclick="selectService(this, 'SEO', 130)">
                 <span class="title">SEO</span>
                 <span class="price">130 ₽</span>
             </div>
-            <div class="service-card" onclick="selectService(this, 'Архив', 250)">
+            <div class="tile" onclick="selectService(this, 'Архив', 250)">
                 <span class="title">Архив</span>
                 <span class="price">250 ₽</span>
             </div>
-            <div class="service-card" onclick="selectService(this, 'Залив', 100)">
+            <div class="tile" onclick="selectService(this, 'Залив', 100)">
                 <span class="title">Залив</span>
                 <span class="price">100 ₽</span>
             </div>
+            <div class="tile" onclick="selectService(this, 'Пролив', 500)">
+                <span class="title">Пролив</span>
+                <span class="price">500 ₽</span>
+            </div>
         </div>
 
-        <div class="input-group">
-            <label>Техническое задание:</label>
-            <textarea id="service-desc" placeholder="Опишите детали заказа..."></textarea>
+        <div class="input-box">
+            <label>Техническое задание (ТЗ):</label>
+            <textarea id="service-desc" placeholder="Опишите, что именно нужно сделать воркерам..."></textarea>
         </div>
-        
-        <div class="btn-group">
-            <button class="btn btn-buy" id="buy-btn" onclick="makeOrder()">🛒 Заказать за <span id="current-price">130</span> ₽</button>
+
+        <button class="btn" id="buy-btn" onclick="makeOrder()">🛒 Купить за <span id="current-price">130</span> ₽</button>
+        <div id="st"></div>
+    </div>
+
+    <div id="page-profile" class="page">
+        <h2>Мой профиль</h2>
+        <div class="profile-card">
+            <div class="user-info">
+                <div id="name" class="user-name">Загрузка...</div>
+                <div id="user-id" style="color:var(--hint-color); font-size:15px; margin-bottom: 20px;">ID: 000000</div>
+            </div>
+            <span style="color:var(--hint-color); font-size:13px; text-transform:uppercase; letter-spacing: 1px;">Доступный баланс</span>
+            <span id="bal" class="balance-val">0 ₽</span>
+            <button class="btn" onclick="topUp()">➕ Пополнить баланс</button>
+            <button class="btn btn-refresh" onclick="load()">🔄 Обновить</button>
         </div>
-        
-        <div id="st" class="status"></div>
+    </div>
+
+    <div class="tab-bar">
+        <div class="tab-item active" onclick="showPage('orders', this)">
+            <span class="tab-icon">🛒</span>
+            <span>Заказы</span>
+        </div>
+        <div class="tab-item" onclick="showPage('profile', this)">
+            <span class="tab-icon">👤</span>
+            <span>Профиль</span>
+        </div>
     </div>
 
     <script>
@@ -116,79 +162,31 @@
         tg.expand();
         tg.enableClosingConfirmation();
 
-        // ССЫЛКА НА ТВОЙ BACKEND (БЕЗ слэша в конце)
-        const URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev';
+        // --- НАСТРОЙКИ ---
+        const URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev'; // ЗАМЕНИ НА СВОЙ URL
         let selectedService = { name: 'SEO', price: 130 };
 
+        // Переключение вкладок
+        function showPage(pageId, el) {
+            tg.HapticFeedback.impactOccurred('light');
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById('page-' + pageId).classList.add('active');
+            el.classList.add('active');
+        }
+
+        // Выбор плитки
         function selectService(el, name, price) {
             tg.HapticFeedback.selectionChanged();
-            document.querySelectorAll('.service-card').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tile').forEach(c => c.classList.remove('active'));
             el.classList.add('active');
             
             selectedService = { name, price };
             document.getElementById('current-price').innerText = price;
         }
 
-        // РУЧНОЕ ПОПОЛНЕНИЕ
-        function topUp() {
-            tg.showPopup({
-                title: 'Пополнение баланса',
-                message: 'Введите сумму, на которую хотите пополнить кошелек',
-                buttons: [{id: 'ok', type: 'default', text: 'Ввести сумму'}, {type: 'cancel'}]
-            }, (btnId) => {
-                if (btnId === 'ok') {
-                    // Используем prompt для простоты или можно сделать свой input
-                    const amount = prompt("Введите сумму пополнения (₽):", "100");
-                    if (!amount || isNaN(amount) || amount <= 0) return;
-                    
-                    createTopupRequest(amount);
-                }
-            });
-        }
-
-       async function createTopupRequest(amount) {
-    const user = tg.initDataUnsafe?.user;
-    if (!user) {
-        tg.showAlert("Ошибка: Данные пользователя не найдены");
-        return;
-    }
-
-    document.getElementById('st').innerText = "Создаем счет...";
-    
-    try {
-        // Обязательно преобразуем в число и проверяем
-        const numAmount = parseFloat(amount.replace(',', '.')); 
-        
-        const r = await fetch(`${URL}/api/create_topup`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'ngrok-skip-browser-warning': 'true' // Важно для работы через Ngrok
-            },
-            body: JSON.stringify({ 
-                user_id: user.id, 
-                amount: numAmount 
-            })
-        });
-
-        if (!r.ok) {
-            throw new Error(`Ошибка сервера: ${r.status}`);
-        }
-
-        const res = await r.json();
-        
-        if (res.pay_url) {
-            tg.openLink(res.pay_url);
-        } else {
-            tg.showAlert("Ошибка: Сервер не прислал ссылку на оплату");
-        }
-    } catch (e) {
-        console.error(e);
-        tg.showAlert("Ошибка связи с сервером. Проверьте, запущен ли бэкенд и Ngrok.");
-    } finally {
-        document.getElementById('st').innerText = "";
-    }
-}
+        // Загрузка данных пользователя
         async function load() {
             const user = tg.initDataUnsafe?.user;
             if (!user) return;
@@ -201,45 +199,65 @@
                 });
                 const data = await r.json();
                 document.getElementById('bal').innerText = Math.floor(data.balance).toLocaleString() + " ₽";
-                document.getElementById('st').innerText = "Данные обновлены ✅";
+                document.getElementById('st').innerText = "Данные обновлены";
                 setTimeout(() => { document.getElementById('st').innerText = ""; }, 2000);
             } catch (e) {
-                document.getElementById('st').innerText = "Ошибка сервера ❌";
+                document.getElementById('st').innerText = "Ошибка обновления ❌";
             }
         }
 
+        // Функция пополнения
+        function topUp() {
+            const amount = prompt("Введите сумму пополнения (₽):", "100");
+            if (!amount || isNaN(amount) || amount <= 0) return;
+            createTopupRequest(amount);
+        }
+
+        async function createTopupRequest(amount) {
+            const user = tg.initDataUnsafe?.user;
+            document.getElementById('st').innerText = "Создаем счет...";
+            
+            try {
+                const numAmount = parseFloat(amount.replace(',', '.')); 
+                const r = await fetch(`${URL}/api/create_topup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+                    body: JSON.stringify({ user_id: user.id, amount: numAmount })
+                });
+                const res = await r.json();
+                if (res.pay_url) tg.openLink(res.pay_url);
+            } catch (e) {
+                tg.showAlert("Ошибка при создании счета");
+            } finally {
+                document.getElementById('st').innerText = "";
+            }
+        }
+
+        // Создание заказа
         async function makeOrder() {
             const user = tg.initDataUnsafe?.user;
             const desc = document.getElementById('service-desc').value;
             const btn = document.getElementById('buy-btn');
 
             if (!desc.trim()) {
-                tg.showAlert("Пожалуйста, заполните ТЗ для воркеров!");
+                tg.showAlert("Пожалуйста, заполните ТЗ!");
                 return;
             }
 
-            tg.HapticFeedback.impactOccurred('medium');
-            
             tg.showPopup({
                 title: 'Подтверждение',
                 message: `Заказать "${selectedService.name}" за ${selectedService.price}₽?`,
-                buttons: [
-                    {id: 'yes', type: 'default', text: 'Да, заказать'},
-                    {id: 'no', type: 'destructive', text: 'Отмена'}
-                ]
+                buttons: [{id: 'yes', type: 'default', text: 'Оплатить'}, {type: 'cancel'}]
             }, async (btnId) => {
                 if (btnId !== 'yes') return;
 
                 btn.disabled = true;
-                document.getElementById('st').innerText = "Оформление...";
+                document.getElementById('st').innerText = "Обработка...";
 
                 try {
                     const r = await fetch(`${URL}/api/create_order`, {
                         method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'ngrok-skip-browser-warning': 'true'
-                        },
+                        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
                         body: JSON.stringify({ 
                             user_id: user.id,
                             user_name: user.first_name + (user.username ? ` (@${user.username})` : ""),
@@ -248,38 +266,24 @@
                             price: selectedService.price
                         })
                     });
-
                     const res = await r.json();
 
                     if (r.ok) {
                         tg.HapticFeedback.notificationOccurred('success');
-                        tg.showPopup({ 
-                            title: "Успешно!", 
-                            message: "Заказ и ТЗ переданы воркерам. Ожидайте!", 
-                            buttons: [{type: "ok"}] 
-                        }, () => {
-                            document.getElementById('service-desc').value = "";
-                            load();
-                        });
+                        tg.showAlert("Заказ успешно создан!");
+                        document.getElementById('service-desc').value = "";
+                        load();
                     } else if (res.error === 'need_topup') {
-                        tg.HapticFeedback.notificationOccurred('warning');
                         tg.showPopup({
                             title: "Недостаточно средств",
-                            message: res.msg,
-                            buttons: [
-                                {id: "pay", type: "default", text: "💎 Оплатить"},
-                                {type: "cancel", text: "Позже"}
-                            ]
-                        }, (buttonId) => {
-                            if (buttonId === "pay") {
-                                tg.openLink(res.pay_url);
-                            }
-                        });
+                            message: `Вам не хватает ${selectedService.price - (res.balance || 0)}₽. Пополнить?`,
+                            buttons: [{id: "pay", type: "default", text: "Перейти к оплате"}, {type: "cancel"}]
+                        }, (id) => { if(id === 'pay') tg.openLink(res.pay_url); });
                     } else {
                         tg.showAlert("Ошибка: " + res.error);
                     }
                 } catch (e) {
-                    tg.showAlert("Ошибка связи с сервером");
+                    tg.showAlert("Сервер недоступен");
                 } finally {
                     btn.disabled = false;
                     document.getElementById('st').innerText = "";
@@ -287,10 +291,8 @@
             });
         }
 
+        // Первоначальная загрузка
         load();
     </script>
 </body>
 </html>
-
-
-
