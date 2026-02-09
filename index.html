@@ -104,6 +104,7 @@
         tg.expand();
         tg.enableClosingConfirmation();
 
+        // ССЫЛКА НА ТВОЙ BACKEND
         const URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev';
         let selectedService = { name: 'SEO', price: 130 };
 
@@ -146,47 +147,74 @@
             }
 
             tg.HapticFeedback.impactOccurred('medium');
-            if (!confirm(`Подтверждаете заказ "${selectedService.name}" за ${selectedService.price}₽?`)) return;
+            
+            // Заменяем стандартный confirm на Telegram Popup для стиля
+            tg.showPopup({
+                title: 'Подтверждение',
+                message: `Заказать "${selectedService.name}" за ${selectedService.price}₽?`,
+                buttons: [
+                    {id: 'yes', type: 'default', text: 'Да, заказать'},
+                    {id: 'no', type: 'destructive', text: 'Отмена'}
+                ]
+            }, async (btnId) => {
+                if (btnId !== 'yes') return;
 
-            btn.disabled = true;
-            document.getElementById('st').innerText = "Оформление...";
+                btn.disabled = true;
+                document.getElementById('st').innerText = "Оформление...";
 
-            try {
-                const r = await fetch(`${URL}/api/create_order`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'ngrok-skip-browser-warning': 'true'
-                    },
-                    body: JSON.stringify({ 
-                        user_id: user.id,
-                        user_name: user.first_name + (user.username ? ` (@${user.username})` : ""),
-                        service_name: selectedService.name,
-                        description: desc,
-                        price: selectedService.price
-                    })
-                });
-
-                if (r.ok) {
-                    tg.HapticFeedback.notificationOccurred('success');
-                    tg.showPopup({ 
-                        title: "Успешно!", 
-                        message: "Заказ и ТЗ переданы воркерам. Ожидайте!", 
-                        buttons: [{type: "ok"}] 
-                    }, () => {
-                        document.getElementById('service-desc').value = "";
-                        load();
+                try {
+                    const r = await fetch(`${URL}/api/create_order`, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'ngrok-skip-browser-warning': 'true'
+                        },
+                        body: JSON.stringify({ 
+                            user_id: user.id,
+                            user_name: user.first_name + (user.username ? ` (@${user.username})` : ""),
+                            service_name: selectedService.name,
+                            description: desc,
+                            price: selectedService.price
+                        })
                     });
-                } else {
+
                     const res = await r.json();
-                    tg.showAlert("Ошибка: " + res.error);
+
+                    if (r.ok) {
+                        tg.HapticFeedback.notificationOccurred('success');
+                        tg.showPopup({ 
+                            title: "Успешно!", 
+                            message: "Заказ и ТЗ переданы воркерам. Ожидайте!", 
+                            buttons: [{type: "ok"}] 
+                        }, () => {
+                            document.getElementById('service-desc').value = "";
+                            load();
+                        });
+                    } else if (res.error === 'need_topup') {
+                        // КЕЙС: НЕ ХВАТАЕТ ДЕНЕГ - ПОДКЛЮЧАЕМ CRYSTAL PAY
+                        tg.HapticFeedback.notificationOccurred('warning');
+                        tg.showPopup({
+                            title: "Недостаточно средств",
+                            message: res.msg,
+                            buttons: [
+                                {id: "pay", type: "default", text: "💎 Оплатить"},
+                                {type: "cancel", text: "Позже"}
+                            ]
+                        }, (buttonId) => {
+                            if (buttonId === "pay") {
+                                tg.openLink(res.pay_url); // Открываем ссылку на CrystalPay
+                            }
+                        });
+                    } else {
+                        tg.showAlert("Ошибка: " + res.error);
+                    }
+                } catch (e) {
+                    tg.showAlert("Ошибка связи с сервером");
+                } finally {
+                    btn.disabled = false;
+                    document.getElementById('st').innerText = "";
                 }
-            } catch (e) {
-                tg.showAlert("Ошибка связи с сервером");
-            } finally {
-                btn.disabled = false;
-                document.getElementById('st').innerText = "";
-            }
+            });
         }
 
         load();
