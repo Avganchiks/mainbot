@@ -39,37 +39,40 @@
         .user-name { font-size: 20px; font-weight: 700; }
         .tg-id { font-size: 12px; color: var(--text-secondary); }
 
+        /* Стили для раздела Инфо */
+        .info-container { display: flex; flex-direction: column; gap: 16px; }
+        .info-card {
+            background: var(--card-bg);
+            padding: 20px; border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .info-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .info-text { font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px; }
+        
+        .big-link-btn {
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 16px; border-radius: 18px;
+            color: white; text-decoration: none; font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .big-link-btn:active { transform: scale(0.98); background: rgba(59, 130, 246, 0.2); }
+        .link-icon { font-size: 24px; }
+
+        /* Баланс и прочее */
         .balance-card {
             background: var(--accent-gradient);
             padding: 24px; border-radius: 24px;
             box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
-            margin-bottom: 24px; position: relative; overflow: hidden;
+            margin-bottom: 24px;
         }
         .balance-val { font-size: 32px; font-weight: 800; margin: 8px 0 20px 0; display: block; }
         .balance-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
         .mini-btn {
             background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2); color: white;
             padding: 10px; border-radius: 12px; font-weight: 600; cursor: pointer;
-        }
-
-        /* Новые стили для инфо-блока */
-        .info-card {
-            background: var(--card-bg);
-            padding: 16px; border-radius: 20px;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            margin-bottom: 24px;
-        }
-        .info-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-        .info-link {
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            color: var(--accent-blue);
-            text-decoration: none;
-            padding: 10px; border-radius: 12px;
-            font-size: 13px; font-weight: 600;
-            text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px;
         }
 
         .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
@@ -78,13 +81,6 @@
             padding: 16px 10px; border-radius: 20px; text-align: center; cursor: pointer;
         }
         .service-card.active { border-color: var(--accent-blue); background: rgba(59, 130, 246, 0.15); }
-
-        .order-item {
-            background: var(--card-bg); padding: 16px; border-radius: 18px;
-            margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.05);
-        }
-        .order-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .order-status { font-size: 12px; padding: 4px 8px; border-radius: 8px; background: rgba(59, 130, 246, 0.2); color: var(--accent-blue); }
 
         textarea {
             width: 100%; padding: 16px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.1);
@@ -110,7 +106,6 @@
             padding: 18px; border-radius: 20px; font-size: 17px; font-weight: 700;
             width: 100%; cursor: pointer; margin-top: 20px;
         }
-        .status { font-size: 13px; color: var(--accent-blue); text-align: center; margin-top: 15px; min-height: 20px;}
         .section-title { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;}
     </style>
 </head>
@@ -143,28 +138,36 @@
         <div class="section-title">Техническое задание</div>
         <textarea id="service-desc" placeholder="Опишите детали заказа..."></textarea>
         
-        <button class="btn-buy" id="buy-btn" onclick="makeOrder()">
+        <button class="btn-buy" onclick="makeOrder()">
             Оформить за <span id="current-price">130</span> ₽
         </button>
-        <div id="st" class="status"></div>
+        <div id="st" style="text-align:center; margin-top:10px; font-size:13px; color:var(--accent-blue);"></div>
     </div>
 
-    <div id="tab-orders" class="tab-content">
-        <div class="section-title">Информация</div>
-        <div class="info-card">
-            <div style="font-size: 14px; line-height: 1.4; color: var(--text-main);">
-                Возникли вопросы или предложения? Мы всегда на связи в поддержке и основном канале.
+    <div id="tab-info" class="tab-content">
+        <div class="section-title">Поддержка и ресурсы</div>
+        
+        <div class="info-container">
+            <div class="info-card">
+                <div class="info-title"><span>🤝</span> Поддержка</div>
+                <div class="info-text">Если у вас возникли вопросы по оплате или выполнению заказа, наш менеджер поможет вам.</div>
+                <a href="https://t.me/Alexandria_supp" class="big-link-btn">
+                    <span>Написать менеджеру</span>
+                    <span class="link-icon">💬</span>
+                </a>
             </div>
-            <div class="info-buttons">
-                <a href="https://t.me/Alexandria_supp" class="info-link">🎧 Поддержка</a>
-                <a href="https://t.me/transferalexandria" class="info-link">📢 Наш канал</a>
-            </div>
-        </div>
 
-        <div class="section-title">Мои заказы</div>
-        <div id="orders-list">
-            <div style="text-align: center; color: var(--text-secondary); margin-top: 40px;">
-                Загрузка истории...
+            <div class="info-card">
+                <div class="info-title"><span>📊</span> Наша деятельность</div>
+                <div class="info-text">Узнайте больше о наших услугах, посмотрите кейсы и отзывы в официальном канале.</div>
+                <a href="https://t.me/transferalexandria" class="big-link-btn" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);">
+                    <span>Перейти в канал</span>
+                    <span class="link-icon">📢</span>
+                </a>
+            </div>
+            
+            <div style="text-align: center; color: var(--text-secondary); font-size: 12px; margin-top: 10px;">
+                График работы: 24/7<br>Среднее время ответа: 15 минут
             </div>
         </div>
     </div>
@@ -184,10 +187,7 @@
                 <button class="mini-btn" onclick="topUp()">➕ Пополнить</button>
             </div>
         </div>
-
-        <div class="order-item" style="text-align: center; opacity: 0.7;">
-            Версия приложения: 2.0 Gold
-        </div>
+        <div class="info-card" style="text-align: center; opacity: 0.7; padding: 10px;">Версия: 2.0 Gold</div>
     </div>
 
     <div class="nav-bar">
@@ -195,9 +195,9 @@
             <span class="nav-icon">🛍️</span>
             <span>Магазин</span>
         </div>
-        <div class="nav-item" onclick="switchTab('orders', this)">
-            <span class="nav-icon">📋</span>
-            <span>Заказы</span>
+        <div class="nav-item" onclick="switchTab('info', this)">
+            <span class="nav-icon">ℹ️</span>
+            <span>Инфо</span>
         </div>
         <div class="nav-item" onclick="switchTab('profile', this)">
             <span class="nav-icon">👤</span>
@@ -208,7 +208,6 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.enableClosingConfirmation();
         tg.setHeaderColor('#0f172a');
 
         const URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev';
@@ -220,7 +219,6 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
             el.classList.add('active');
-            if (tabId === 'orders') loadOrders();
             if (tabId === 'profile') load();
         }
 
@@ -237,7 +235,6 @@
             if (!user) return;
             document.getElementById('name').innerText = user.first_name;
             document.getElementById('user-id').innerText = "ID: " + user.id;
-
             try {
                 const r = await fetch(`${URL}/api/balance?user_id=${user.id}`, {
                     headers: { 'ngrok-skip-browser-warning': 'true' }
@@ -245,37 +242,6 @@
                 const data = await r.json();
                 document.getElementById('bal').innerText = Math.floor(data.balance).toLocaleString() + " ₽";
             } catch (e) { console.error(e); }
-        }
-
-        async function loadOrders() {
-            const user = tg.initDataUnsafe?.user;
-            const container = document.getElementById('orders-list');
-            try {
-                const r = await fetch(`${URL}/api/my_orders?user_id=${user.id}`, {
-                    headers: { 'ngrok-skip-browser-warning': 'true' }
-                });
-                const orders = await r.json();
-                
-                if (orders.length === 0) {
-                    container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); margin-top: 40px;">У вас пока нет заказов</div>';
-                    return;
-                }
-
-                container.innerHTML = orders.map(o => `
-                    <div class="order-item">
-                        <div class="order-header">
-                            <span style="font-weight:700">${o.service_name}</span>
-                            <span class="order-status">${o.status || 'В работе'}</span>
-                        </div>
-                        <div style="font-size:13px; color: var(--text-secondary); margin-bottom: 8px;">
-                            ${o.description.substring(0, 50)}${o.description.length > 50 ? '...' : ''}
-                        </div>
-                        <div style="font-weight:600; color:var(--accent-blue)">${o.price} ₽</div>
-                    </div>
-                `).join('');
-            } catch (e) {
-                container.innerHTML = '<div style="text-align: center; color: #ff4b4b;">Ошибка загрузки</div>';
-            }
         }
 
         async function makeOrder() {
@@ -289,18 +255,14 @@
                 buttons: [{id: 'y', type: 'default', text: 'Да'}, {type: 'cancel'}]
             }, async (id) => {
                 if (id !== 'y') return;
-                
                 document.getElementById('st').innerText = "Обработка...";
                 try {
                     const r = await fetch(`${URL}/api/create_order`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
                         body: JSON.stringify({ 
-                            user_id: user.id, 
-                            user_name: user.first_name,
-                            service_name: selectedService.name, 
-                            description: desc, 
-                            price: selectedService.price 
+                            user_id: user.id, user_name: user.first_name,
+                            service_name: selectedService.name, description: desc, price: selectedService.price 
                         })
                     });
                     const res = await r.json();
