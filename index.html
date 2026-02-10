@@ -49,13 +49,19 @@
             margin-bottom: 20px;
         }
 
-        /* Вертикальный список услуг */
         .services-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
             margin-bottom: 25px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
         }
+
+        /* Кастомный скроллбар для списка услуг */
+        .services-list::-webkit-scrollbar { width: 4px; }
+        .services-list::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
 
         .service-item {
             display: flex;
@@ -67,6 +73,7 @@
             border: 1px solid var(--glass-border);
             transition: all 0.2s ease;
             cursor: pointer;
+            flex-shrink: 0;
         }
 
         .service-item.active {
@@ -76,8 +83,8 @@
         }
 
         .service-info { display: flex; flex-direction: column; }
-        .service-item .name { font-weight: 700; font-size: 16px; margin-bottom: 2px; }
-        .service-item .price { font-size: 14px; color: var(--accent-light); font-weight: 600; }
+        .service-item .name { font-weight: 700; font-size: 15px; margin-bottom: 2px; }
+        .service-item .price { font-size: 13px; color: var(--accent-light); font-weight: 600; }
         
         .check-mark {
             width: 22px;
@@ -101,7 +108,7 @@
         textarea {
             width: 100%; background: var(--glass); border: 1px solid var(--glass-border);
             border-radius: 20px; padding: 18px; color: white; font-family: inherit; font-size: 15px;
-            resize: none; transition: 0.3s; min-height: 120px; outline: none;
+            resize: none; transition: 0.3s; min-height: 100px; outline: none;
         }
         textarea:focus { border-color: var(--accent); background: rgba(255,255,255,0.05); }
 
@@ -186,6 +193,38 @@
                 <div class="service-info">
                     <span class="name">Залив видео</span>
                     <span class="price">100 ₽</span>
+                </div>
+                <div class="check-mark">✓</div>
+            </div>
+
+            <div class="service-item" onclick="selectService(this, 'Views', 200)">
+                <div class="service-info">
+                    <span class="name">Просмотры (1000 шт.)</span>
+                    <span class="price">200 ₽</span>
+                </div>
+                <div class="check-mark">✓</div>
+            </div>
+
+            <div class="service-item" onclick="selectService(this, 'Likes', 50)">
+                <div class="service-info">
+                    <span class="name">Лайки (100 шт.)</span>
+                    <span class="price">50 ₽</span>
+                </div>
+                <div class="check-mark">✓</div>
+            </div>
+
+            <div class="service-item" onclick="selectService(this, 'Subscribers', 450)">
+                <div class="service-info">
+                    <span class="name">Подписчики (100 шт.)</span>
+                    <span class="price">450 ₽</span>
+                </div>
+                <div class="check-mark">✓</div>
+            </div>
+            
+            <div class="service-item" onclick="selectService(this, 'Comments', 150)">
+                <div class="service-info">
+                    <span class="name">Комментарии (10 шт.)</span>
+                    <span class="price">150 ₽</span>
                 </div>
                 <div class="check-mark">✓</div>
             </div>
