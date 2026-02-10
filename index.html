@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Premium Service Elite</title>
+    <title>Alexandria - YouTube Traffic</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -31,17 +31,14 @@
                 radial-gradient(circle at 100% 100%, rgba(79, 70, 229, 0.1) 0%, transparent 40%);
         }
 
-        /* Animations */
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .tab-content { display: none; animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .tab-content.active { display: block; }
 
-        /* Premium Headers */
-        .page-header { margin-bottom: 30px; }
-        .page-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin: 0; }
+        .page-header { margin-bottom: 25px; }
+        .page-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin: 0; color: var(--text-primary); }
         .page-header p { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
 
-        /* Glass Cards */
         .glass-card {
             background: var(--glass);
             backdrop-filter: blur(12px);
@@ -52,28 +49,54 @@
             margin-bottom: 20px;
         }
 
-        /* Service Selection */
-        .services-scroll {
-            display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; margin: 0 -20px 20px -20px; padding: 0 20px 15px 20px;
-            scrollbar-width: none;
+        /* Вертикальный список услуг */
+        .services-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 25px;
         }
-        .services-scroll::-webkit-scrollbar { display: none; }
 
         .service-item {
-            min-width: 130px; padding: 20px 15px; border-radius: 22px;
-            background: var(--glass); border: 1px solid var(--glass-border);
-            transition: all 0.3s ease; flex-shrink: 0; text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 20px;
+            border-radius: 20px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            transition: all 0.2s ease;
+            cursor: pointer;
         }
-        .service-item.active {
-            background: var(--accent);
-            border-color: var(--accent-light);
-            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
-            transform: translateY(-2px);
-        }
-        .service-item .name { display: block; font-weight: 700; font-size: 16px; margin-bottom: 4px; }
-        .service-item .price { font-size: 13px; opacity: 0.8; }
 
-        /* Inputs */
+        .service-item.active {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
+        }
+
+        .service-info { display: flex; flex-direction: column; }
+        .service-item .name { font-weight: 700; font-size: 16px; margin-bottom: 2px; }
+        .service-item .price { font-size: 14px; color: var(--accent-light); font-weight: 600; }
+        
+        .check-mark {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: transparent;
+        }
+
+        .service-item.active .check-mark {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
         .input-group label { display: block; font-size: 13px; color: var(--text-muted); margin: 0 0 8px 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         textarea {
             width: 100%; background: var(--glass); border: 1px solid var(--glass-border);
@@ -82,16 +105,14 @@
         }
         textarea:focus { border-color: var(--accent); background: rgba(255,255,255,0.05); }
 
-        /* Main Buttons */
         .btn-primary {
             background: var(--accent); color: white; border: none; width: 100%;
             padding: 20px; border-radius: 22px; font-size: 17px; font-weight: 700;
-            cursor: pointer; transition: 0.3s; margin-top: 10px;
+            cursor: pointer; transition: 0.3s; margin-top: 15px;
             box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.5);
         }
         .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
 
-        /* Info & Support */
         .info-link {
             display: flex; align-items: center; justify-content: space-between;
             background: rgba(255,255,255,0.03); padding: 20px; border-radius: 20px;
@@ -102,7 +123,6 @@
         .info-link-text b { display: block; font-size: 16px; }
         .info-link-text span { font-size: 13px; color: var(--text-muted); }
 
-        /* Profile Section */
         .profile-hero { text-align: center; padding: 20px 0 30px 0; }
         .avatar { width: 90px; height: 90px; border-radius: 32px; background: linear-gradient(45deg, var(--accent), #c084fc); margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 35px; box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.4); }
         
@@ -110,7 +130,6 @@
             background: var(--glass); padding: 30px; border-radius: 30px; text-align: center;
             border: 1px solid var(--glass-border); position: relative; overflow: hidden;
         }
-        .balance-badge::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%); pointer-events: none; }
         .balance-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
         .balance-amount { font-size: 42px; font-weight: 800; margin: 10px 0; display: block; }
         
@@ -120,7 +139,6 @@
             padding: 14px; border-radius: 16px; font-weight: 600; cursor: pointer; font-size: 14px;
         }
 
-        /* Navigation Bar */
         .nav-bar {
             position: fixed; bottom: 20px; left: 20px; right: 20px;
             background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -134,10 +152,8 @@
             transition: 0.3s; gap: 5px;
         }
         .nav-item.active { color: var(--accent-light); }
-        .nav-item svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; transition: 0.3s; }
-        .nav-item.active svg { transform: translateY(-2px); }
+        .nav-item svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; }
 
-        /* Status text */
         #st { font-size: 12px; text-align: center; margin-top: 15px; color: var(--accent-light); font-weight: 500; }
     </style>
 </head>
@@ -145,36 +161,43 @@
 
     <div id="tab-main" class="tab-content active">
         <div class="page-header">
-            <h1>Elite Services</h1>
-            <p>Выберите премиум решение для вашего бизнеса</p>
+            <h1>Alexandria</h1>
+            <p>Продвижение и трафик для YouTube</p>
         </div>
 
-        <div class="services-scroll" id="services">
+        <div class="services-list" id="services">
             <div class="service-item active" onclick="selectService(this, 'SEO', 130)">
-                <span class="name">SEO</span>
-                <span class="price">130 ₽</span>
+                <div class="service-info">
+                    <span class="name">SEO Оптимизация</span>
+                    <span class="price">130 ₽</span>
+                </div>
+                <div class="check-mark">✓</div>
             </div>
+
             <div class="service-item" onclick="selectService(this, 'Archive', 250)">
-                <span class="name">Архив</span>
-                <span class="price">250 ₽</span>
+                <div class="service-info">
+                    <span class="name">Архив (Видео + Превью)</span>
+                    <span class="price">250 ₽</span>
+                </div>
+                <div class="check-mark">✓</div>
             </div>
+
             <div class="service-item" onclick="selectService(this, 'Upload', 100)">
-                <span class="name">Залив</span>
-                <span class="price">100 ₽</span>
-            </div>
-            <div class="service-item" onclick="selectService(this, 'Design', 500)">
-                <span class="name">Дизайн</span>
-                <span class="price">500 ₽</span>
+                <div class="service-info">
+                    <span class="name">Залив видео</span>
+                    <span class="price">100 ₽</span>
+                </div>
+                <div class="check-mark">✓</div>
             </div>
         </div>
 
         <div class="input-group">
             <label>Техническое задание</label>
-            <textarea id="service-desc" placeholder="Опишите ваши пожелания максимально подробно..."></textarea>
+            <textarea id="service-desc" placeholder="Укажите ссылку на канал или детали заказа..."></textarea>
         </div>
         
         <button class="btn-primary" onclick="makeOrder()">
-            Оплатить заказ • <span id="current-price">130</span> ₽
+            Оформить заказ • <span id="current-price">130</span> ₽
         </button>
         <div id="st"></div>
     </div>
@@ -182,7 +205,7 @@
     <div id="tab-info" class="tab-content">
         <div class="page-header">
             <h1>Поддержка</h1>
-            <p>Мы всегда на связи, чтобы помочь вам</p>
+            <p>Alexandria Support</p>
         </div>
 
         <div class="glass-card" style="padding: 5px; background: transparent; border: none;">
@@ -202,7 +225,7 @@
                     <div class="info-icon">📢</div>
                     <div class="info-link-text">
                         <b>Наш канал</b>
-                        <span>Новости, кейсы и скидки</span>
+                        <span>Новости и кейсы по трафику</span>
                     </div>
                 </div>
                 <div style="opacity: 0.3">→</div>
@@ -210,9 +233,9 @@
         </div>
 
         <div class="glass-card">
-            <h3 style="margin: 0 0 10px 0; font-size: 16px;">О сервисе</h3>
+            <h3 style="margin: 0 0 10px 0; font-size: 16px;">О проекте</h3>
             <p style="margin: 0; font-size: 14px; color: var(--text-muted); line-height: 1.6;">
-                Elite Store — это гарантия качества и скорости. Все заказы обрабатываются в приоритетном режиме нашими лучшими специалистами.
+                Alexandria — узкопрофильное агентство по работе с YouTube трафиком. Мы знаем, как вывести ваши видео в топы и обеспечить качественный залив.
             </p>
         </div>
     </div>
@@ -220,28 +243,24 @@
     <div id="tab-profile" class="tab-content">
         <div class="profile-hero">
             <div class="avatar" id="avatar-icon">👤</div>
-            <h1 id="name" style="margin: 0; font-size: 24px;">Премиум гость</h1>
+            <h1 id="name" style="margin: 0; font-size: 24px;">Пользователь</h1>
             <p id="user-id" style="color: var(--text-muted); font-size: 13px; margin: 5px 0 0 0;">ID: 00000000</p>
         </div>
 
         <div class="balance-badge glass-card" style="margin-bottom: 15px;">
-            <span class="balance-label">Доступные средства</span>
+            <span class="balance-label">Баланс Alexandria</span>
             <span id="bal" class="balance-amount">0 ₽</span>
             <div class="profile-actions">
                 <button class="btn-secondary" onclick="load()">🔄 Обновить</button>
                 <button class="btn-secondary" style="background: var(--accent); border: none;" onclick="topUp()">➕ Пополнить</button>
             </div>
         </div>
-
-        <div style="text-align: center; font-size: 12px; color: var(--text-muted);">
-            Статус аккаунта: <span style="color: gold; font-weight: bold;">GOLD VIP</span>
-        </div>
     </div>
 
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)">
             <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            <span>Магазин</span>
+            <span>Услуги</span>
         </div>
         <div class="nav-item" onclick="switchTab('info', this)">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
@@ -257,10 +276,9 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.setHeaderColor('#030712');
-        tg.setBackgroundColor('#030712');
 
         const URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev';
-        let selectedService = { name: 'SEO', price: 130 };
+        let selectedServiceData = { name: 'SEO', price: 130 };
 
         function switchTab(tabId, el) {
             tg.HapticFeedback.impactOccurred('medium');
@@ -275,21 +293,17 @@
             tg.HapticFeedback.selectionChanged();
             document.querySelectorAll('.service-item').forEach(c => c.classList.remove('active'));
             el.classList.add('active');
-            selectedService = { name, price };
+            selectedServiceData = { name, price };
             document.getElementById('current-price').innerText = price;
         }
 
         async function load() {
             const user = tg.initDataUnsafe?.user;
             if (!user) return;
-            
             document.getElementById('name').innerText = user.first_name;
             document.getElementById('user-id').innerText = "ID: " + user.id;
-            
             try {
-                const r = await fetch(`${URL}/api/balance?user_id=${user.id}`, {
-                    headers: { 'ngrok-skip-browser-warning': 'true' }
-                });
+                const r = await fetch(`${URL}/api/balance?user_id=${user.id}`, { headers: { 'ngrok-skip-browser-warning': 'true' } });
                 const data = await r.json();
                 document.getElementById('bal').innerText = Math.floor(data.balance).toLocaleString() + " ₽";
             } catch (e) { console.error(e); }
@@ -302,39 +316,36 @@
 
             tg.showPopup({
                 title: 'Подтверждение',
-                message: `Оформить ${selectedService.name} за ${selectedService.price}₽?`,
+                message: `Заказать ${selectedServiceData.name} за ${selectedServiceData.price}₽?`,
                 buttons: [{id: 'y', type: 'default', text: 'Оплатить'}, {type: 'cancel', text: 'Отмена'}]
             }, async (id) => {
                 if (id !== 'y') return;
-                
-                document.getElementById('st').innerText = "✨ Создаем магию...";
+                document.getElementById('st').innerText = "Оформляем заказ...";
                 try {
                     const r = await fetch(`${URL}/api/create_order`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
                         body: JSON.stringify({ 
                             user_id: user.id, user_name: user.first_name,
-                            service_name: selectedService.name, description: desc, price: selectedService.price 
+                            service_name: selectedServiceData.name, description: desc, price: selectedServiceData.price 
                         })
                     });
                     const res = await r.json();
                     if (r.ok) {
                         tg.HapticFeedback.notificationOccurred('success');
-                        tg.showAlert("Заказ успешно создан! Ожидайте сообщения.");
+                        tg.showAlert("Заказ Alexandria успешно создан!");
                         document.getElementById('service-desc').value = "";
                         load();
                     } else if (res.error === 'need_topup') {
                         tg.openLink(res.pay_url);
                     }
-                } catch (e) { 
-                    tg.showAlert("Произошла ошибка при создании заказа."); 
-                }
+                } catch (e) { tg.showAlert("Ошибка при создании заказа."); }
                 document.getElementById('st').innerText = "";
             });
         }
 
         function topUp() {
-            const amount = prompt("Введите сумму пополнения (₽):", "500");
+            const amount = prompt("Сумма пополнения (₽):", "500");
             if (amount && amount > 0) createTopupRequest(amount);
         }
 
@@ -348,10 +359,9 @@
                 });
                 const res = await r.json();
                 if (res.pay_url) tg.openLink(res.pay_url);
-            } catch (e) { tg.showAlert("Ошибка платежной системы."); }
+            } catch (e) { tg.showAlert("Ошибка платежа."); }
         }
 
-        // Init
         load();
     </script>
 </body>
