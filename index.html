@@ -13,6 +13,7 @@
             --card-bg: rgba(30, 41, 59, 0.7);
             --text-main: #ffffff;
             --text-secondary: #94a3b8;
+            --nav-bg: rgba(15, 23, 42, 0.9);
         }
 
         body {
@@ -23,231 +24,195 @@
                 radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.1), transparent);
             color: var(--text-main);
             margin: 0;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
+            padding: 16px 16px 80px 16px; /* Отступ снизу для навигации */
             min-height: 100vh;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Header & User Profile */
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-            padding: 4px;
-        }
+        /* Tabs Logic */
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Header & Profile */
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
         .user-info { display: flex; flex-direction: column; }
-        .user-name { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
-        .tg-id { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+        .user-name { font-size: 20px; font-weight: 700; }
+        .tg-id { font-size: 12px; color: var(--text-secondary); }
 
         /* Balance Card */
         .balance-card {
             background: var(--accent-gradient);
-            padding: 24px;
-            border-radius: 24px;
+            padding: 24px; border-radius: 24px;
             box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
-            margin-bottom: 24px;
-            position: relative;
-            overflow: hidden;
+            margin-bottom: 24px; position: relative; overflow: hidden;
         }
-        .balance-card::before {
-            content: '';
-            position: absolute;
-            top: -20%; right: -10%;
-            width: 120px; height: 120px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-        }
-        .balance-label { font-size: 13px; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
-        .balance-val { font-size: 36px; font-weight: 800; margin: 8px 0 20px 0; display: block; }
+        .balance-val { font-size: 32px; font-weight: 800; margin: 8px 0 20px 0; display: block; }
         .balance-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        
+
         .mini-btn {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 10px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex; align-items: center; justify-content: center; gap: 6px;
+            background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2); color: white;
+            padding: 10px; border-radius: 12px; font-weight: 600; cursor: pointer;
         }
-        .mini-btn:active { transform: scale(0.95); background: rgba(255, 255, 255, 0.25); }
 
-        /* Services Section */
-        .section-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-secondary); padding-left: 4px;}
-        
-        .services-grid { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 12px; 
-            margin-bottom: 24px; 
-        }
+        /* Services */
+        .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
         .service-card {
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 16px 10px;
-            border-radius: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px 10px; border-radius: 20px; text-align: center; cursor: pointer;
         }
-        .service-card.active {
-            background: rgba(59, 130, 246, 0.15);
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
-        }
-        .service-card .title { font-size: 15px; font-weight: 700; margin-bottom: 6px; display: block; }
-        .service-card .price { font-size: 12px; color: var(--accent-blue); font-weight: 600; }
+        .service-card.active { border-color: var(--accent-blue); background: rgba(59, 130, 246, 0.15); }
 
-        /* Input Group */
-        .input-group { margin-bottom: 24px; }
-        textarea { 
-            width: 100%; 
-            padding: 16px; 
-            border-radius: 18px; 
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: var(--card-bg);
-            color: white; 
-            font-size: 15px; 
-            box-sizing: border-box;
-            height: 110px; 
-            resize: none; 
-            outline: none;
-            transition: 0.2s;
+        /* Orders List */
+        .order-item {
+            background: var(--card-bg); padding: 16px; border-radius: 18px;
+            margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.05);
         }
-        textarea:focus { border-color: var(--accent-blue); background: rgba(30, 41, 59, 0.9); }
+        .order-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .order-status { font-size: 12px; padding: 4px 8px; border-radius: 8px; background: rgba(59, 130, 246, 0.2); color: var(--accent-blue); }
 
-        /* Main Button */
-        .btn-buy { 
-            background: var(--accent-gradient);
-            color: white; 
-            border: none;
-            padding: 18px;
-            border-radius: 20px;
-            font-size: 17px; 
-            font-weight: 700;
-            width: 100%;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-            transition: 0.2s;
-            margin-top: auto;
+        /* Inputs */
+        textarea {
+            width: 100%; padding: 16px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.1);
+            background: var(--card-bg); color: white; height: 100px; resize: none; outline: none; box-sizing: border-box;
         }
-        .btn-buy:active { transform: scale(0.97); }
-        .btn-buy:disabled { opacity: 0.6; filter: grayscale(1); }
 
-        .status { 
-            font-size: 13px; 
-            color: var(--accent-blue); 
-            text-align: center; 
-            margin-top: 15px; 
-            font-weight: 500;
-            min-height: 20px;
+        /* Bottom Navigation */
+        .nav-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--nav-bg); backdrop-filter: blur(15px);
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1);
+            z-index: 100;
         }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            color: var(--text-secondary); font-size: 11px; cursor: pointer; gap: 4px;
+        }
+        .nav-item.active { color: var(--accent-blue); }
+        .nav-icon { font-size: 20px; }
+
+        .btn-buy {
+            background: var(--accent-gradient); color: white; border: none;
+            padding: 18px; border-radius: 20px; font-size: 17px; font-weight: 700;
+            width: 100%; cursor: pointer; margin-top: 20px;
+        }
+        .status { font-size: 13px; color: var(--accent-blue); text-align: center; margin-top: 15px; min-height: 20px;}
+        .section-title { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;}
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="user-info">
+    <div id="tab-main" class="tab-content active">
+        <div class="header">
+            <div class="user-info">
+                <span class="user-name">Заказать услугу</span>
+                <span class="tg-id">Premium Service</span>
+            </div>
+        </div>
+
+        <div class="section-title">Выберите тип</div>
+        <div class="services-grid" id="services">
+            <div class="service-card active" onclick="selectService(this, 'SEO', 130)">
+                <span style="display:block; font-weight:700">SEO</span>
+                <span style="color:var(--accent-blue); font-size:12px">130 ₽</span>
+            </div>
+            <div class="service-card" onclick="selectService(this, 'Архив', 250)">
+                <span style="display:block; font-weight:700">Архив</span>
+                <span style="color:var(--accent-blue); font-size:12px">250 ₽</span>
+            </div>
+            <div class="service-card" onclick="selectService(this, 'Залив', 100)">
+                <span style="display:block; font-weight:700">Залив</span>
+                <span style="color:var(--accent-blue); font-size:12px">100 ₽</span>
+            </div>
+        </div>
+
+        <div class="section-title">Техническое задание</div>
+        <textarea id="service-desc" placeholder="Опишите детали заказа..."></textarea>
+        
+        <button class="btn-buy" id="buy-btn" onclick="makeOrder()">
+            Оформить за <span id="current-price">130</span> ₽
+        </button>
+        <div id="st" class="status"></div>
+    </div>
+
+    <div id="tab-orders" class="tab-content">
+        <div class="section-title">Мои заказы</div>
+        <div id="orders-list">
+            <div style="text-align: center; color: var(--text-secondary); margin-top: 40px;">
+                Загрузка истории...
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-profile" class="tab-content">
+        <div class="header" style="justify-content: center; text-align: center; flex-direction: column;">
+            <div style="width: 80px; height: 80px; background: var(--accent-gradient); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 30px;">👤</div>
             <span id="name" class="user-name">Загрузка...</span>
             <span id="user-id" class="tg-id">ID: 00000000</span>
         </div>
-        <div style="background: var(--card-bg); padding: 8px; border-radius: 12px;">
-            💎 Premium
+
+        <div class="balance-card">
+            <span style="font-size: 12px; opacity: 0.8;">ВАШ БАЛАНС</span>
+            <span id="bal" class="balance-val">0 ₽</span>
+            <div class="balance-actions">
+                <button class="mini-btn" onclick="load()">🔄 Обновить</button>
+                <button class="mini-btn" onclick="topUp()">➕ Пополнить</button>
+            </div>
+        </div>
+
+        <div class="order-item" style="text-align: center; opacity: 0.7;">
+            Версия приложения: 2.0 Gold
         </div>
     </div>
 
-    <div class="balance-card">
-        <span class="balance-label">Доступные средства</span>
-        <span id="bal" class="balance-val">0 ₽</span>
-        <div class="balance-actions">
-            <button class="mini-btn" onclick="load()">🔄 Обновить</button>
-            <button class="mini-btn" onclick="topUp()">➕ Пополнить</button>
+    <div class="nav-bar">
+        <div class="nav-item active" onclick="switchTab('main', this)">
+            <span class="nav-icon">🛍️</span>
+            <span>Магазин</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('orders', this)">
+            <span class="nav-icon">📋</span>
+            <span>Заказы</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('profile', this)">
+            <span class="nav-icon">👤</span>
+            <span>Профиль</span>
         </div>
     </div>
-
-    <div class="section-title">Выберите услугу</div>
-    <div class="services-grid" id="services">
-        <div class="service-card active" onclick="selectService(this, 'SEO', 130)">
-            <span class="title">SEO</span>
-            <span class="price">130 ₽</span>
-        </div>
-        <div class="service-card" onclick="selectService(this, 'Архив', 250)">
-            <span class="title">Архив</span>
-            <span class="price">250 ₽</span>
-        </div>
-        <div class="service-card" onclick="selectService(this, 'Залив', 100)">
-            <span class="title">Залив</span>
-            <span class="price">100 ₽</span>
-        </div>
-    </div>
-
-    <div class="input-group">
-        <div class="section-title">Техническое задание</div>
-        <textarea id="service-desc" placeholder="Опишите детали вашего заказа как можно подробнее..."></textarea>
-    </div>
-    
-    <button class="btn-buy" id="buy-btn" onclick="makeOrder()">
-        Оформить заказ • <span id="current-price">130</span> ₽
-    </button>
-    
-    <div id="st" class="status"></div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.enableClosingConfirmation();
-        tg.setHeaderColor('#0f172a'); // Устанавливаем цвет шапки в стиль темы
+        tg.setHeaderColor('#0f172a');
 
         const URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev';
         let selectedService = { name: 'SEO', price: 130 };
+
+        function switchTab(tabId, el) {
+            tg.HapticFeedback.impactOccurred('light');
+            
+            // UI Switch
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById('tab-' + tabId).classList.add('active');
+            el.classList.add('active');
+
+            // Logic Switch
+            if (tabId === 'orders') loadOrders();
+            if (tabId === 'profile') load();
+        }
 
         function selectService(el, name, price) {
             tg.HapticFeedback.selectionChanged();
             document.querySelectorAll('.service-card').forEach(c => c.classList.remove('active'));
             el.classList.add('active');
-            
             selectedService = { name, price };
             document.getElementById('current-price').innerText = price;
-        }
-
-        function topUp() {
-            tg.showPopup({
-                title: 'Пополнение баланса',
-                message: 'На какую сумму пополнить кошелек?',
-                buttons: [{id: 'ok', type: 'default', text: 'Ввести сумму'}, {type: 'cancel', text: 'Отмена'}]
-            }, (btnId) => {
-                if (btnId === 'ok') {
-                    const amount = prompt("Введите сумму (₽):", "100");
-                    if (!amount || isNaN(amount) || amount <= 0) return;
-                    createTopupRequest(amount);
-                }
-            });
-        }
-
-        async function createTopupRequest(amount) {
-            const user = tg.initDataUnsafe?.user;
-            document.getElementById('st').innerText = "Создание счета...";
-            try {
-                const r = await fetch(`${URL}/api/create_topup`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
-                    body: JSON.stringify({ user_id: user.id, amount: parseFloat(amount) })
-                });
-                const res = await r.json();
-                if (res.pay_url) tg.openLink(res.pay_url);
-            } catch (e) {
-                tg.showAlert("Ошибка связи с сервером");
-            } finally {
-                document.getElementById('st').innerText = "";
-            }
         }
 
         async function load() {
@@ -262,78 +227,97 @@
                 });
                 const data = await r.json();
                 document.getElementById('bal').innerText = Math.floor(data.balance).toLocaleString() + " ₽";
-                document.getElementById('st').innerText = "Обновлено ✅";
-                setTimeout(() => { document.getElementById('st').innerText = ""; }, 2000);
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadOrders() {
+            const user = tg.initDataUnsafe?.user;
+            const container = document.getElementById('orders-list');
+            try {
+                const r = await fetch(`${URL}/api/my_orders?user_id=${user.id}`, {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                const orders = await r.json();
+                
+                if (orders.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); margin-top: 40px;">У вас пока нет заказов</div>';
+                    return;
+                }
+
+                container.innerHTML = orders.map(o => `
+                    <div class="order-item">
+                        <div class="order-header">
+                            <span style="font-weight:700">${o.service_name}</span>
+                            <span class="order-status">${o.status || 'В работе'}</span>
+                        </div>
+                        <div style="font-size:13px; color: var(--text-secondary); margin-bottom: 8px;">
+                            ${o.description.substring(0, 50)}${o.description.length > 50 ? '...' : ''}
+                        </div>
+                        <div style="font-weight:600; color:var(--accent-blue)">${o.price} ₽</div>
+                    </div>
+                `).join('');
             } catch (e) {
-                document.getElementById('st').innerText = "Ошибка сервера ❌";
+                container.innerHTML = '<div style="text-align: center; color: #ff4b4b;">Ошибка загрузки</div>';
             }
         }
 
         async function makeOrder() {
             const user = tg.initDataUnsafe?.user;
             const desc = document.getElementById('service-desc').value;
-            const btn = document.getElementById('buy-btn');
+            if (!desc.trim()) return tg.showAlert("Пожалуйста, заполните ТЗ!");
 
-            if (!desc.trim()) {
-                tg.showAlert("Пожалуйста, заполните ТЗ!");
-                return;
-            }
-
-            tg.HapticFeedback.impactOccurred('medium');
-            
             tg.showPopup({
-                title: 'Подтверждение заказа',
-                message: `Услуга: ${selectedService.name}\nСтоимость: ${selectedService.price}₽`,
-                buttons: [
-                    {id: 'yes', type: 'default', text: 'Оплатить'},
-                    {id: 'no', type: 'destructive', text: 'Отмена'}
-                ]
-            }, async (btnId) => {
-                if (btnId !== 'yes') return;
-
-                btn.disabled = true;
-                document.getElementById('st').innerText = "Оформляем заказ...";
-
+                title: 'Оплата',
+                message: `Списать ${selectedService.price}₽ за ${selectedService.name}?`,
+                buttons: [{id: 'y', type: 'default', text: 'Да'}, {type: 'cancel'}]
+            }, async (id) => {
+                if (id !== 'y') return;
+                
+                document.getElementById('st').innerText = "Обработка...";
                 try {
                     const r = await fetch(`${URL}/api/create_order`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
                         body: JSON.stringify({ 
-                            user_id: user.id,
-                            user_name: user.first_name + (user.username ? ` (@${user.username})` : ""),
-                            service_name: selectedService.name,
-                            description: desc,
-                            price: selectedService.price
+                            user_id: user.id, 
+                            user_name: user.first_name,
+                            service_name: selectedService.name, 
+                            description: desc, 
+                            price: selectedService.price 
                         })
                     });
-
                     const res = await r.json();
-
                     if (r.ok) {
-                        tg.HapticFeedback.notificationOccurred('success');
-                        tg.showPopup({ 
-                            title: "Успешно!", 
-                            message: "Ваш заказ принят в работу.", 
-                            buttons: [{type: "ok"}] 
-                        }, () => {
-                            document.getElementById('service-desc').value = "";
-                            load();
-                        });
+                        tg.showAlert("Заказ создан!");
+                        document.getElementById('service-desc').value = "";
+                        load();
                     } else if (res.error === 'need_topup') {
-                        tg.showPopup({
-                            title: "Баланс пуст",
-                            message: res.msg,
-                            buttons: [{id: "pay", type: "default", text: "💎 Пополнить"}, {type: "cancel"}]
-                        }, (id) => { if (id === "pay") tg.openLink(res.pay_url); });
+                        tg.openLink(res.pay_url);
                     }
-                } catch (e) {
-                    tg.showAlert("Ошибка соединения");
-                } finally {
-                    btn.disabled = false;
-                    document.getElementById('st').innerText = "";
-                }
+                } catch (e) { tg.showAlert("Ошибка!"); }
+                document.getElementById('st').innerText = "";
             });
         }
+
+        function topUp() {
+            const amount = prompt("Сумма пополнения (₽):", "100");
+            if (amount > 0) createTopupRequest(amount);
+        }
+
+        async function createTopupRequest(amount) {
+            const user = tg.initDataUnsafe?.user;
+            try {
+                const r = await fetch(`${URL}/api/create_topup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+                    body: JSON.stringify({ user_id: user.id, amount: parseFloat(amount) })
+                });
+                const res = await r.json();
+                if (res.pay_url) tg.openLink(res.pay_url);
+            } catch (e) { tg.showAlert("Ошибка!"); }
+        }
+
+        // Init
         load();
     </script>
 </body>
