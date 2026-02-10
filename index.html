@@ -2,121 +2,210 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Store App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Premium Store App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            background: #1c2733; color: white; display: flex; justify-content: center; align-items: center; 
-            min-height: 100vh; margin: 0; overflow-x: hidden;
+        :root {
+            --tg-theme-bg-color: #0f172a;
+            --accent-blue: #3b82f6;
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #ffffff;
+            --text-secondary: #94a3b8;
         }
-        .card { 
-            background: #242f3d; padding: 25px; border-radius: 24px; text-align: center; 
-            width: 85%; max-width: 320px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); 
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color);
+            background-image: 
+                radial-gradient(circle at top right, rgba(59, 130, 246, 0.15), transparent),
+                radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.1), transparent);
+            color: var(--text-main);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
-        .user-name { font-weight: bold; font-size: 20px; margin-bottom: 4px; color: #fff; }
-        .tg-id { color: #64b5f6; font-size: 13px; margin-bottom: 20px; opacity: 0.8; }
+
+        /* Header & User Profile */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding: 4px;
+        }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+        .tg-id { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+        /* Balance Card */
+        .balance-card {
+            background: var(--accent-gradient);
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -20%; right: -10%;
+            width: 120px; height: 120px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+        .balance-label { font-size: 13px; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
+        .balance-val { font-size: 36px; font-weight: 800; margin: 8px 0 20px 0; display: block; }
+        .balance-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         
-        /* Баланс */
-        .balance-box { 
-            background: rgba(100, 181, 246, 0.1); border: 1px solid rgba(100, 181, 246, 0.2);
-            padding: 15px; border-radius: 18px; margin-bottom: 20px; position: relative;
-        }
-        .balance-label { color: #8ab4f8; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-        .balance-val { font-size: 32px; font-weight: 800; color: #fff; display: block; margin-top: 5px; }
-
-        /* Кнопки управления балансом */
-        .balance-actions { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
         .mini-btn {
-            background: rgba(255, 255, 255, 0.1); border: none; color: white;
-            padding: 6px 12px; border-radius: 10px; font-size: 12px; cursor: pointer;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
             transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
         }
-        .mini-btn:active { transform: scale(0.9); }
-        .btn-plus { background: #3390ec; font-weight: bold; }
+        .mini-btn:active { transform: scale(0.95); background: rgba(255, 255, 255, 0.25); }
 
-        /* Плитки услуг */
-        .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+        /* Services Section */
+        .section-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-secondary); padding-left: 4px;}
+        
+        .services-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 12px; 
+            margin-bottom: 24px; 
+        }
         .service-card {
-            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px 5px; border-radius: 14px; cursor: pointer; transition: all 0.2s ease;
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px 10px;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .service-card.active {
-            background: rgba(51, 144, 236, 0.2); border-color: #3390ec; transform: translateY(-2px);
+            background: rgba(59, 130, 246, 0.15);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
         }
-        .service-card .title { font-size: 13px; font-weight: bold; display: block; }
-        .service-card .price { font-size: 11px; color: #8ab4f8; margin-top: 4px; display: block; }
+        .service-card .title { font-size: 15px; font-weight: 700; margin-bottom: 6px; display: block; }
+        .service-card .price { font-size: 12px; color: var(--accent-blue); font-weight: 600; }
 
-        /* Поле ввода ТЗ */
-        .input-group { text-align: left; margin-bottom: 20px; }
-        .input-group label { font-size: 12px; color: #8ab4f8; margin-left: 5px; }
+        /* Input Group */
+        .input-group { margin-bottom: 24px; }
         textarea { 
-            width: 100%; padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);
-            background: #17212b; color: white; font-size: 14px; margin-top: 5px; box-sizing: border-box;
-            height: 80px; resize: none; outline: none;
+            width: 100%; 
+            padding: 16px; 
+            border-radius: 18px; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--card-bg);
+            color: white; 
+            font-size: 15px; 
+            box-sizing: border-box;
+            height: 110px; 
+            resize: none; 
+            outline: none;
+            transition: 0.2s;
         }
-        textarea:focus { border-color: #3390ec; }
-        
-        .btn-group { display: flex; flex-direction: column; gap: 10px; }
-        .btn { 
-            border: none; padding: 16px; border-radius: 14px; font-size: 16px; 
-            font-weight: 600; cursor: pointer; transition: all 0.2s ease; 
+        textarea:focus { border-color: var(--accent-blue); background: rgba(30, 41, 59, 0.9); }
+
+        /* Main Button */
+        .btn-buy { 
+            background: var(--accent-gradient);
+            color: white; 
+            border: none;
+            padding: 18px;
+            border-radius: 20px;
+            font-size: 17px; 
+            font-weight: 700;
+            width: 100%;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            transition: 0.2s;
+            margin-top: auto;
         }
-        .btn-buy { background: #3390ec; color: white; width: 100%; }
-        .btn:active { transform: scale(0.96); opacity: 0.9; }
-        .btn:disabled { background: #3d4b59; color: #708499; cursor: not-allowed; }
-        
-        .status { font-size: 12px; color: #708499; margin-top: 15px; min-height: 15px; }
+        .btn-buy:active { transform: scale(0.97); }
+        .btn-buy:disabled { opacity: 0.6; filter: grayscale(1); }
+
+        .status { 
+            font-size: 13px; 
+            color: var(--accent-blue); 
+            text-align: center; 
+            margin-top: 15px; 
+            font-weight: 500;
+            min-height: 20px;
+        }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div id="name" class="user-name">Загрузка...</div>
-        <div id="user-id" class="tg-id">ID: 00000000</div>
-        
-        <div class="balance-box">
-            <span class="balance-label">Ваш баланс</span>
-            <span id="bal" class="balance-val">0 ₽</span>
-            <div class="balance-actions">
-                <button class="mini-btn" onclick="load()">🔄 Обновить</button>
-                <button class="mini-btn btn-plus" onclick="topUp()">➕ Пополнить</button>
-            </div>
-        </div>
 
-        <div class="services-grid" id="services">
-            <div class="service-card active" onclick="selectService(this, 'SEO', 130)">
-                <span class="title">SEO</span>
-                <span class="price">130 ₽</span>
-            </div>
-            <div class="service-card" onclick="selectService(this, 'Архив', 250)">
-                <span class="title">Архив</span>
-                <span class="price">250 ₽</span>
-            </div>
-            <div class="service-card" onclick="selectService(this, 'Залив', 100)">
-                <span class="title">Залив</span>
-                <span class="price">100 ₽</span>
-            </div>
+    <div class="header">
+        <div class="user-info">
+            <span id="name" class="user-name">Загрузка...</span>
+            <span id="user-id" class="tg-id">ID: 00000000</span>
         </div>
-
-        <div class="input-group">
-            <label>Техническое задание:</label>
-            <textarea id="service-desc" placeholder="Опишите детали заказа..."></textarea>
+        <div style="background: var(--card-bg); padding: 8px; border-radius: 12px;">
+            💎 Premium
         </div>
-        
-        <div class="btn-group">
-            <button class="btn btn-buy" id="buy-btn" onclick="makeOrder()">🛒 Заказать за <span id="current-price">130</span> ₽</button>
-        </div>
-        
-        <div id="st" class="status"></div>
     </div>
+
+    <div class="balance-card">
+        <span class="balance-label">Доступные средства</span>
+        <span id="bal" class="balance-val">0 ₽</span>
+        <div class="balance-actions">
+            <button class="mini-btn" onclick="load()">🔄 Обновить</button>
+            <button class="mini-btn" onclick="topUp()">➕ Пополнить</button>
+        </div>
+    </div>
+
+    <div class="section-title">Выберите услугу</div>
+    <div class="services-grid" id="services">
+        <div class="service-card active" onclick="selectService(this, 'SEO', 130)">
+            <span class="title">SEO</span>
+            <span class="price">130 ₽</span>
+        </div>
+        <div class="service-card" onclick="selectService(this, 'Архив', 250)">
+            <span class="title">Архив</span>
+            <span class="price">250 ₽</span>
+        </div>
+        <div class="service-card" onclick="selectService(this, 'Залив', 100)">
+            <span class="title">Залив</span>
+            <span class="price">100 ₽</span>
+        </div>
+    </div>
+
+    <div class="input-group">
+        <div class="section-title">Техническое задание</div>
+        <textarea id="service-desc" placeholder="Опишите детали вашего заказа как можно подробнее..."></textarea>
+    </div>
+    
+    <button class="btn-buy" id="buy-btn" onclick="makeOrder()">
+        Оформить заказ • <span id="current-price">130</span> ₽
+    </button>
+    
+    <div id="st" class="status"></div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.enableClosingConfirmation();
+        tg.setHeaderColor('#0f172a'); // Устанавливаем цвет шапки в стиль темы
 
-        // ССЫЛКА НА ТВОЙ BACKEND (БЕЗ слэша в конце)
         const URL = 'https://plenteously-unpromising-emilee.ngrok-free.dev';
         let selectedService = { name: 'SEO', price: 130 };
 
@@ -129,18 +218,15 @@
             document.getElementById('current-price').innerText = price;
         }
 
-        // РУЧНОЕ ПОПОЛНЕНИЕ
         function topUp() {
             tg.showPopup({
                 title: 'Пополнение баланса',
-                message: 'Введите сумму, на которую хотите пополнить кошелек',
-                buttons: [{id: 'ok', type: 'default', text: 'Ввести сумму'}, {type: 'cancel'}]
+                message: 'На какую сумму пополнить кошелек?',
+                buttons: [{id: 'ok', type: 'default', text: 'Ввести сумму'}, {type: 'cancel', text: 'Отмена'}]
             }, (btnId) => {
                 if (btnId === 'ok') {
-                    // Используем prompt для простоты или можно сделать свой input
-                    const amount = prompt("Введите сумму пополнения (₽):", "100");
+                    const amount = prompt("Введите сумму (₽):", "100");
                     if (!amount || isNaN(amount) || amount <= 0) return;
-                    
                     createTopupRequest(amount);
                 }
             });
@@ -148,7 +234,7 @@
 
         async function createTopupRequest(amount) {
             const user = tg.initDataUnsafe?.user;
-            document.getElementById('st').innerText = "Создаем счет...";
+            document.getElementById('st').innerText = "Создание счета...";
             try {
                 const r = await fetch(`${URL}/api/create_topup`, {
                     method: 'POST',
@@ -156,11 +242,7 @@
                     body: JSON.stringify({ user_id: user.id, amount: parseFloat(amount) })
                 });
                 const res = await r.json();
-                if (res.pay_url) {
-                    tg.openLink(res.pay_url);
-                } else {
-                    tg.showAlert("Ошибка платежной системы");
-                }
+                if (res.pay_url) tg.openLink(res.pay_url);
             } catch (e) {
                 tg.showAlert("Ошибка связи с сервером");
             } finally {
@@ -180,7 +262,7 @@
                 });
                 const data = await r.json();
                 document.getElementById('bal').innerText = Math.floor(data.balance).toLocaleString() + " ₽";
-                document.getElementById('st').innerText = "Данные обновлены ✅";
+                document.getElementById('st').innerText = "Обновлено ✅";
                 setTimeout(() => { document.getElementById('st').innerText = ""; }, 2000);
             } catch (e) {
                 document.getElementById('st').innerText = "Ошибка сервера ❌";
@@ -193,32 +275,29 @@
             const btn = document.getElementById('buy-btn');
 
             if (!desc.trim()) {
-                tg.showAlert("Пожалуйста, заполните ТЗ для воркеров!");
+                tg.showAlert("Пожалуйста, заполните ТЗ!");
                 return;
             }
 
             tg.HapticFeedback.impactOccurred('medium');
             
             tg.showPopup({
-                title: 'Подтверждение',
-                message: `Заказать "${selectedService.name}" за ${selectedService.price}₽?`,
+                title: 'Подтверждение заказа',
+                message: `Услуга: ${selectedService.name}\nСтоимость: ${selectedService.price}₽`,
                 buttons: [
-                    {id: 'yes', type: 'default', text: 'Да, заказать'},
+                    {id: 'yes', type: 'default', text: 'Оплатить'},
                     {id: 'no', type: 'destructive', text: 'Отмена'}
                 ]
             }, async (btnId) => {
                 if (btnId !== 'yes') return;
 
                 btn.disabled = true;
-                document.getElementById('st').innerText = "Оформление...";
+                document.getElementById('st').innerText = "Оформляем заказ...";
 
                 try {
                     const r = await fetch(`${URL}/api/create_order`, {
                         method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'ngrok-skip-browser-warning': 'true'
-                        },
+                        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
                         body: JSON.stringify({ 
                             user_id: user.id,
                             user_name: user.first_name + (user.username ? ` (@${user.username})` : ""),
@@ -234,38 +313,27 @@
                         tg.HapticFeedback.notificationOccurred('success');
                         tg.showPopup({ 
                             title: "Успешно!", 
-                            message: "Заказ и ТЗ переданы воркерам. Ожидайте!", 
+                            message: "Ваш заказ принят в работу.", 
                             buttons: [{type: "ok"}] 
                         }, () => {
                             document.getElementById('service-desc').value = "";
                             load();
                         });
                     } else if (res.error === 'need_topup') {
-                        tg.HapticFeedback.notificationOccurred('warning');
                         tg.showPopup({
-                            title: "Недостаточно средств",
+                            title: "Баланс пуст",
                             message: res.msg,
-                            buttons: [
-                                {id: "pay", type: "default", text: "💎 Оплатить"},
-                                {type: "cancel", text: "Позже"}
-                            ]
-                        }, (buttonId) => {
-                            if (buttonId === "pay") {
-                                tg.openLink(res.pay_url);
-                            }
-                        });
-                    } else {
-                        tg.showAlert("Ошибка: " + res.error);
+                            buttons: [{id: "pay", type: "default", text: "💎 Пополнить"}, {type: "cancel"}]
+                        }, (id) => { if (id === "pay") tg.openLink(res.pay_url); });
                     }
                 } catch (e) {
-                    tg.showAlert("Ошибка связи с сервером");
+                    tg.showAlert("Ошибка соединения");
                 } finally {
                     btn.disabled = false;
                     document.getElementById('st').innerText = "";
                 }
             });
         }
-
         load();
     </script>
 </body>
