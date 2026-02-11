@@ -118,7 +118,7 @@
         .info-link {
             display: flex; align-items: center; justify-content: space-between;
             background: rgba(255,255,255,0.03); padding: 16px; border-radius: 18px;
-            text-decoration: none; color: white; margin-bottom: 10px; border: 1px solid var(--glass-border);
+            text-decoration: none; color: white; margin-bottom: 12px; border: 1px solid var(--glass-border);
         }
     </style>
 </head>
@@ -131,9 +131,17 @@
         </div>
 
         <div class="services-list" id="services-container">
-            <div class="service-item active" data-name="SEO" data-price="130">
+            <div class="service-item active" data-name="Upload" data-price="100">
                 <div class="service-info">
-                    <span class="name">SEO Оптимизация</span>
+                    <span class="name">🚀 Залив видео</span>
+                    <span class="price">100 ₽</span>
+                </div>
+                <div class="check-mark">✓</div>
+            </div>
+
+            <div class="service-item" data-name="SEO" data-price="130">
+                <div class="service-info">
+                    <span class="name">📈 SEO Оптимизация</span>
                     <span class="price">130 ₽</span>
                 </div>
                 <div class="check-mark">✓</div>
@@ -141,16 +149,8 @@
 
             <div class="service-item" data-name="Archive" data-price="250">
                 <div class="service-info">
-                    <span class="name">Архив (Видео + Превью)</span>
+                    <span class="name">📦 Архив (Видео + Превью)</span>
                     <span class="price">250 ₽</span>
-                </div>
-                <div class="check-mark">✓</div>
-            </div>
-
-            <div class="service-item" data-name="Upload" data-price="100">
-                <div class="service-info">
-                    <span class="name">Залив видео</span>
-                    <span class="price">100 ₽</span>
                 </div>
                 <div class="check-mark">✓</div>
             </div>
@@ -161,17 +161,26 @@
         </div>
         
         <button id="btn-pay" class="btn-primary">
-            Оплатить • <span id="current-price">130</span> ₽
+            Оплатить • <span id="current-price">100</span> ₽
         </button>
         <div id="status-msg" style="text-align: center; font-size: 14px; margin-top: 10px; color: var(--accent-light);"></div>
     </div>
 
     <div id="tab-info" class="tab-content">
-        <div class="page-header"><h1>Поддержка</h1><p>Мы всегда на связи</p></div>
+        <div class="page-header"><h1>Инфо-центр</h1><p>Полезные ссылки и поддержка</p></div>
+        
+        <a href="https://t.me/transferalexandria" class="info-link">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="font-size: 24px;">🏛</div>
+                <div><b>Подробнее о нас</b><br><span style="font-size: 12px; color: var(--text-muted);">Кто мы и как работаем</span></div>
+            </div>
+            <span>→</span>
+        </a>
+
         <a href="https://t.me/Alexandria_supp" class="info-link">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <div style="font-size: 24px;">💎</div>
-                <div><b>Личный менеджер</b><br><span style="font-size: 12px; color: var(--text-muted);">Помощь 24/7</span></div>
+                <div><b>Личный менеджер</b><br><span style="font-size: 12px; color: var(--text-muted);">Помощь по заказам 24/7</span></div>
             </div>
             <span>→</span>
         </a>
@@ -210,18 +219,16 @@
 
     <script>
         const tg = window.Telegram.WebApp;
-        // ВАЖНО: Убедись, что этот URL совпадает с твоим ngrok
         const API_BASE = 'https://plenteously-unpromising-emilee.ngrok-free.dev';
 
         let state = {
-            selectedService: { name: 'SEO', price: 130 },
-            user: tg.initDataUnsafe?.user || { id: 715300422, first_name: 'Alex' } // Для тестов
+            selectedService: { name: 'Upload', price: 100 },
+            user: tg.initDataUnsafe?.user || { id: 715300422, first_name: 'Alex' }
         };
 
         tg.expand();
         tg.setHeaderColor('#030712');
 
-        // Переключение табов
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
                 const tabId = item.getAttribute('data-tab');
@@ -234,7 +241,6 @@
             });
         });
 
-        // Выбор услуги
         document.querySelectorAll('.service-item').forEach(item => {
             item.addEventListener('click', () => {
                 tg.HapticFeedback.selectionChanged();
@@ -248,23 +254,18 @@
             });
         });
 
-        // Загрузка данных профиля
         async function updateProfileData() {
             document.getElementById('user-name').innerText = state.user.first_name;
             document.getElementById('user-id').innerText = `ID: ${state.user.id}`;
-            
             try {
                 const res = await fetch(`${API_BASE}/api/balance?user_id=${state.user.id}`, {
                     headers: { 'ngrok-skip-browser-warning': 'true' }
                 });
                 const data = await res.json();
                 document.getElementById('user-balance').innerText = `${Math.floor(data.balance).toLocaleString()} ₽`;
-            } catch (e) {
-                console.error("Ошибка сети", e);
-            }
+            } catch (e) { console.error("Ошибка сети", e); }
         }
 
-        // Пополнение
         document.getElementById('topup-balance').onclick = () => {
             tg.HapticFeedback.impactOccurred('medium');
             const amount = prompt("Сумма пополнения (₽):", "500");
@@ -279,14 +280,12 @@
             }
         };
 
-        // Заказ
         document.getElementById('btn-pay').onclick = async () => {
             const desc = document.getElementById('service-desc').value.trim();
             if (!desc) return tg.showAlert("Опишите задачу в поле ТЗ!");
 
             tg.showConfirm(`Списать ${state.selectedService.price}₽ за ${state.selectedService.name}?`, async (ok) => {
                 if (!ok) return;
-                
                 try {
                     const res = await fetch(`${API_BASE}/api/create_order`, {
                         method: 'POST',
@@ -300,7 +299,6 @@
                         })
                     });
                     const data = await res.json();
-                    
                     if (res.ok) {
                         tg.HapticFeedback.notificationOccurred('success');
                         tg.showAlert("Заказ принят!");
@@ -313,9 +311,7 @@
                             buttons: [{id: 'pay', type: 'default', text: 'Пополнить'}, {type: 'cancel'}]
                         }, (id) => { if(id === 'pay') tg.openLink(data.pay_url); });
                     }
-                } catch (e) {
-                    tg.showAlert("Ошибка сервера");
-                }
+                } catch (e) { tg.showAlert("Ошибка сервера"); }
             });
         };
 
