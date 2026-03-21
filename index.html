@@ -16,12 +16,8 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; margin: 0; padding: 0; }
 
-        html { height: 100%; }
-
-        body {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+        html, body {
+            height: 100%;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: #0a0f1e;
             color: #f1f5f9;
@@ -31,172 +27,181 @@
                 radial-gradient(ellipse at bottom right, rgba(129,140,248,0.08) 0%, transparent 60%);
         }
 
-        /* КОНТЕНТ */
-        .screens {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-        }
+        body { display: flex; flex-direction: column; }
+
+        .screens { flex: 1; position: relative; overflow: hidden; }
 
         .screen {
-            position: absolute;
-            inset: 0;
-            padding: 20px 18px 12px;
-            display: none;
-            flex-direction: column;
-            gap: 10px;
+            position: absolute; inset: 0;
+            padding: clamp(12px, 3vw, 24px);
+            display: none; flex-direction: column; gap: clamp(8px, 2vw, 14px);
+            overflow-y: auto;
         }
-        .screen.active {
-            display: flex;
-            animation: fadeIn 0.2s ease;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .screen.active { display: flex; animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
 
-        /* ЗАГОЛОВОК */
+        /* Заголовок */
         .screen-title {
-            font-size: 24px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
+            font-size: clamp(20px, 5vw, 28px); font-weight: 800; letter-spacing: -0.5px;
             background: linear-gradient(135deg, #fff 0%, var(--accent-light) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             flex-shrink: 0;
         }
-        .screen-sub { font-size: 13px; color: var(--muted); margin-top: -6px; flex-shrink: 0; }
+        .screen-sub { font-size: clamp(12px, 2.5vw, 14px); color: var(--muted); margin-top: -4px; flex-shrink: 0; }
 
-        /* КАРТОЧКА */
-        .card {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 14px;
-        }
+        /* Карточка */
+        .card { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 20px; padding: clamp(12px, 3vw, 18px); flex-shrink: 0; }
 
-        /* УСЛУГИ */
-        .service-list { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+        /* Услуги */
+        .service-list { display: flex; flex-direction: column; gap: clamp(6px, 1.5vw, 10px); flex-shrink: 0; }
         .service-item {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 14px; border-radius: 16px;
-            background: rgba(255,255,255,0.03); border: 1.5px solid var(--border);
+            padding: clamp(10px, 2.5vw, 14px) clamp(12px, 3vw, 16px);
+            border-radius: 16px; background: rgba(255,255,255,0.03); border: 1.5px solid var(--border);
             cursor: pointer; transition: all 0.2s;
         }
         .service-item.active {
             background: rgba(99,102,241,0.15); border-color: var(--accent);
             box-shadow: 0 4px 16px -4px rgba(99,102,241,0.4);
         }
-        .svc-name { font-size: 15px; font-weight: 700; }
-        .svc-price { font-size: 13px; color: var(--accent-light); font-weight: 600; margin-top: 2px; }
+        .svc-name { font-size: clamp(13px, 3vw, 15px); font-weight: 700; }
+        .svc-price { font-size: clamp(11px, 2.5vw, 13px); color: var(--accent-light); font-weight: 600; margin-top: 2px; }
         .svc-check {
-            width: 22px; height: 22px; border-radius: 50%;
-            border: 2px solid var(--border);
+            width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border);
             display: flex; align-items: center; justify-content: center;
             font-size: 11px; color: transparent; transition: 0.2s; flex-shrink: 0;
         }
         .service-item.active .svc-check { background: var(--accent); border-color: var(--accent); color: white; }
 
         textarea {
-            flex: 1;
-            width: 100%;
-            background: rgba(255,255,255,0.04);
-            border: 1.5px solid var(--border);
-            border-radius: 16px;
-            padding: 14px;
-            color: #f1f5f9;
-            font-family: inherit;
-            font-size: 14px;
-            resize: none;
-            min-height: 0;
+            flex: 1; width: 100%; min-height: clamp(70px, 15vw, 100px);
+            background: rgba(255,255,255,0.04); border: 1.5px solid var(--border);
+            border-radius: 16px; padding: clamp(10px, 2.5vw, 14px);
+            color: #f1f5f9; font-family: inherit; font-size: clamp(13px, 3vw, 15px); resize: none;
         }
-        textarea:focus { border-color: var(--accent); outline: none; }
+        textarea:focus { border-color: var(--accent); }
 
         .btn-pay {
             background: linear-gradient(135deg, var(--accent), #4f46e5);
             color: white; border: none; border-radius: 16px;
-            padding: 15px; font-size: 16px; font-weight: 700;
+            padding: clamp(12px, 3vw, 16px); font-size: clamp(14px, 3.5vw, 16px); font-weight: 700;
             cursor: pointer; flex-shrink: 0;
             box-shadow: 0 8px 20px -6px rgba(99,102,241,0.6);
+            width: 100%;
         }
 
-        /* ПРОФИЛЬ */
-        .profile-top {
-            display: flex; align-items: center; gap: 14px;
-            flex-shrink: 0;
-        }
+        /* Профиль */
+        .profile-top { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
         .avatar {
-            width: 56px; height: 56px; border-radius: 18px; flex-shrink: 0;
+            width: clamp(46px, 10vw, 60px); height: clamp(46px, 10vw, 60px);
+            border-radius: 18px; flex-shrink: 0;
             background: linear-gradient(45deg, var(--accent), #c084fc);
             display: flex; align-items: center; justify-content: center;
-            font-size: 24px;
+            font-size: clamp(20px, 5vw, 26px);
             box-shadow: 0 6px 20px -4px rgba(99,102,241,0.5);
         }
-        .profile-name { font-size: 20px; font-weight: 800; }
-        .profile-id { font-size: 13px; color: var(--muted); margin-top: 2px; }
+        .profile-name { font-size: clamp(16px, 4vw, 22px); font-weight: 800; }
+        .profile-id { font-size: clamp(11px, 2.5vw, 13px); color: var(--muted); margin-top: 2px; }
 
-        .balance-row { display: flex; align-items: center; justify-content: space-between; }
         .bal-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-        .bal-amount { font-size: 30px; font-weight: 800; letter-spacing: -1px; }
-        .bal-btns { display: flex; gap: 8px; }
-        .btn-icon { width: 38px; height: 38px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.06); color: white; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .btn-topup { padding: 0 14px; height: 38px; border-radius: 12px; background: var(--accent); color: white; border: none; font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; }
+        .bal-amount { font-size: clamp(24px, 6vw, 32px); font-weight: 800; letter-spacing: -1px; margin-bottom: 14px; }
 
-        .pay-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; margin-top: 12px; }
-        .pay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .pay-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .pay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
         .pay-btn {
             display: flex; align-items: center; gap: 8px;
-            padding: 12px 14px; border-radius: 14px;
-            background: rgba(255,255,255,0.03); border: 2px solid var(--border);
-            cursor: pointer; transition: all 0.2s; font-size: 14px; font-weight: 600; color: var(--muted);
+            padding: clamp(10px, 2.5vw, 13px) clamp(12px, 3vw, 15px);
+            border-radius: 14px; background: rgba(255,255,255,0.03); border: 2px solid var(--border);
+            cursor: pointer; transition: all 0.2s; font-size: clamp(12px, 3vw, 14px); font-weight: 600; color: var(--muted);
         }
         .pay-btn.active { border-color: var(--accent); background: rgba(99,102,241,0.12); color: white; }
-        .pay-emoji { font-size: 18px; }
+        .pay-emoji { font-size: clamp(16px, 4vw, 20px); }
 
-        /* ИНФО */
+        /* Инпут суммы пополнения */
+        .topup-row { display: flex; gap: 8px; align-items: center; }
+        .topup-input {
+            flex: 1; background: rgba(255,255,255,0.06); border: 1.5px solid var(--border);
+            border-radius: 14px; padding: 11px 14px; color: white;
+            font-size: clamp(14px, 3.5vw, 16px); font-family: inherit;
+            font-weight: 600;
+        }
+        .topup-input:focus { border-color: var(--accent); }
+        .topup-input::placeholder { color: var(--muted); font-weight: 400; }
+        .btn-topup {
+            background: var(--accent); color: white; border: none;
+            border-radius: 14px; padding: 11px 16px;
+            font-size: clamp(13px, 3vw, 15px); font-weight: 700; cursor: pointer; white-space: nowrap;
+            box-shadow: 0 4px 14px -4px rgba(99,102,241,0.5);
+        }
+        .btn-refresh {
+            background: rgba(255,255,255,0.06); color: white; border: 1px solid var(--border);
+            border-radius: 14px; padding: 11px 13px; font-size: 16px; cursor: pointer;
+        }
+
+        /* Инфо */
         .info-link {
             display: flex; align-items: center; justify-content: space-between;
-            background: rgba(255,255,255,0.03); padding: 14px 16px; border-radius: 16px;
-            text-decoration: none; color: white; border: 1px solid var(--border);
+            background: rgba(255,255,255,0.03); padding: clamp(12px, 3vw, 15px) clamp(14px, 3.5vw, 18px);
+            border-radius: 16px; text-decoration: none; color: white; border: 1px solid var(--border);
             flex-shrink: 0; transition: all 0.2s;
         }
-        .info-link:active { transform: scale(0.98); }
+        .info-link:active { transform: scale(0.98); background: rgba(255,255,255,0.06); }
         .info-left { display: flex; align-items: center; gap: 12px; }
-        .info-emoji { font-size: 22px; }
-        .info-title { font-size: 15px; font-weight: 700; }
-        .info-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
-        .info-arrow { color: var(--muted); font-size: 16px; }
+        .info-emoji { font-size: clamp(18px, 4.5vw, 22px); }
+        .info-title { font-size: clamp(13px, 3.5vw, 15px); font-weight: 700; }
+        .info-desc { font-size: clamp(11px, 2.5vw, 13px); color: var(--muted); margin-top: 2px; }
 
         .docs-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
         .docs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-shrink: 0; }
         .doc-card {
-            display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 18px;
+            display: flex; flex-direction: column; gap: 10px;
+            padding: clamp(12px, 3vw, 16px); border-radius: 18px;
             text-decoration: none; color: white;
-            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-            transition: all 0.2s;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border); transition: all 0.2s;
         }
         .doc-card:active { transform: scale(0.97); }
         .doc-ico {
-            width: 40px; height: 40px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; font-size: 18px;
+            width: clamp(34px, 8vw, 42px); height: clamp(34px, 8vw, 42px);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-size: clamp(16px, 4vw, 20px);
         }
         .doc-ico.purple { background: rgba(99,102,241,0.2); }
         .doc-ico.blue { background: rgba(59,130,246,0.2); }
-        .doc-name { font-size: 13px; font-weight: 700; line-height: 1.3; }
-        .doc-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+        .doc-name { font-size: clamp(12px, 3vw, 14px); font-weight: 700; line-height: 1.3; }
+        .doc-sub { font-size: clamp(10px, 2.5vw, 12px); color: var(--muted); margin-top: 2px; }
+
+        /* Статус сообщение */
+        .status-msg {
+            font-size: 13px; text-align: center; padding: 8px 12px;
+            border-radius: 12px; display: none; flex-shrink: 0;
+        }
+        .status-msg.show { display: block; }
+        .status-msg.success { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+        .status-msg.error { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+        .status-msg.loading { background: rgba(99,102,241,0.15); color: var(--accent-light); border: 1px solid rgba(99,102,241,0.3); }
 
         /* NAV */
         nav {
             display: grid; grid-template-columns: repeat(3,1fr);
-            background: rgba(10,15,30,0.95); backdrop-filter: blur(20px);
+            background: rgba(10,15,30,0.97); backdrop-filter: blur(20px);
             border-top: 1px solid var(--border);
-            padding: 8px 0 calc(8px + var(--safe)) 0;
+            padding: clamp(6px, 2vw, 10px) 0 calc(clamp(6px, 2vw, 10px) + var(--safe)) 0;
             flex-shrink: 0;
         }
         .nav-btn {
             display: flex; flex-direction: column; align-items: center; gap: 3px;
-            color: var(--muted); font-size: 11px; font-weight: 600; cursor: pointer;
-            padding: 4px 0; transition: color 0.2s;
+            color: var(--muted); font-size: clamp(10px, 2.5vw, 12px); font-weight: 600;
+            cursor: pointer; padding: 4px 0; transition: color 0.2s;
         }
         .nav-btn.active { color: var(--accent-light); }
-        .nav-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; }
+        .nav-btn svg { width: clamp(20px, 5vw, 24px); height: clamp(20px, 5vw, 24px); stroke: currentColor; fill: none; stroke-width: 2; }
+
+        /* ПК адаптация */
+        @media (min-width: 600px) {
+            .screens { display: flex; justify-content: center; }
+            .screen { max-width: 480px; margin: 0 auto; left: 50%; transform: translateX(-50%); }
+            nav { justify-items: center; }
+        }
     </style>
 </head>
 <body>
@@ -210,33 +215,22 @@
 
             <div class="service-list">
                 <div class="service-item active" data-name="Upload" data-price="100">
-                    <div>
-                        <div class="svc-name">🚀 Залив видео</div>
-                        <div class="svc-price">100 ₽</div>
-                    </div>
+                    <div><div class="svc-name">🚀 Залив видео</div><div class="svc-price">100 ₽</div></div>
                     <div class="svc-check">✓</div>
                 </div>
                 <div class="service-item" data-name="SEO" data-price="130">
-                    <div>
-                        <div class="svc-name">📈 SEO Оптимизация</div>
-                        <div class="svc-price">130 ₽</div>
-                    </div>
+                    <div><div class="svc-name">📈 SEO Оптимизация</div><div class="svc-price">130 ₽</div></div>
                     <div class="svc-check">✓</div>
                 </div>
                 <div class="service-item" data-name="Archive" data-price="250">
-                    <div>
-                        <div class="svc-name">📦 Архив (Видео + Превью)</div>
-                        <div class="svc-price">250 ₽</div>
-                    </div>
+                    <div><div class="svc-name">📦 Архив (Видео + Превью)</div><div class="svc-price">250 ₽</div></div>
                     <div class="svc-check">✓</div>
                 </div>
             </div>
 
             <textarea id="service-desc" placeholder="Ссылка на канал или детали ТЗ..."></textarea>
-
-            <button class="btn-pay" id="btn-pay">
-                Оплатить • <span id="current-price">100</span> ₽
-            </button>
+            <div id="pay-status" class="status-msg"></div>
+            <button class="btn-pay" id="btn-pay">Оплатить • <span id="current-price">100</span> ₽</button>
         </div>
 
         <!-- ИНФО -->
@@ -247,41 +241,28 @@
             <a href="https://t.me/transferalexandria" class="info-link">
                 <div class="info-left">
                     <span class="info-emoji">🏛</span>
-                    <div>
-                        <div class="info-title">Подробнее о нас</div>
-                        <div class="info-desc">Кто мы и как работаем</div>
-                    </div>
+                    <div><div class="info-title">Подробнее о нас</div><div class="info-desc">Кто мы и как работаем</div></div>
                 </div>
-                <span class="info-arrow">→</span>
+                <span style="color:var(--muted);">→</span>
             </a>
 
             <a href="https://t.me/Alexandria_supp" class="info-link">
                 <div class="info-left">
                     <span class="info-emoji">💎</span>
-                    <div>
-                        <div class="info-title">Личный менеджер</div>
-                        <div class="info-desc">Помощь по заказам 24/7</div>
-                    </div>
+                    <div><div class="info-title">Личный менеджер</div><div class="info-desc">Помощь по заказам 24/7</div></div>
                 </div>
-                <span class="info-arrow">→</span>
+                <span style="color:var(--muted);">→</span>
             </a>
 
             <div class="docs-title">Документы</div>
-
             <div class="docs-grid">
                 <a href="https://telegra.ph/Politika-konfidencialnosti-08-15-17" class="doc-card">
                     <div class="doc-ico purple">🔒</div>
-                    <div>
-                        <div class="doc-name">Политика конфиденциальности</div>
-                        <div class="doc-sub">Как мы храним данные</div>
-                    </div>
+                    <div><div class="doc-name">Политика конфиденциальности</div><div class="doc-sub">Как мы храним данные</div></div>
                 </a>
                 <a href="https://telegra.ph/Polzovatelskoe-soglashenie-08-15-10" class="doc-card">
                     <div class="doc-ico blue">📄</div>
-                    <div>
-                        <div class="doc-name">Пользовательское соглашение</div>
-                        <div class="doc-sub">Условия использования</div>
-                    </div>
+                    <div><div class="doc-name">Пользовательское соглашение</div><div class="doc-sub">Условия использования</div></div>
                 </a>
             </div>
         </div>
@@ -300,25 +281,25 @@
 
             <div class="card">
                 <div class="bal-label">Баланс</div>
-                <div class="balance-row">
-                    <div id="user-balance" class="bal-amount">0 ₽</div>
-                    <div class="bal-btns">
-                        <button class="btn-icon" id="refresh-balance">🔄</button>
-                        <button class="btn-topup" id="topup-balance">➕ Пополнить</button>
-                    </div>
-                </div>
+                <div id="user-balance" class="bal-amount">— ₽</div>
 
                 <div class="pay-label">Способ пополнения</div>
                 <div class="pay-grid">
                     <div class="pay-btn active" data-method="crystal">
-                        <span class="pay-emoji">💎</span>
-                        <span>CrystalPay</span>
+                        <span class="pay-emoji">💎</span><span>CrystalPay</span>
                     </div>
                     <div class="pay-btn" data-method="lolz">
-                        <span class="pay-emoji">⚡</span>
-                        <span>LolzTeam</span>
+                        <span class="pay-emoji">⚡</span><span>LolzTeam</span>
                     </div>
                 </div>
+
+                <div class="pay-label">Сумма пополнения</div>
+                <div class="topup-row">
+                    <input class="topup-input" id="topup-amount" type="number" placeholder="500" min="1">
+                    <button class="btn-refresh" id="refresh-balance">🔄</button>
+                    <button class="btn-topup" id="topup-balance">Пополнить</button>
+                </div>
+                <div id="topup-status" class="status-msg" style="margin-top:8px;"></div>
             </div>
         </div>
 
@@ -344,7 +325,6 @@
         const API_BASE = 'https://alexalolz.lol';
 
         tg.expand();
-        tg.enableClosingConfirmation();
         tg.setHeaderColor('#0a0f1e');
         tg.setBackgroundColor('#0a0f1e');
 
@@ -353,6 +333,12 @@
             method: 'crystal',
             user: tg.initDataUnsafe?.user || { id: 0, first_name: 'Пользователь' }
         };
+
+        function showStatus(el, msg, type) {
+            el.textContent = msg;
+            el.className = `status-msg show ${type}`;
+            setTimeout(() => { el.className = 'status-msg'; }, 4000);
+        }
 
         // Навигация
         document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -378,7 +364,7 @@
             });
         });
 
-        // Выбор метода оплаты
+        // Выбор метода
         document.querySelectorAll('.pay-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 tg.HapticFeedback.selectionChanged();
@@ -396,20 +382,45 @@
                 const r = await fetch(`${API_BASE}/api/balance?user_id=${state.user.id}`);
                 const d = await r.json();
                 document.getElementById('user-balance').textContent = `${Math.floor(d.balance).toLocaleString()} ₽`;
-            } catch(e) {}
+            } catch(e) {
+                document.getElementById('user-balance').textContent = 'Ошибка';
+            }
         }
 
-        // Пополнение
-        document.getElementById('topup-balance').onclick = () => {
+        // Пополнение — теперь через инпут, без prompt
+        document.getElementById('topup-balance').onclick = async () => {
+            const amountVal = document.getElementById('topup-amount').value;
+            const amount = parseFloat(amountVal);
+            const statusEl = document.getElementById('topup-status');
+
+            if (!amount || amount <= 0) {
+                showStatus(statusEl, '❌ Введите сумму пополнения', 'error');
+                return;
+            }
+
             tg.HapticFeedback.impactOccurred('medium');
-            const name = state.method === 'lolz' ? 'LolzTeam ⚡' : 'CrystalPay 💎';
-            const amount = prompt(`Сумма пополнения (₽)\nМетод: ${name}`, '500');
-            if (amount && !isNaN(amount) && +amount > 0) {
-                fetch(`${API_BASE}/api/create_topup`, {
+            showStatus(statusEl, '⏳ Создаём счёт...', 'loading');
+
+            try {
+                const r = await fetch(`${API_BASE}/api/create_topup`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: state.user.id, amount: +amount, payment_method: state.method })
-                }).then(r => r.json()).then(d => { if (d.pay_url) tg.openLink(d.pay_url); });
+                    body: JSON.stringify({
+                        user_id: state.user.id,
+                        amount: amount,
+                        payment_method: state.method
+                    })
+                });
+                const d = await r.json();
+
+                if (d.pay_url) {
+                    showStatus(statusEl, '✅ Счёт создан! Открываем...', 'success');
+                    setTimeout(() => tg.openLink(d.pay_url), 500);
+                } else {
+                    showStatus(statusEl, '❌ Ошибка создания счёта', 'error');
+                }
+            } catch(e) {
+                showStatus(statusEl, '❌ Ошибка сети', 'error');
             }
         };
 
@@ -418,10 +429,15 @@
         // Оплата заказа
         document.getElementById('btn-pay').onclick = () => {
             const desc = document.getElementById('service-desc').value.trim();
-            if (!desc) return tg.showAlert('Опишите задачу в поле ТЗ!');
+            const statusEl = document.getElementById('pay-status');
+            if (!desc) {
+                showStatus(statusEl, '❌ Опишите задачу в поле ТЗ!', 'error');
+                return;
+            }
 
             tg.showConfirm(`Списать ${state.service.price}₽ за ${state.service.name}?`, async ok => {
                 if (!ok) return;
+                showStatus(statusEl, '⏳ Обрабатываем заказ...', 'loading');
                 try {
                     const r = await fetch(`${API_BASE}/api/create_order`, {
                         method: 'POST',
@@ -438,16 +454,17 @@
                     const d = await r.json();
                     if (r.ok) {
                         tg.HapticFeedback.notificationOccurred('success');
-                        tg.showAlert('✅ Заказ принят!');
+                        showStatus(statusEl, '✅ Заказ принят!', 'success');
                         document.getElementById('service-desc').value = '';
                     } else if (d.pay_url) {
-                        tg.showPopup({
-                            title: 'Недостаточно средств',
-                            message: 'Пополнить баланс?',
-                            buttons: [{ id: 'pay', type: 'default', text: 'Пополнить' }, { type: 'cancel' }]
-                        }, id => { if (id === 'pay') tg.openLink(d.pay_url); });
+                        showStatus(statusEl, '💳 Недостаточно средств, открываем оплату...', 'loading');
+                        setTimeout(() => tg.openLink(d.pay_url), 800);
+                    } else {
+                        showStatus(statusEl, '❌ Ошибка сервера', 'error');
                     }
-                } catch(e) { tg.showAlert('Ошибка сервера'); }
+                } catch(e) {
+                    showStatus(statusEl, '❌ Ошибка сети', 'error');
+                }
             });
         };
 
