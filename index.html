@@ -16,186 +16,102 @@
             --text-muted: #94a3b8;
             --safe-area-bottom: env(safe-area-inset-bottom);
         }
- 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
- 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            margin: 0;
+            background-color: var(--bg-color); color: var(--text-primary); margin: 0;
             padding: 20px 20px calc(110px + var(--safe-area-bottom)) 20px;
-            min-height: 100vh;
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
-                radial-gradient(circle at 100% 100%, rgba(129, 140, 248, 0.08) 0%, transparent 50%);
+            min-height: 100vh; overflow-x: hidden;
+            background-image: radial-gradient(circle at 0% 0%, rgba(99,102,241,0.12) 0%, transparent 50%),
+                              radial-gradient(circle at 100% 100%, rgba(129,140,248,0.08) 0%, transparent 50%);
         }
- 
-        @keyframes slideUp { 
-            from { opacity: 0; transform: translateY(15px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
- 
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         .tab-content { display: none; animation: slideUp 0.3s ease-out; }
         .tab-content.active { display: block; }
- 
         .page-header { margin-bottom: 28px; }
-        .page-header h1 { 
-            font-size: 32px; font-weight: 800; letter-spacing: -1px; margin: 0; 
+        .page-header h1 {
+            font-size: 32px; font-weight: 800; letter-spacing: -1px; margin: 0;
             background: linear-gradient(135deg, #fff 0%, var(--accent-light) 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .page-header p { color: var(--text-muted); font-size: 15px; margin-top: 6px; font-weight: 400; }
- 
+        .page-header p { color: var(--text-muted); font-size: 15px; margin-top: 6px; }
         .glass-card {
             background: var(--glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--glass-border); border-radius: 24px; padding: 20px; margin-bottom: 20px;
         }
- 
         .services-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
- 
         .service-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 16px 20px; border-radius: 20px; background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--glass-border); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
+            padding: 16px 20px; border-radius: 20px; background: rgba(255,255,255,0.02);
+            border: 1px solid var(--glass-border); transition: all 0.25s cubic-bezier(0.4,0,0.2,1); cursor: pointer;
         }
- 
         .service-item.active {
-            background: rgba(99, 102, 241, 0.12); border-color: var(--accent);
-            box-shadow: 0 8px 20px -8px rgba(99, 102, 241, 0.3); transform: scale(1.02);
+            background: rgba(99,102,241,0.12); border-color: var(--accent);
+            box-shadow: 0 8px 20px -8px rgba(99,102,241,0.3); transform: scale(1.02);
         }
- 
         .service-info .name { display: block; font-weight: 700; font-size: 16px; color: #fff; }
         .service-info .price { font-size: 14px; color: var(--accent-light); font-weight: 600; margin-top: 2px; }
- 
         .check-mark {
             width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--glass-border);
             display: flex; align-items: center; justify-content: center; font-size: 12px; transition: 0.2s; color: transparent;
         }
- 
         .service-item.active .check-mark { background: var(--accent); border-color: var(--accent); color: white; }
- 
         textarea {
             width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
             border-radius: 20px; padding: 18px; color: white; font-family: inherit; font-size: 15px;
             resize: none; transition: 0.3s; min-height: 120px;
         }
- 
         .btn-primary {
             background: linear-gradient(135deg, var(--accent) 0%, #4f46e5 100%);
             color: white; border: none; width: 100%; padding: 18px; border-radius: 20px;
             font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 15px;
-            box-shadow: 0 12px 24px -8px rgba(99, 102, 241, 0.5);
+            box-shadow: 0 12px 24px -8px rgba(99,102,241,0.5);
         }
- 
         .btn-secondary {
             background: rgba(255,255,255,0.06); color: white; border: 1px solid var(--glass-border);
             padding: 14px; border-radius: 16px; font-weight: 600; font-size: 14px; cursor: pointer;
         }
- 
-        .profile-hero { text-align: center; padding: 10px 0 25px 0; }
-        .avatar { 
-            width: 88px; height: 88px; border-radius: 30px; 
-            background: linear-gradient(45deg, var(--accent), #c084fc); 
-            margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; 
-            font-size: 35px; box-shadow: 0 15px 35px -10px rgba(99, 102, 241, 0.5);
+        .payment-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0 15px 0; }
+        .pay-method {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 6px; padding: 14px 10px; border-radius: 18px;
+            background: rgba(255,255,255,0.03); border: 2px solid var(--glass-border);
+            cursor: pointer; transition: all 0.2s; font-size: 13px; font-weight: 600; color: var(--text-muted);
         }
- 
+        .pay-method.active { border-color: var(--accent); background: rgba(99,102,241,0.12); color: white; }
+        .pay-method .pay-icon { font-size: 22px; }
+        .section-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .profile-hero { text-align: center; padding: 10px 0 25px 0; }
+        .avatar {
+            width: 88px; height: 88px; border-radius: 30px;
+            background: linear-gradient(45deg, var(--accent), #c084fc);
+            margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;
+            font-size: 35px; box-shadow: 0 15px 35px -10px rgba(99,102,241,0.5);
+        }
         .balance-amount { font-size: 38px; font-weight: 800; margin: 8px 0 20px 0; display: block; letter-spacing: -1px; }
- 
         .nav-bar {
             position: fixed; bottom: 25px; left: 20px; right: 20px;
-            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            background: rgba(15,23,42,0.9); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
             border-radius: 24px; border: 1px solid rgba(255,255,255,0.08);
             display: grid; grid-template-columns: repeat(3, 1fr); padding: 8px; z-index: 1000;
         }
- 
         .nav-item { display: flex; flex-direction: column; align-items: center; padding: 8px 0; color: #64748b; font-size: 11px; font-weight: 600; gap: 4px; cursor: pointer; }
         .nav-item.active { color: var(--accent-light); }
         .nav-item svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2.5; }
- 
         .info-link {
             display: flex; align-items: center; justify-content: space-between;
             background: rgba(255,255,255,0.03); padding: 16px; border-radius: 18px;
             text-decoration: none; color: white; margin-bottom: 12px; border: 1px solid var(--glass-border);
-            transition: all 0.2s ease;
-        }
-        .info-link:active { transform: scale(0.98); background: rgba(255,255,255,0.06); }
- 
-        /* --- LEGAL SECTION --- */
-        .legal-section {
-            margin-top: 32px;
-            padding-top: 24px;
-            border-top: 1px solid rgba(255,255,255,0.06);
-        }
- 
-        .legal-title {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-        }
- 
-        .legal-links {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
- 
-        .legal-link {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 6px;
-            padding: 14px;
-            border-radius: 16px;
-            background: rgba(99, 102, 241, 0.06);
-            border: 1px solid rgba(99, 102, 241, 0.15);
-            text-decoration: none;
-            color: white;
-            transition: all 0.2s ease;
-        }
- 
-        .legal-link:active {
-            transform: scale(0.97);
-            background: rgba(99, 102, 241, 0.12);
-        }
- 
-        .legal-link-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, var(--accent), #4f46e5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
- 
-        .legal-link-label {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-primary);
-            line-height: 1.3;
-        }
- 
-        .legal-link-sub {
-            font-size: 11px;
-            color: var(--text-muted);
         }
     </style>
 </head>
 <body>
- 
+
     <div id="tab-main" class="tab-content active">
         <div class="page-header">
             <h1>Alexandria</h1>
             <p>Продвижение вашего контента</p>
         </div>
- 
         <div class="services-list" id="services-container">
             <div class="service-item active" data-name="Upload" data-price="100">
                 <div class="service-info">
@@ -204,7 +120,6 @@
                 </div>
                 <div class="check-mark">✓</div>
             </div>
- 
             <div class="service-item" data-name="SEO" data-price="130">
                 <div class="service-info">
                     <span class="name">📈 SEO Оптимизация</span>
@@ -212,7 +127,6 @@
                 </div>
                 <div class="check-mark">✓</div>
             </div>
- 
             <div class="service-item" data-name="Archive" data-price="250">
                 <div class="service-info">
                     <span class="name">📦 Архив (Видео + Превью)</span>
@@ -221,70 +135,62 @@
                 <div class="check-mark">✓</div>
             </div>
         </div>
- 
         <div class="input-group">
             <textarea id="service-desc" placeholder="Укажите ссылку на канал или детали ТЗ..."></textarea>
         </div>
-        
         <button id="btn-pay" class="btn-primary">
             Оплатить • <span id="current-price">100</span> ₽
         </button>
-        <div id="status-msg" style="text-align: center; font-size: 14px; margin-top: 10px; color: var(--accent-light);"></div>
+        <div id="status-msg" style="text-align:center;font-size:14px;margin-top:10px;color:var(--accent-light);"></div>
     </div>
- 
+
     <div id="tab-info" class="tab-content">
         <div class="page-header"><h1>Инфо-центр</h1><p>Полезные ссылки и поддержка</p></div>
-        
         <a href="https://t.me/transferalexandria" class="info-link">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div style="font-size: 24px;">🏛</div>
-                <div><b>Подробнее о нас</b><br><span style="font-size: 12px; color: var(--text-muted);">Кто мы и как работаем</span></div>
+            <div style="display:flex;align-items:center;gap:15px;">
+                <div style="font-size:24px;">🏛</div>
+                <div><b>Подробнее о нас</b><br><span style="font-size:12px;color:var(--text-muted);">Кто мы и как работаем</span></div>
             </div>
             <span>→</span>
         </a>
- 
         <a href="https://t.me/Alexandria_supp" class="info-link">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div style="font-size: 24px;">💎</div>
-                <div><b>Личный менеджер</b><br><span style="font-size: 12px; color: var(--text-muted);">Помощь по заказам 24/7</span></div>
+            <div style="display:flex;align-items:center;gap:15px;">
+                <div style="font-size:24px;">💎</div>
+                <div><b>Личный менеджер</b><br><span style="font-size:12px;color:var(--text-muted);">Помощь по заказам 24/7</span></div>
             </div>
             <span>→</span>
         </a>
- 
-        <!-- LEGAL SECTION -->
-        <div class="legal-section">
-            <div class="legal-title">Документы</div>
-            <div class="legal-links">
-                <a href="https://telegra.ph/Politika-konfidencialnosti-08-15-17" class="legal-link">
-                    <div class="legal-link-icon">🔒</div>
-                    <span class="legal-link-label">Политика конфиденциальности</span>
-                    <span class="legal-link-sub">Как мы храним данные</span>
-                </a>
-                <a href="https://telegra.ph/Polzovatelskoe-soglashenie-08-15-10" class="legal-link">
-                    <div class="legal-link-icon">📄</div>
-                    <span class="legal-link-label">Пользовательское соглашение</span>
-                    <span class="legal-link-sub">Условия использования</span>
-                </a>
-            </div>
-        </div>
     </div>
- 
+
     <div id="tab-profile" class="tab-content">
         <div class="profile-hero">
             <div class="avatar">👤</div>
             <h1 id="user-name">Пользователь</h1>
             <p id="user-id">ID: 00000000</p>
         </div>
-        <div class="glass-card" style="text-align: center;">
-            <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Баланс</span>
+        <div class="glass-card" style="text-align:center;">
+            <span style="font-size:12px;color:var(--text-muted);text-transform:uppercase;">Баланс</span>
             <span id="user-balance" class="balance-amount">0 ₽</span>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+
+            <div class="section-label">Способ пополнения</div>
+            <div class="payment-methods">
+                <div class="pay-method active" data-method="crystal">
+                    <span class="pay-icon">💎</span>
+                    <span>CrystalPay</span>
+                </div>
+                <div class="pay-method" data-method="lolz">
+                    <span class="pay-icon">⚡</span>
+                    <span>LolzTeam</span>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                 <button class="btn-secondary" id="refresh-balance">🔄 Обновить</button>
-                <button class="btn-secondary" id="topup-balance" style="background: var(--accent); border: none;">➕ Пополнить</button>
+                <button class="btn-secondary" id="topup-balance" style="background:var(--accent);border:none;">➕ Пополнить</button>
             </div>
         </div>
     </div>
- 
+
     <div class="nav-bar">
         <div class="nav-item active" data-tab="main">
             <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
@@ -299,19 +205,21 @@
             <span>Профиль</span>
         </div>
     </div>
- 
+
     <script>
         const tg = window.Telegram.WebApp;
         const API_BASE = 'https://alexalolz.lol';
- 
+
         let state = {
             selectedService: { name: 'Upload', price: 100 },
+            paymentMethod: 'crystal',
             user: tg.initDataUnsafe?.user || { id: 715300422, first_name: 'Alex' }
         };
- 
+
         tg.expand();
         tg.setHeaderColor('#030712');
- 
+
+        // Навигация
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
                 const tabId = item.getAttribute('data-tab');
@@ -323,7 +231,8 @@
                 if (tabId === 'profile') updateProfileData();
             });
         });
- 
+
+        // Выбор услуги
         document.querySelectorAll('.service-item').forEach(item => {
             item.addEventListener('click', () => {
                 tg.HapticFeedback.selectionChanged();
@@ -336,77 +245,84 @@
                 document.getElementById('current-price').innerText = state.selectedService.price;
             });
         });
- 
-        // Открываем legal ссылки через Telegram
-        document.querySelectorAll('.legal-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                tg.HapticFeedback.impactOccurred('light');
-                tg.openLink(link.href);
+
+        // Выбор метода оплаты
+        document.querySelectorAll('.pay-method').forEach(item => {
+            item.addEventListener('click', () => {
+                tg.HapticFeedback.selectionChanged();
+                document.querySelectorAll('.pay-method').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                state.paymentMethod = item.getAttribute('data-method');
             });
         });
- 
+
         async function updateProfileData() {
             document.getElementById('user-name').innerText = state.user.first_name;
             document.getElementById('user-id').innerText = `ID: ${state.user.id}`;
             try {
-                const res = await fetch(`${API_BASE}/api/balance?user_id=${state.user.id}`, {
-                    headers: { 'ngrok-skip-browser-warning': 'true' }
-                });
+                const res = await fetch(`${API_BASE}/api/balance?user_id=${state.user.id}`);
                 const data = await res.json();
                 document.getElementById('user-balance').innerText = `${Math.floor(data.balance).toLocaleString()} ₽`;
-            } catch (e) { console.error("Ошибка сети", e); }
+            } catch(e) { console.error(e); }
         }
- 
+
+        // Пополнение баланса
         document.getElementById('topup-balance').onclick = () => {
             tg.HapticFeedback.impactOccurred('medium');
-            const amount = prompt("Сумма пополнения (₽):", "500");
-            if (amount && !isNaN(amount) && amount > 0) {
+            const methodName = state.paymentMethod === 'lolz' ? 'LolzTeam ⚡' : 'CrystalPay 💎';
+            const amount = prompt(`Сумма пополнения (₽):\nМетод: ${methodName}`, "500");
+            if (amount && !isNaN(amount) && Number(amount) > 0) {
                 fetch(`${API_BASE}/api/create_topup`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
-                    body: JSON.stringify({ user_id: state.user.id, amount: parseFloat(amount) })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: state.user.id,
+                        amount: parseFloat(amount),
+                        payment_method: state.paymentMethod
+                    })
                 })
                 .then(r => r.json())
-                .then(data => { if(data.pay_url) tg.openLink(data.pay_url); });
+                .then(data => { if (data.pay_url) tg.openLink(data.pay_url); });
             }
         };
- 
+
+        // Оплата заказа
         document.getElementById('btn-pay').onclick = async () => {
             const desc = document.getElementById('service-desc').value.trim();
             if (!desc) return tg.showAlert("Опишите задачу в поле ТЗ!");
- 
+
             tg.showConfirm(`Списать ${state.selectedService.price}₽ за ${state.selectedService.name}?`, async (ok) => {
                 if (!ok) return;
                 try {
                     const res = await fetch(`${API_BASE}/api/create_order`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             user_id: state.user.id,
                             user_name: state.user.first_name,
                             service_name: state.selectedService.name,
                             description: desc,
-                            price: state.selectedService.price
+                            price: state.selectedService.price,
+                            payment_method: state.paymentMethod
                         })
                     });
                     const data = await res.json();
                     if (res.ok) {
                         tg.HapticFeedback.notificationOccurred('success');
-                        tg.showAlert("Заказ принят!");
+                        tg.showAlert("✅ Заказ принят!");
                         document.getElementById('service-desc').value = "";
                         updateProfileData();
                     } else if (data.pay_url) {
                         tg.showPopup({
                             title: 'Недостаточно средств',
                             message: 'Пополнить баланс?',
-                            buttons: [{id: 'pay', type: 'default', text: 'Пополнить'}, {type: 'cancel'}]
-                        }, (id) => { if(id === 'pay') tg.openLink(data.pay_url); });
+                            buttons: [{ id: 'pay', type: 'default', text: 'Пополнить' }, { type: 'cancel' }]
+                        }, (id) => { if (id === 'pay') tg.openLink(data.pay_url); });
                     }
-                } catch (e) { tg.showAlert("Ошибка сервера"); }
+                } catch(e) { tg.showAlert("Ошибка сервера"); }
             });
         };
- 
+
         document.getElementById('refresh-balance').onclick = updateProfileData;
         updateProfileData();
     </script>
