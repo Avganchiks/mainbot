@@ -196,35 +196,47 @@
 
     <div id="tab-profile" class="tab-content">
       <div class="tab-scroll profile-no-scroll">
-        <div class="profile-hero">
-            <div class="avatar">👤</div>
-            <h1 id="user-name">Пользователь</h1>
-            <p id="user-id">ID: 00000000</p>
-        </div>
-        <div class="glass-card" style="text-align:center;">
-            <span style="font-size:12px;color:var(--text-muted);text-transform:uppercase;">Баланс</span>
-            <span id="user-balance" class="balance-amount">0 ₽</span>
 
-            <div class="section-label">Способ пополнения</div>
-            <div class="payment-methods">
-                <div class="pay-method active" data-method="crystal">
-                    <span class="pay-icon">💎</span>
-                    <span>CrystalPay</span>
+        <!-- Шапка профиля — компактная -->
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+            <div class="avatar" style="width:54px;height:54px;border-radius:18px;font-size:22px;flex-shrink:0;margin:0;box-shadow:none;">👤</div>
+            <div>
+                <div id="user-name" style="font-size:18px;font-weight:800;color:#fff;">Пользователь</div>
+                <div id="user-id" style="font-size:12px;color:var(--text-muted);margin-top:2px;">ID: 00000000</div>
+            </div>
+            <div style="margin-left:auto;text-align:right;">
+                <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Баланс</div>
+                <div id="user-balance" style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;">0 ₽</div>
+            </div>
+        </div>
+
+        <!-- Карточка пополнения -->
+        <div class="glass-card" style="padding:14px;">
+
+            <!-- Метод оплаты -->
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Способ оплаты</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+                <div class="pay-method active" data-method="crystal" style="padding:10px 8px;border-radius:14px;">
+                    <span style="font-size:18px;">💎</span>
+                    <span style="font-size:12px;">CrystalPay</span>
                 </div>
-                <div class="pay-method" data-method="lolz">
-                    <span class="pay-icon">⚡</span>
-                    <span>LolzTeam</span>
+                <div class="pay-method" data-method="lolz" style="padding:10px 8px;border-radius:14px;">
+                    <span style="font-size:18px;">⚡</span>
+                    <span style="font-size:12px;">LolzTeam</span>
                 </div>
             </div>
 
-            <div class="section-label">Сумма пополнения</div>
-            <input type="number" id="topup-amount" class="topup-input" placeholder="Введите сумму в ₽" min="1">
+            <!-- Поле суммы -->
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Сумма пополнения</div>
+            <input type="number" id="topup-amount" class="topup-input" placeholder="500 ₽" min="1" style="margin-bottom:12px;">
 
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                <button class="btn-secondary" id="refresh-balance">🔄 Обновить</button>
-                <button class="btn-secondary" id="topup-balance" style="background:var(--accent);border:none;">➕ Пополнить</button>
+            <!-- Кнопки -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <button class="btn-secondary" id="refresh-balance" style="padding:12px;font-size:13px;border-radius:14px;">🔄 Обновить</button>
+                <button id="topup-balance" style="background:linear-gradient(135deg,var(--accent) 0%,#4f46e5 100%);color:white;border:none;padding:12px;border-radius:14px;font-weight:700;font-size:13px;cursor:pointer;">➕ Пополнить</button>
             </div>
         </div>
+
       </div>
     </div>
 
