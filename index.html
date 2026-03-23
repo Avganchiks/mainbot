@@ -222,12 +222,10 @@
             'Upload':  'Создайте архив с вашим видео которое требуется загрузить, так же txt с данными канала, если чего то не будет хватать вам напишет воркер'
         };
 
-        function updateHint(serviceName) {
-            const ta = document.getElementById('service-desc');
-            ta.placeholder = SERVICE_HINTS[serviceName] || 'Укажите детали ТЗ...';
+        function updateHint(name) {
+            document.getElementById('service-desc').placeholder = SERVICE_HINTS[name] || 'Укажите детали ТЗ...';
         }
 
-        // Устанавливаем подсказку для дефолтной услуги
         updateHint('Archive');
 
         tg.expand();
