@@ -25,6 +25,19 @@
             background-image: radial-gradient(circle at 50% 50%, rgba(244, 114, 182, 0.04) 0%, transparent 50%);
         }
 
+        /* Анимация появления контента */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Эффект дыхания для активной плитки */
+        @keyframes breathe {
+            0% { box-shadow: 0 0 10px rgba(244, 114, 182, 0.2); border-color: rgba(244, 114, 182, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(244, 114, 182, 0.5); border-color: rgba(244, 114, 182, 1); }
+            100% { box-shadow: 0 0 10px rgba(244, 114, 182, 0.2); border-color: rgba(244, 114, 182, 0.4); }
+        }
+
         .tab-content { display: none; height: 100vh; }
         .tab-content.active { display: flex; flex-direction: column; }
         
@@ -33,6 +46,7 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        .page-header { animation: fadeInUp 0.5s ease backwards; }
         .page-header h1 {
             font-size: 32px; font-weight: 800; letter-spacing: -1px; margin: 0;
             background: linear-gradient(135deg, #fff 0%, var(--neon-cyan) 100%);
@@ -40,75 +54,95 @@
         }
         .page-header p { color: var(--text-muted); font-size: 14px; margin: 4px 0 16px 0; }
 
-        /* Плитки услуг (сохраняем 2х2 компактно) */
         .services-list {
             display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;
         }
+
         .service-item {
             position: relative; background: var(--glass); border: 1px solid var(--glass-border);
             border-radius: 18px; padding: 12px; display: flex; flex-direction: column;
-            justify-content: center; align-items: flex-start; transition: 0.2s; cursor: pointer;
-            aspect-ratio: 1.4 / 1;
+            justify-content: center; align-items: flex-start; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            aspect-ratio: 1.4 / 1; opacity: 0;
+            animation: fadeInUp 0.5s ease forwards;
         }
-        .service-item.active { border-color: var(--neon-pink); background: rgba(244, 114, 182, 0.05); box-shadow: 0 0 15px rgba(244, 114, 182, 0.15); }
+
+        /* Поочередное появление плиток */
+        .service-item:nth-child(1) { animation-delay: 0.1s; }
+        .service-item:nth-child(2) { animation-delay: 0.2s; }
+        .service-item:nth-child(3) { animation-delay: 0.3s; }
+        .service-item:nth-child(4) { animation-delay: 0.4s; }
+
+        .service-item:active { transform: scale(0.95); }
+
+        /* Стиль активной плитки с эффектом дыхания */
+        .service-item.active {
+            background: rgba(244, 114, 182, 0.08);
+            animation: breathe 2.5s infinite ease-in-out, fadeInUp 0.5s ease forwards !important;
+        }
+
         .service-emoji { font-size: 24px; margin-bottom: 4px; }
         .service-info .name { font-weight: 700; font-size: 13px; color: #fff; display: block; }
         .service-info .price { font-weight: 800; font-size: 15px; color: var(--neon-cyan); margin-top: 2px; display: block; }
-        .check-mark { position: absolute; top: 10px; right: 10px; width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; font-size: 9px; color: transparent; }
-        .service-item.active .check-mark { background: var(--neon-pink); border-color: var(--neon-pink); color: white; }
+
+        .check-mark { 
+            position: absolute; top: 10px; right: 10px; width: 18px; height: 18px; 
+            border-radius: 50%; border: 1px solid var(--glass-border); 
+            display: flex; align-items: center; justify-content: center; font-size: 9px; color: transparent; 
+            transition: 0.3s;
+        }
+        .service-item.active .check-mark { background: var(--neon-pink); border-color: var(--neon-pink); color: white; transform: rotate(360deg); }
 
         textarea {
             width: 100%; background: var(--glass); border: 1px solid var(--glass-border);
             border-radius: 16px; padding: 14px; color: white; font-family: inherit; font-size: 14px;
             resize: none; min-height: 80px; margin-bottom: 12px;
+            animation: fadeInUp 0.5s ease 0.5s backwards;
         }
 
         .btn-primary {
             background: linear-gradient(135deg, var(--neon-cyan) 0%, #0ea5e9 100%);
             color: white; border: none; width: 100%; padding: 16px; border-radius: 18px;
             font-size: 16px; font-weight: 800; cursor: pointer;
+            animation: fadeInUp 0.5s ease 0.6s backwards;
+            transition: 0.2s;
         }
+        .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
 
-        /* КРУПНЫЙ РАЗДЕЛ ИНФО */
+        /* Инфо и Профиль - Крупные элементы */
         .info-link {
             display: flex; align-items: center; justify-content: space-between;
-            background: var(--glass); padding: 18px 20px; border-radius: 20px;
+            background: var(--glass); padding: 20px; border-radius: 20px;
             text-decoration: none; color: white; margin-bottom: 10px;
-            border: 1px solid var(--glass-border); font-size: 16px; transition: 0.2s;
+            border: 1px solid var(--glass-border); font-size: 16px;
+            animation: fadeInUp 0.4s ease backwards;
         }
-        .info-link:active { background: rgba(255,255,255,0.08); transform: scale(0.98); }
-        .info-link b { font-weight: 600; }
-        .info-link span { color: var(--neon-cyan); font-weight: 800; }
+        .info-link:nth-child(2) { animation-delay: 0.1s; }
+        .info-link:nth-child(3) { animation-delay: 0.2s; }
+        .info-link:nth-child(4) { animation-delay: 0.3s; }
+        .info-link:nth-child(5) { animation-delay: 0.4s; }
 
-        /* КРУПНЫЙ РАЗДЕЛ ПРОФИЛЬ */
-        .glass-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 24px; padding: 24px; margin-bottom: 15px; }
-        .user-balance-value { font-size: 42px; font-weight: 900; margin-bottom: 16px; letter-spacing: -1px; color: #fff; }
+        .glass-card { 
+            background: var(--glass); border: 1px solid var(--glass-border); 
+            border-radius: 24px; padding: 24px; margin-bottom: 15px;
+            animation: fadeInUp 0.5s ease;
+        }
+        .user-balance-value { font-size: 42px; font-weight: 900; margin-bottom: 16px; letter-spacing: -1px; }
         
-        .pay-methods-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
         .pay-method {
-            display: flex; flex-direction: column; align-items: center; gap: 6px;
             padding: 14px 4px; border-radius: 16px; background: rgba(255,255,255,0.02);
             border: 2px solid var(--glass-border); cursor: pointer; font-size: 11px; font-weight: 700;
-            color: var(--text-muted); transition: 0.2s;
+            text-align: center; transition: 0.2s;
         }
-        .pay-method.active { border-color: var(--neon-cyan); color: white; background: rgba(45, 212, 191, 0.08); }
-        
-        .topup-input {
-            width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 14px; color: white; text-align: center;
-            font-size: 20px; font-weight: 800; margin-bottom: 16px;
-        }
+        .pay-method.active { border-color: var(--neon-cyan); color: white; background: rgba(45, 212, 191, 0.08); box-shadow: 0 0 15px rgba(45, 212, 191, 0.2); }
 
-        /* Навигация */
         .nav-bar {
             position: fixed; bottom: 16px; left: 16px; right: 16px;
             background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px);
             border-radius: 24px; border: 1px solid rgba(255,255,255,0.08);
             display: grid; grid-template-columns: repeat(3, 1fr); padding: 8px; z-index: 1000;
         }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #64748b; font-size: 11px; font-weight: 600; gap: 4px; cursor: pointer; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #64748b; font-size: 11px; font-weight: 600; gap: 4px; }
         .nav-item.active { color: var(--neon-cyan); }
-        .nav-item svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2.5; }
     </style>
 </head>
 <body>
@@ -141,7 +175,7 @@
                 <div class="service-info"><span class="name">Уникал</span><span class="price">100 ₽</span></div>
             </div>
         </div>
-        <textarea id="service-desc" placeholder=""></textarea>
+        <textarea id="service-desc" placeholder="Укажите детали ТЗ..."></textarea>
         <button id="btn-pay" class="btn-primary">Оплатить • <span id="current-price">250</span> ₽</button>
         <div id="status-msg" style="text-align:center;font-size:12px;margin-top:10px;min-height:15px;"></div>
       </div>
@@ -162,14 +196,12 @@
             <div class="page-header"><h1>Профиль</h1><p id="user-name">...</p></div>
             <div class="glass-card">
                 <div id="user-balance" class="user-balance-value">0 ₽</div>
-                
-                <div class="pay-methods-grid">
+                <div class="services-list" style="margin-bottom:16px;">
                     <div class="pay-method active" data-method="crystal"><span>💎 Crystal</span></div>
                     <div class="pay-method" data-method="lolz"><span>⚡ Lolz</span></div>
                     <div class="pay-method" data-method="platega"><span>🏦 СБП</span></div>
                 </div>
-                
-                <input type="number" id="topup-amount" class="topup-input" placeholder="Сумма (₽)">
+                <input type="number" id="topup-amount" class="topup-input" placeholder="Сумма (₽)" style="width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:16px; padding:14px; color:white; text-align:center; font-size:20px; font-weight:800; margin-bottom:16px;">
                 <div style="display:grid; grid-template-columns:1fr 1.5fr; gap:10px;">
                     <button id="refresh-balance" class="btn-primary" style="background:var(--glass); border:1px solid var(--glass-border); font-size:13px;">🔄 Обновить</button>
                     <button id="topup-balance" class="btn-primary" style="font-size:13px;">➕ Пополнить</button>
@@ -179,9 +211,9 @@
     </div>
 
     <div class="nav-bar">
-        <div class="nav-item active" data-tab="main"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>Услуги</span></div>
-        <div class="nav-item" data-tab="info"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg><span>Инфо</span></div>
-        <div class="nav-item" data-tab="profile"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span>Профиль</span></div>
+        <div class="nav-item active" data-tab="main"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>Услуги</span></div>
+        <div class="nav-item" data-tab="info"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg><span>Инфо</span></div>
+        <div class="nav-item" data-tab="profile"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span>Профиль</span></div>
     </div>
 
     <script>
@@ -194,10 +226,10 @@
         function updateHint(n) { document.getElementById('service-desc').placeholder = HINTS[n] || 'Детали ТЗ...'; }
         function setStatus(t, c) { const e = document.getElementById('status-msg'); e.style.color = c || 'var(--neon-cyan)'; e.innerText = t; }
 
-        updateHint('Archive');
         tg.expand();
         tg.setHeaderColor('#0b0e14');
 
+        // Навигация
         document.querySelectorAll('.nav-item').forEach(i => i.onclick = () => {
             const t = i.dataset.tab;
             tg.HapticFeedback.impactOccurred('light');
@@ -208,6 +240,7 @@
             if (t === 'profile') updateProfileData();
         });
 
+        // Услуги
         document.querySelectorAll('.service-item').forEach(i => i.onclick = () => {
             tg.HapticFeedback.selectionChanged();
             document.querySelectorAll('.service-item').forEach(s => s.classList.remove('active'));
@@ -217,6 +250,7 @@
             updateHint(state.selectedService.name);
         });
 
+        // Оплата
         document.querySelectorAll('.pay-method').forEach(i => i.onclick = () => {
             tg.HapticFeedback.selectionChanged();
             document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('active'));
@@ -235,7 +269,7 @@
 
         document.getElementById('topup-balance').onclick = () => {
             const a = document.getElementById('topup-amount').value.trim();
-            if (!a || isNaN(a) || a <= 0) return tg.showAlert("Сумма?");
+            if (!a || isNaN(a) || a <= 0) return tg.showAlert("Укажите сумму!");
             fetch(`${API_BASE}/api/create_topup`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: state.user.id, amount: parseFloat(a), payment_method: state.paymentMethod }) })
             .then(r => r.json()).then(d => { if(d.pay_url) tg.openLink(d.pay_url); });
         };
@@ -251,12 +285,11 @@
                     const data = await res.json();
                     if (res.ok) { 
                         setStatus('✅ Принято!', '#4ade80'); 
-                        tg.showAlert("Заказ создан!"); 
+                        tg.showAlert("Заказ успешно создан!"); 
                         document.getElementById('service-desc').value = "";
                         updateProfileData(); 
-                    }
-                    else if (data.pay_url) { 
-                        tg.showPopup({ title: 'Баланс', message: 'Пополнить?', buttons: [{id:'p', type:'default', text:'Да'}, {type:'cancel'}] }, (id) => { if(id==='p') tg.openLink(data.pay_url); }); 
+                    } else if (data.pay_url) { 
+                        tg.showPopup({ title: 'Баланс', message: 'Недостаточно средств. Пополнить?', buttons: [{id:'p', type:'default', text:'Да'}, {type:'cancel'}] }, (id) => { if(id==='p') tg.openLink(data.pay_url); }); 
                     }
                 } catch(e) { setStatus('❌ Ошибка', '#f87171'); }
             });
