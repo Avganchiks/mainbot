@@ -29,77 +29,86 @@
         .tab-content.active { display: flex; flex-direction: column; }
         
         .tab-scroll {
-            flex: 1; overflow-y: auto; padding: 16px 16px 100px 16px;
+            flex: 1; overflow-y: auto; padding: 20px 16px 120px 16px;
             -webkit-overflow-scrolling: touch;
         }
 
         .page-header h1 {
-            font-size: 26px; font-weight: 800; letter-spacing: -1px; margin: 0;
+            font-size: 32px; font-weight: 800; letter-spacing: -1px; margin: 0;
             background: linear-gradient(135deg, #fff 0%, var(--neon-cyan) 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .page-header p { color: var(--text-muted); font-size: 12px; margin: 2px 0 10px 0; }
+        .page-header p { color: var(--text-muted); font-size: 14px; margin: 4px 0 16px 0; }
 
-        /* Плитки 2х2 одного размера */
+        /* Плитки услуг (сохраняем 2х2 компактно) */
         .services-list {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;
         }
-
         .service-item {
             position: relative; background: var(--glass); border: 1px solid var(--glass-border);
-            border-radius: 18px; padding: 10px; display: flex; flex-direction: column;
+            border-radius: 18px; padding: 12px; display: flex; flex-direction: column;
             justify-content: center; align-items: flex-start; transition: 0.2s; cursor: pointer;
             aspect-ratio: 1.4 / 1;
         }
-
-        .service-item.active {
-            border-color: var(--neon-pink); background: rgba(244, 114, 182, 0.05);
-            box-shadow: 0 0 15px rgba(244, 114, 182, 0.15);
-        }
-
-        .service-emoji { font-size: 22px; margin-bottom: 4px; }
-        .service-info .name { font-weight: 700; font-size: 11px; color: #fff; display: block; line-height: 1.2; }
-        .service-info .price { font-weight: 800; font-size: 13px; color: var(--neon-cyan); margin-top: 2px; display: block; }
-        
-        .check-mark {
-            position: absolute; top: 8px; right: 8px; width: 16px; height: 16px;
-            border-radius: 50%; border: 1px solid var(--glass-border);
-            display: flex; align-items: center; justify-content: center; font-size: 8px; color: transparent;
-        }
+        .service-item.active { border-color: var(--neon-pink); background: rgba(244, 114, 182, 0.05); box-shadow: 0 0 15px rgba(244, 114, 182, 0.15); }
+        .service-emoji { font-size: 24px; margin-bottom: 4px; }
+        .service-info .name { font-weight: 700; font-size: 13px; color: #fff; display: block; }
+        .service-info .price { font-weight: 800; font-size: 15px; color: var(--neon-cyan); margin-top: 2px; display: block; }
+        .check-mark { position: absolute; top: 10px; right: 10px; width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; font-size: 9px; color: transparent; }
         .service-item.active .check-mark { background: var(--neon-pink); border-color: var(--neon-pink); color: white; }
 
         textarea {
             width: 100%; background: var(--glass); border: 1px solid var(--glass-border);
-            border-radius: 14px; padding: 10px; color: white; font-family: inherit; font-size: 13px;
-            resize: none; min-height: 60px; margin-bottom: 8px;
+            border-radius: 16px; padding: 14px; color: white; font-family: inherit; font-size: 14px;
+            resize: none; min-height: 80px; margin-bottom: 12px;
         }
 
         .btn-primary {
             background: linear-gradient(135deg, var(--neon-cyan) 0%, #0ea5e9 100%);
-            color: white; border: none; width: 100%; padding: 12px; border-radius: 14px;
-            font-size: 14px; font-weight: 800; cursor: pointer;
+            color: white; border: none; width: 100%; padding: 16px; border-radius: 18px;
+            font-size: 16px; font-weight: 800; cursor: pointer;
+        }
+
+        /* КРУПНЫЙ РАЗДЕЛ ИНФО */
+        .info-link {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--glass); padding: 18px 20px; border-radius: 20px;
+            text-decoration: none; color: white; margin-bottom: 10px;
+            border: 1px solid var(--glass-border); font-size: 16px; transition: 0.2s;
+        }
+        .info-link:active { background: rgba(255,255,255,0.08); transform: scale(0.98); }
+        .info-link b { font-weight: 600; }
+        .info-link span { color: var(--neon-cyan); font-weight: 800; }
+
+        /* КРУПНЫЙ РАЗДЕЛ ПРОФИЛЬ */
+        .glass-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 24px; padding: 24px; margin-bottom: 15px; }
+        .user-balance-value { font-size: 42px; font-weight: 900; margin-bottom: 16px; letter-spacing: -1px; color: #fff; }
+        
+        .pay-methods-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+        .pay-method {
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            padding: 14px 4px; border-radius: 16px; background: rgba(255,255,255,0.02);
+            border: 2px solid var(--glass-border); cursor: pointer; font-size: 11px; font-weight: 700;
+            color: var(--text-muted); transition: 0.2s;
+        }
+        .pay-method.active { border-color: var(--neon-cyan); color: white; background: rgba(45, 212, 191, 0.08); }
+        
+        .topup-input {
+            width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+            border-radius: 16px; padding: 14px; color: white; text-align: center;
+            font-size: 20px; font-weight: 800; margin-bottom: 16px;
         }
 
         /* Навигация */
         .nav-bar {
-            position: fixed; bottom: 12px; left: 16px; right: 16px;
+            position: fixed; bottom: 16px; left: 16px; right: 16px;
             background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px);
-            border-radius: 20px; border: 1px solid rgba(255,255,255,0.06);
-            display: grid; grid-template-columns: repeat(3, 1fr); padding: 6px; z-index: 1000;
+            border-radius: 24px; border: 1px solid rgba(255,255,255,0.08);
+            display: grid; grid-template-columns: repeat(3, 1fr); padding: 8px; z-index: 1000;
         }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #64748b; font-size: 10px; font-weight: 600; gap: 3px; cursor: pointer; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #64748b; font-size: 11px; font-weight: 600; gap: 4px; cursor: pointer; }
         .nav-item.active { color: var(--neon-cyan); }
-        .nav-item svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.5; }
-
-        /* Профиль и Инфо */
-        .glass-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; padding: 14px; margin-bottom: 10px; }
-        .info-link { display: flex; align-items: center; justify-content: space-between; background: var(--glass); padding: 12px; border-radius: 14px; text-decoration: none; color: white; margin-bottom: 6px; border: 1px solid var(--glass-border); font-size: 13px; }
-        
-        .pay-methods-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
-        .pay-method { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 2px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 2px solid var(--glass-border); cursor: pointer; font-size: 9px; color: var(--text-muted); text-align: center; }
-        .pay-method.active { border-color: var(--neon-cyan); color: white; background: rgba(45, 212, 191, 0.05); }
-        
-        .topup-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px; color: white; text-align: center; font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+        .nav-item svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2.5; }
     </style>
 </head>
 <body>
@@ -110,7 +119,6 @@
             <h1>Alexandria</h1>
             <p>Продвижение контента</p>
         </div>
-        
         <div class="services-list">
             <div class="service-item active" data-name="Archive" data-price="250">
                 <div class="check-mark">✓</div>
@@ -133,28 +141,27 @@
                 <div class="service-info"><span class="name">Уникал</span><span class="price">100 ₽</span></div>
             </div>
         </div>
-
         <textarea id="service-desc" placeholder=""></textarea>
         <button id="btn-pay" class="btn-primary">Оплатить • <span id="current-price">250</span> ₽</button>
-        <div id="status-msg" style="text-align:center;font-size:12px;margin-top:8px;min-height:15px;"></div>
+        <div id="status-msg" style="text-align:center;font-size:12px;margin-top:10px;min-height:15px;"></div>
       </div>
     </div>
 
     <div id="tab-info" class="tab-content">
         <div class="tab-scroll">
-            <div class="page-header"><h1>Инфо</h1><p>Центр поддержки</p></div>
-            <a href="https://t.me/transferalexandria" class="info-link" onclick="event.preventDefault(); tg.openLink(this.href)"><b>🏛 О нас</b><span>→</span></a>
+            <div class="page-header"><h1>Инфо</h1><p>Центр поддержки и документы</p></div>
+            <a href="https://t.me/transferalexandria" class="info-link" onclick="event.preventDefault(); tg.openLink(this.href)"><b>🏛 О проекте</b><span>→</span></a>
             <a href="https://t.me/Alexandria_supp" class="info-link" onclick="event.preventDefault(); tg.openLink(this.href)"><b>💎 Поддержка 24/7</b><span>→</span></a>
-            <a href="https://telegra.ph/Polzovatelskoe-soglashenie-08-15-10" class="info-link" onclick="event.preventDefault(); tg.openLink(this.href)"><b>📄 Соглашение</b><span>→</span></a>
-            <a href="https://telegra.ph/Politika-konfidencialnosti-08-15-17" class="info-link" onclick="event.preventDefault(); tg.openLink(this.href)"><b>🔒 Политика конфид.</b><span>→</span></a>
+            <a href="https://telegra.ph/Polzovatelskoe-soglashenie-08-15-10" class="info-link" onclick="event.preventDefault(); tg.openLink(this.href)"><b>📄 Пользовательское соглашение</b><span>→</span></a>
+            <a href="https://telegra.ph/Politika-konfidencialnosti-08-15-17" class="info-link" onclick="event.preventDefault(); tg.openLink(this.href)"><b>🔒 Политика конфиденциальности</b><span>→</span></a>
         </div>
     </div>
 
     <div id="tab-profile" class="tab-content">
         <div class="tab-scroll">
-            <div class="page-header"><h1>Профиль</h1><p id="user-name">Загрузка...</p></div>
+            <div class="page-header"><h1>Профиль</h1><p id="user-name">...</p></div>
             <div class="glass-card">
-                <div id="user-balance" style="font-size:30px; font-weight:800; margin-bottom:12px;">0 ₽</div>
+                <div id="user-balance" class="user-balance-value">0 ₽</div>
                 
                 <div class="pay-methods-grid">
                     <div class="pay-method active" data-method="crystal"><span>💎 Crystal</span></div>
@@ -163,9 +170,9 @@
                 </div>
                 
                 <input type="number" id="topup-amount" class="topup-input" placeholder="Сумма (₽)">
-                <div style="display:grid; grid-template-columns:1fr 1.5fr; gap:8px;">
-                    <button id="refresh-balance" class="btn-primary" style="background:var(--glass); font-size:11px;">🔄 Обновить</button>
-                    <button id="topup-balance" class="btn-primary" style="font-size:11px;">➕ Пополнить</button>
+                <div style="display:grid; grid-template-columns:1fr 1.5fr; gap:10px;">
+                    <button id="refresh-balance" class="btn-primary" style="background:var(--glass); border:1px solid var(--glass-border); font-size:13px;">🔄 Обновить</button>
+                    <button id="topup-balance" class="btn-primary" style="font-size:13px;">➕ Пополнить</button>
                 </div>
             </div>
         </div>
@@ -180,7 +187,7 @@
     <script>
         const tg = window.Telegram.WebApp;
         const API_BASE = 'https://alexalolz.lol';
-        let state = { selectedService: { name: 'Archive', price: 250 }, paymentMethod: 'crystal', user: tg.initDataUnsafe?.user || { id: 715300422, first_name: 'Alex' } };
+        let state = { selectedService: { name: 'Archive', price: 250 }, paymentMethod: 'crystal', user: tg.initDataUnsafe?.user || { id: 715300422, first_name: 'Misha' } };
 
         const HINTS = { 'Archive': 'Ссылка на билд и пароль...', 'SEO': 'Ссылка на YouTube видео...', 'Upload': 'Архив с видео и данными...', 'Unique': 'Файл для уникализации...' };
 
@@ -191,7 +198,6 @@
         tg.expand();
         tg.setHeaderColor('#0b0e14');
 
-        // Навигация
         document.querySelectorAll('.nav-item').forEach(i => i.onclick = () => {
             const t = i.dataset.tab;
             tg.HapticFeedback.impactOccurred('light');
@@ -202,7 +208,6 @@
             if (t === 'profile') updateProfileData();
         });
 
-        // Услуги
         document.querySelectorAll('.service-item').forEach(i => i.onclick = () => {
             tg.HapticFeedback.selectionChanged();
             document.querySelectorAll('.service-item').forEach(s => s.classList.remove('active'));
@@ -212,7 +217,6 @@
             updateHint(state.selectedService.name);
         });
 
-        // Методы оплаты
         document.querySelectorAll('.pay-method').forEach(i => i.onclick = () => {
             tg.HapticFeedback.selectionChanged();
             document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('active'));
@@ -229,19 +233,13 @@
             } catch(e) {}
         }
 
-        // Пополнение
         document.getElementById('topup-balance').onclick = () => {
             const a = document.getElementById('topup-amount').value.trim();
             if (!a || isNaN(a) || a <= 0) return tg.showAlert("Сумма?");
-            fetch(`${API_BASE}/api/create_topup`, { 
-                method: 'POST', 
-                headers: {'Content-Type': 'application/json'}, 
-                body: JSON.stringify({ user_id: state.user.id, amount: parseFloat(a), payment_method: state.paymentMethod }) 
-            })
+            fetch(`${API_BASE}/api/create_topup`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: state.user.id, amount: parseFloat(a), payment_method: state.paymentMethod }) })
             .then(r => r.json()).then(d => { if(d.pay_url) tg.openLink(d.pay_url); });
         };
 
-        // Оплата заказа
         document.getElementById('btn-pay').onclick = async () => {
             const d = document.getElementById('service-desc').value.trim();
             if (!d) return tg.showAlert("Заполните ТЗ!");
@@ -249,18 +247,7 @@
                 if (!ok) return;
                 setStatus('⏳ Обработка...');
                 try {
-                    const res = await fetch(`${API_BASE}/api/create_order`, { 
-                        method: 'POST', 
-                        headers: {'Content-Type':'application/json'}, 
-                        body: JSON.stringify({ 
-                            user_id: state.user.id, 
-                            user_name: state.user.first_name, 
-                            service_name: state.selectedService.name, 
-                            description: d, 
-                            price: state.selectedService.price, 
-                            payment_method: state.paymentMethod 
-                        }) 
-                    });
+                    const res = await fetch(`${API_BASE}/api/create_order`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user_id: state.user.id, user_name: state.user.first_name, service_name: state.selectedService.name, description: d, price: state.selectedService.price, payment_method: state.paymentMethod }) });
                     const data = await res.json();
                     if (res.ok) { 
                         setStatus('✅ Принято!', '#4ade80'); 
@@ -269,11 +256,7 @@
                         updateProfileData(); 
                     }
                     else if (data.pay_url) { 
-                        tg.showPopup({ 
-                            title: 'Баланс', 
-                            message: 'Пополнить?', 
-                            buttons: [{id:'p', type:'default', text:'Да'}, {type:'cancel'}] 
-                        }, (id) => { if(id==='p') tg.openLink(data.pay_url); }); 
+                        tg.showPopup({ title: 'Баланс', message: 'Пополнить?', buttons: [{id:'p', type:'default', text:'Да'}, {type:'cancel'}] }, (id) => { if(id==='p') tg.openLink(data.pay_url); }); 
                     }
                 } catch(e) { setStatus('❌ Ошибка', '#f87171'); }
             });
