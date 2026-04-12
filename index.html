@@ -181,7 +181,7 @@
 
     <div id="tab-profile" class="tab-content">
         <div class="tab-scroll">
-            <div class="page-header"><h1>Профиль</h1><p id="user-name">...</p></div>
+            <div class="page-header"><h1>Профиль</h1><p id="user-name">...</p><p id="user-id-line" style="font-size:12px;color:var(--text-muted);margin:2px 0 0;">ID: <code id="user-id-val" style="color:var(--neon-cyan);font-size:12px;">...</code></p></div>
             <div class="glass-card">
                 <div id="user-balance" class="user-balance-value">0 ₽</div>
                 
@@ -248,6 +248,7 @@
 
         async function updateProfileData() {
             document.getElementById('user-name').innerText = state.user.first_name;
+            document.getElementById('user-id-val').innerText = state.user.id;
             try {
                 const res = await fetch(`${API_BASE}/api/balance?user_id=${state.user.id}`);
                 const data = await res.json();
