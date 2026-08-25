@@ -35,6 +35,7 @@
             color: var(--text-main);
             height: 100vh; overflow: hidden;
             display: flex; justify-content: center; /* Центрирование для ПК */
+            user-select: none;
         }
 
         /* Ограничитель ширины, чтобы на ПК выглядело как стильное приложение */
@@ -82,6 +83,7 @@
             border-radius: 20px; padding: 16px 20px;
             cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        .service-item * { pointer-events: none; } /* Важно: чтобы клик попадал ровно на контейнер */
         .service-item:hover { border-color: var(--border-light); transform: translateY(-1px); }
         .service-item:active { transform: scale(0.97); }
 
@@ -117,6 +119,7 @@
             width: 100%; background: var(--surface); border: 1px solid var(--border);
             border-radius: 20px; padding: 20px; color: var(--text-main);
             font-family: inherit; font-size: 16px; transition: 0.3s; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+            user-select: text;
         }
         textarea { resize: none; min-height: 120px; margin-bottom: 24px; line-height: 1.5; }
         textarea:focus, input[type="number"]:focus { border-color: #888; background: var(--surface-hover); }
@@ -153,6 +156,7 @@
             display: flex; align-items: center; justify-content: center; gap: 8px;
             color: var(--text-muted);
         }
+        .pay-method * { pointer-events: none; }
         .pay-method.active { background: var(--surface-hover); color: var(--text-main); box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); }
         .pay-method span { font-size: 13px; font-weight: 600; }
         .pay-method .emoji { font-size: 16px; filter: grayscale(100%); opacity: 0.6; transition: 0.3s; }
@@ -164,6 +168,7 @@
             background: var(--surface); padding: 22px 24px; border-radius: 20px;
             text-decoration: none; color: var(--text-main); margin-bottom: 12px;
             border: 1px solid var(--border); font-size: 16px; transition: 0.2s;
+            cursor: pointer;
         }
         .info-link:hover { border-color: var(--border-light); background: var(--surface-hover); }
         .info-link:active { transform: scale(0.98); }
@@ -189,6 +194,7 @@
             color: var(--text-muted); font-size: 14px; font-weight: 600; 
             cursor: pointer; transition: all 0.3s ease;
         }
+        .nav-item * { pointer-events: none; }
         .nav-item svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.5; transition: 0.3s; }
         .nav-item.active { background: var(--gradient-silver); color: #000; box-shadow: 0 4px 15px rgba(255,255,255,0.15); }
     </style>
@@ -257,16 +263,16 @@
                 <p>Правила сервиса и поддержка</p>
             </div>
             <div style="display:flex; flex-direction:column; gap:8px;">
-                <a href="https://t.me/transferalexandria" class="info-link" onclick="event.preventDefault(); tg.openLink(this.href)">
+                <a href="https://t.me/transferalexandria" class="info-link" onclick="openExternalLink(event, this.href)">
                     <b>🏛 О проекте</b><span class="arrow">→</span>
                 </a>
-                <a href="https://t.me/Alexandria_supp" class="info-link" onclick="event.preventDefault(); tg.openLink(this.href)">
+                <a href="https://t.me/Alexandria_supp" class="info-link" onclick="openExternalLink(event, this.href)">
                     <b>💎 Поддержка 24/7</b><span class="arrow">→</span>
                 </a>
-                <a href="https://telegra.ph/Polzovatelskoe-soglashenie-08-15-10" class="info-link" onclick="event.preventDefault(); tg.openLink(this.href)">
+                <a href="https://telegra.ph/Polzovatelskoe-soglashenie-08-15-10" class="info-link" onclick="openExternalLink(event, this.href)">
                     <b>📄 Соглашение</b><span class="arrow">→</span>
                 </a>
-                <a href="https://telegra.ph/Politika-konfidencialnosti-08-15-17" class="info-link" onclick="event.preventDefault(); tg.openLink(this.href)">
+                <a href="https://telegra.ph/Politika-konfidencialnosti-08-15-17" class="info-link" onclick="openExternalLink(event, this.href)">
                     <b>🔒 Приватность</b><span class="arrow">→</span>
                 </a>
             </div>
@@ -312,7 +318,6 @@
     <div class="nav-bar">
         <div class="nav-item active" data-tab="main">
             <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-            <span style="display:none;">Услуги</span> <!-- Текст можно скрыть ради минимализма, но оставим для структуры -->
         </div>
         <div class="nav-item" data-tab="info">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
@@ -322,51 +327,104 @@
         </div>
     </div>
 
-</div> <!-- Конец app-wrapper -->
+</div>
 
-    <!-- ВЕСЬ JS СКОПИРОВАН 1-В-1 ИЗ ИСХОДНОГО КОДА -->
     <script>
-        const tg = window.Telegram.WebApp;
+        const tg = window.Telegram?.WebApp;
         const API_BASE = 'https://alexalolz.lol';
-        let state = { selectedService: { name: 'Archive', price: 250 }, paymentMethod: 'crystal', user: tg.initDataUnsafe?.user || { id: 715300422, first_name: 'Misha' } };
+        let state = { 
+            selectedService: { name: 'Archive', price: 250 }, 
+            paymentMethod: 'crystal', 
+            user: tg?.initDataUnsafe?.user || { id: 715300422, first_name: 'Misha' } 
+        };
 
-        const HINTS = { 'Archive': 'Ссылка на билд и пароль...', 'SEO': 'Ссылка на YouTube видео...', 'Upload': 'Архив с видео и данными...', 'Unique': 'Файл для уникализации...' };
+        const HINTS = { 
+            'Archive': 'Ссылка на билд и пароль...', 
+            'SEO': 'Ссылка на YouTube видео...', 
+            'Upload': 'Архив с видео и данными...', 
+            'Unique': 'Файл для уникализации...' 
+        };
+
+        // Безопасный вызов вибрации (не ломает скрипт на ПК)
+        function safeHaptic(type, arg) {
+            try {
+                if (tg && tg.HapticFeedback) {
+                    if (type === 'impact') tg.HapticFeedback.impactOccurred(arg);
+                    if (type === 'selection') tg.HapticFeedback.selectionChanged();
+                }
+            } catch(e) {}
+        }
+
+        // Безопасное открытие внешних ссылок
+        function openExternalLink(e, url) {
+            if (e) e.preventDefault();
+            try {
+                if (tg && tg.openLink) {
+                    tg.openLink(url);
+                } else {
+                    window.open(url, '_blank');
+                }
+            } catch(err) {
+                window.open(url, '_blank');
+            }
+        }
+
+        // Безопасный вывод алертов
+        function safeAlert(msg) {
+            try {
+                if (tg && tg.showAlert) tg.showAlert(msg);
+                else alert(msg);
+            } catch(e) {
+                alert(msg);
+            }
+        }
 
         function updateHint(n) { document.getElementById('service-desc').placeholder = HINTS[n] || 'Детали ТЗ...'; }
         function setStatus(t, c) { const e = document.getElementById('status-msg'); e.style.color = c || 'var(--text-main)'; e.innerText = t; }
 
-        tg.expand();
-        tg.setHeaderColor('#050505');
+        if (tg) {
+            try { tg.ready(); tg.expand(); tg.setHeaderColor('#050505'); } catch(e){}
+        }
 
-        document.querySelectorAll('.nav-item').forEach(i => i.onclick = () => {
-            const t = i.dataset.tab;
-            tg.HapticFeedback.impactOccurred('light');
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(`tab-${t}`).classList.add('active');
-            i.classList.add('active');
-            if (t === 'profile') updateProfileData();
+        // Навигация по табам
+        document.querySelectorAll('.nav-item').forEach(i => {
+            i.addEventListener('click', () => {
+                const t = i.dataset.tab;
+                safeHaptic('impact', 'light');
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                document.getElementById(`tab-${t}`).classList.add('active');
+                i.classList.add('active');
+                if (t === 'profile') updateProfileData();
+            });
         });
 
-        document.querySelectorAll('.service-item').forEach(i => i.onclick = () => {
-            tg.HapticFeedback.selectionChanged();
-            document.querySelectorAll('.service-item').forEach(s => s.classList.remove('active'));
-            i.classList.add('active');
-            state.selectedService = { name: i.dataset.name, price: parseInt(i.dataset.price) };
-            document.getElementById('current-price').innerText = state.selectedService.price;
-            updateHint(state.selectedService.name);
+        // Выбор услуги
+        document.querySelectorAll('.service-item').forEach(i => {
+            i.addEventListener('click', () => {
+                safeHaptic('selection');
+                document.querySelectorAll('.service-item').forEach(s => s.classList.remove('active'));
+                i.classList.add('active');
+                state.selectedService = { name: i.dataset.name, price: parseInt(i.dataset.price) };
+                document.getElementById('current-price').innerText = state.selectedService.price;
+                updateHint(state.selectedService.name);
+            });
         });
 
-        document.querySelectorAll('.pay-method').forEach(i => i.onclick = () => {
-            tg.HapticFeedback.selectionChanged();
-            document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('active'));
-            i.classList.add('active');
-            state.paymentMethod = i.dataset.method;
+        // Выбор метода оплаты
+        document.querySelectorAll('.pay-method').forEach(i => {
+            i.addEventListener('click', () => {
+                safeHaptic('selection');
+                document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('active'));
+                i.classList.add('active');
+                state.paymentMethod = i.dataset.method;
+            });
         });
 
+        // Загрузка баланса
         async function updateProfileData() {
-            document.getElementById('user-name').innerText = state.user.first_name;
-            document.getElementById('user-id-val').innerText = state.user.id;
+            document.getElementById('user-name').innerText = state.user.first_name || 'Пользователь';
+            document.getElementById('user-id-val').innerText = state.user.id || '---';
             try {
                 const res = await fetch(`${API_BASE}/api/balance?user_id=${state.user.id}`);
                 const data = await res.json();
@@ -374,35 +432,60 @@
             } catch(e) {}
         }
 
-        document.getElementById('topup-balance').onclick = () => {
+        // Пополнение баланса
+        document.getElementById('topup-balance').addEventListener('click', () => {
             const a = document.getElementById('topup-amount').value.trim();
-            if (!a || isNaN(a) || a <= 0) return tg.showAlert("Введите сумму!");
-            fetch(`${API_BASE}/api/create_topup`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: state.user.id, amount: parseFloat(a), payment_method: state.paymentMethod }) })
-            .then(r => r.json()).then(d => { if(d.pay_url) tg.openLink(d.pay_url); });
-        };
+            if (!a || isNaN(a) || a <= 0) return safeAlert("Введите сумму!");
+            fetch(`${API_BASE}/api/create_topup`, { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ user_id: state.user.id, amount: parseFloat(a), payment_method: state.paymentMethod }) 
+            })
+            .then(r => r.json())
+            .then(d => { 
+                if(d.pay_url) openExternalLink(null, d.pay_url); 
+            })
+            .catch(() => safeAlert("Ошибка генерации ссылки на пополнение"));
+        });
 
-        document.getElementById('btn-pay').onclick = async () => {
+        // Оплата заказа
+        document.getElementById('btn-pay').addEventListener('click', async () => {
             const d = document.getElementById('service-desc').value.trim();
-            if (!d) return tg.showAlert("Заполните ТЗ!");
-            tg.showConfirm(`Списать ${state.selectedService.price}₽?`, async (ok) => {
-                if (!ok) return;
-                setStatus('⏳ Обработка...');
-                try {
-                    const res = await fetch(`${API_BASE}/api/create_order`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user_id: state.user.id, user_name: state.user.first_name, service_name: state.selectedService.name, description: d, price: state.selectedService.price, payment_method: state.paymentMethod }) });
-                    const data = await res.json();
-                    if (res.ok) { 
-                        setStatus('✅ Принято!', '#ffffff'); 
-                        tg.showAlert("Заказ успешно создан!"); 
-                        document.getElementById('service-desc').value = "";
-                        updateProfileData(); 
-                    } else if (data.pay_url) { 
-                        tg.showPopup({ title: 'Баланс', message: 'Недостаточно средств. Пополнить?', buttons: [{id:'p', type:'default', text:'Да'}, {type:'cancel'}] }, (id) => { if(id==='p') tg.openLink(data.pay_url); }); 
-                    }
-                } catch(e) { setStatus('❌ Ошибка', '#ff5a5a'); }
-            });
-        };
+            if (!d) return safeAlert("Заполните ТЗ!");
 
-        document.getElementById('refresh-balance').onclick = updateProfileData;
+            if (!confirm(`Списать ${state.selectedService.price}₽?`)) return;
+
+            setStatus('⏳ Обработка...');
+            try {
+                const res = await fetch(`${API_BASE}/api/create_order`, { 
+                    method: 'POST', 
+                    headers: {'Content-Type':'application/json'}, 
+                    body: JSON.stringify({ 
+                        user_id: state.user.id, 
+                        user_name: state.user.first_name, 
+                        service_name: state.selectedService.name, 
+                        description: d, 
+                        price: state.selectedService.price, 
+                        payment_method: state.paymentMethod 
+                    }) 
+                });
+                const data = await res.json();
+                if (res.ok) { 
+                    setStatus('✅ Принято!', '#ffffff'); 
+                    safeAlert("Заказ успешно создан!"); 
+                    document.getElementById('service-desc').value = "";
+                    updateProfileData(); 
+                } else if (data.pay_url) { 
+                    if (confirm('Недостаточно средств. Пополнить баланс?')) {
+                        openExternalLink(null, data.pay_url);
+                    }
+                } else {
+                    setStatus('❌ Ошибка заказа', '#ff5a5a');
+                }
+            } catch(e) { setStatus('❌ Ошибка сети', '#ff5a5a'); }
+        });
+
+        document.getElementById('refresh-balance').addEventListener('click', updateProfileData);
         updateProfileData();
     </script>
 </body>
