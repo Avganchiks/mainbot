@@ -1,818 +1,428 @@
 <!DOCTYPE html>
-
 <html lang="ru">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
     <title>Alexandria - Elite</title>
-
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
     <style>
-
         :root {
-
             /* Строгая палитра 3 цветов: Black, Gray, White + Gradients */
-
             --bg-dark: #050505;
-
             --bg-gray: #111214;
-
             --surface: #191b1f;
-
             --surface-hover: #22252a;
-
             --border: rgba(255, 255, 255, 0.08);
-
             --border-light: rgba(255, 255, 255, 0.15);
-
             --text-main: #ffffff;
-
             --text-muted: #888c94;
 
-            
-
             /* Премиальный серебряный градиент для активных элементов */
-
             --gradient-silver: linear-gradient(135deg, #ffffff 0%, #c4c4c4 100%);
-
             --gradient-gray: linear-gradient(180deg, #2a2d32 0%, #191b1f 100%);
 
-            
-
             --safe-bottom: env(safe-area-inset-bottom, 20px);
-
         }
-
-
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-
         ::-webkit-scrollbar { display: none; }
 
-
-
         body {
-
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', Roboto, sans-serif;
-
-            margin: 0; padding: 0; 
-
+            margin: 0; padding: 0;
             background: radial-gradient(circle at 50% -20%, #202020 0%, var(--bg-dark) 80%);
-
             background-color: var(--bg-dark);
-
             color: var(--text-main);
-
             height: 100vh; overflow: hidden;
-
             display: flex; justify-content: center; /* Центрирование для ПК */
-
         }
-
-
 
         /* Ограничитель ширины, чтобы на ПК выглядело как стильное приложение */
-
         .app-wrapper {
-
             width: 100%;
-
             max-width: 520px; /* Идеально для ПК и планшетов */
-
             height: 100%;
-
             position: relative;
-
             display: flex;
-
             flex-direction: column;
-
             background: rgba(10, 10, 10, 0.4);
-
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
-
         }
-
-
 
         @keyframes slideFade {
-
             0% { opacity: 0; transform: scale(0.98) translateY(10px); }
-
             100% { opacity: 1; transform: scale(1) translateY(0); }
-
         }
-
-
 
         .tab-content { display: none; width: 100%; height: 100%; }
-
         .tab-content.active { display: flex; flex-direction: column; animation: slideFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        
-
         .tab-scroll {
-
-            flex: 1; overflow-y: auto; 
-
+            flex: 1; overflow-y: auto;
             padding: 30px 20px calc(120px + var(--safe-bottom)) 20px;
-
             -webkit-overflow-scrolling: touch;
-
         }
-
-
 
         /* Заголовки */
-
         .page-header { margin-bottom: 30px; }
-
         .page-header h1 {
-
             font-size: 32px; font-weight: 800; letter-spacing: -1px; margin: 0 0 8px 0;
-
             background: var(--gradient-silver);
-
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-
         }
-
         .page-header p { color: var(--text-muted); font-size: 15px; margin: 0; font-weight: 400; }
 
-
-
         /* СПИСОК УСЛУГ (Горизонтальные карточки) */
-
         .services-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
 
-
-
         .service-item {
-
             display: flex; align-items: center; justify-content: space-between;
-
             background: var(--gradient-gray);
-
             border: 1px solid var(--border);
-
             border-radius: 20px; padding: 16px 20px;
-
             cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-
         }
-
         .service-item:hover { border-color: var(--border-light); transform: translateY(-1px); }
-
         .service-item:active { transform: scale(0.97); }
 
-
-
         .service-item.active {
-
             background: var(--surface-hover);
-
             border-color: #ffffff;
-
             box-shadow: 0 8px 24px rgba(255, 255, 255, 0.05);
-
         }
-
-
 
         .service-left { display: flex; align-items: center; gap: 16px; }
-
         .service-emoji { font-size: 24px; filter: grayscale(100%); opacity: 0.7; transition: 0.3s; }
-
         .service-item.active .service-emoji { filter: grayscale(0%); opacity: 1; }
 
-        
-
         .service-info { display: flex; flex-direction: column; text-align: left; }
-
         .service-info .name { font-weight: 600; font-size: 16px; color: var(--text-main); }
-
         .service-info .price { font-weight: 500; font-size: 13px; color: var(--text-muted); margin-top: 2px; }
-
         .service-item.active .price { color: #d1d1d1; }
 
-
-
         /* Стильный Checkmark-радиокнопка */
-
         .check-mark {
-
             width: 22px; height: 22px; border-radius: 50%;
-
             border: 2px solid #444;
-
             display: flex; align-items: center; justify-content: center;
-
             font-size: 12px; color: transparent; transition: 0.3s;
-
         }
-
         .service-item.active .check-mark {
-
             background: var(--gradient-silver);
-
             border-color: #ffffff; color: #000; font-weight: bold;
-
         }
-
-
 
         /* ПОЛЯ ВВОДА И КНОПКИ */
-
         textarea, input[type="number"] {
-
             width: 100%; background: var(--surface); border: 1px solid var(--border);
-
             border-radius: 20px; padding: 20px; color: var(--text-main);
-
             font-family: inherit; font-size: 16px; transition: 0.3s; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
-
         }
-
         textarea { resize: none; min-height: 120px; margin-bottom: 24px; line-height: 1.5; }
-
         textarea:focus, input[type="number"]:focus { border-color: #888; background: var(--surface-hover); }
 
-
-
         .btn-primary {
-
             background: var(--gradient-silver); color: #000000;
-
             border: none; width: 100%; padding: 18px; border-radius: 20px;
-
             font-size: 17px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;
-
             display: flex; align-items: center; justify-content: center; gap: 8px;
-
             box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
-
         }
-
         .btn-primary:active { transform: scale(0.97); box-shadow: 0 5px 10px rgba(255, 255, 255, 0.05); }
 
-
-
         .btn-secondary {
-
             background: transparent; color: var(--text-main);
-
             border: 1px solid var(--border-light); padding: 18px; border-radius: 20px;
-
             font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s;
-
         }
-
         .btn-secondary:active { background: rgba(255,255,255,0.05); }
 
-
-
         /* ПРОФИЛЬ И СЕГМЕНТИРОВАННАЯ ОПЛАТА */
-
         .balance-block { text-align: center; margin-bottom: 30px; }
-
         .balance-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
-
         .user-balance-value { font-size: 52px; font-weight: 800; letter-spacing: -2px; margin: 8px 0; }
 
-
-
         /* Сегментированный переключатель в стиле iOS */
-
         .pay-methods-row {
-
             display: flex; background: #0f1115; border: 1px solid var(--border);
-
             border-radius: 18px; padding: 6px; margin-bottom: 24px;
-
         }
-
         .pay-method {
-
-            flex: 1; padding: 12px 5px; border-radius: 14px;
-
+flex: 1; padding: 12px 5px; border-radius: 14px;
             cursor: pointer; text-align: center; transition: 0.3s;
-
             display: flex; align-items: center; justify-content: center; gap: 8px;
-
             color: var(--text-muted);
-
         }
-
         .pay-method.active { background: var(--surface-hover); color: var(--text-main); box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); }
-
         .pay-method span { font-size: 13px; font-weight: 600; }
-
         .pay-method .emoji { font-size: 16px; filter: grayscale(100%); opacity: 0.6; transition: 0.3s; }
-
         .pay-method.active .emoji { filter: grayscale(0%); opacity: 1; }
 
-
-
         /* ИНФО ССЫЛКИ */
-
         .info-link {
-
             display: flex; align-items: center; justify-content: space-between;
-
             background: var(--surface); padding: 22px 24px; border-radius: 20px;
-
             text-decoration: none; color: var(--text-main); margin-bottom: 12px;
-
             border: 1px solid var(--border); font-size: 16px; transition: 0.2s;
-
         }
-
         .info-link:hover { border-color: var(--border-light); background: var(--surface-hover); }
-
         .info-link:active { transform: scale(0.98); }
-
         .info-link span.arrow { color: var(--text-muted); font-size: 20px; }
 
-
-
         /* ПЛАВАЮЩИЙ ДОК НАВИГАЦИИ (Island Style) */
-
         .nav-bar {
-
             position: absolute; /* Позиционируем внутри .app-wrapper */
-
-            bottom: 30px; 
-
+            bottom: 30px;
             left: 50%; transform: translateX(-50%);
-
             width: max-content; min-width: 320px;
-
-            background: rgba(20, 20, 20, 0.85); 
-
+            background: rgba(20, 20, 20, 0.85);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-
-            border-radius: 40px; 
-
+            border-radius: 40px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-
             display: flex; justify-content: space-between;
-
             padding: 8px 12px; z-index: 1000;
-
             box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
-
         }
-
-        .nav-item { 
-
+        .nav-item {
             display: flex; align-items: center; gap: 8px;
-
             padding: 12px 24px; border-radius: 30px;
-
-            color: var(--text-muted); font-size: 14px; font-weight: 600; 
-
+            color: var(--text-muted); font-size: 14px; font-weight: 600;
             cursor: pointer; transition: all 0.3s ease;
-
         }
-
         .nav-item svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.5; transition: 0.3s; }
-
         .nav-item.active { background: var(--gradient-silver); color: #000; box-shadow: 0 4px 15px rgba(255,255,255,0.15); }
-
     </style>
-
 </head>
-
 <body>
-
-
 
 <div class="app-wrapper">
 
-
-
     <!-- ТАБ: УСЛУГИ -->
-
     <div id="tab-main" class="tab-content active">
-
       <div class="tab-scroll">
-
         <div class="page-header">
-
             <h1>Alexandria</h1>
-
             <p>Премиальный трафик</p>
-
         </div>
-
-        
 
         <div class="services-list">
-
             <div class="service-item active" data-name="Archive" data-price="250">
-
                 <div class="service-left">
-
                     <span class="service-emoji">📦</span>
-
                     <div class="service-info"><span class="name">Архив</span><span class="price">250 ₽</span></div>
-
                 </div>
-
                 <div class="check-mark">✓</div>
-
             </div>
-
-            
 
             <div class="service-item" data-name="SEO" data-price="130">
-
                 <div class="service-left">
-
                     <span class="service-emoji">📈</span>
-
                     <div class="service-info"><span class="name">SEO Оптимизация</span><span class="price">130 ₽</span></div>
-
                 </div>
-
                 <div class="check-mark">✓</div>
-
             </div>
-
-            
 
             <div class="service-item" data-name="Upload" data-price="100">
-
                 <div class="service-left">
-
                     <span class="service-emoji">🚀</span>
-
                     <div class="service-info"><span class="name">Залив Видео</span><span class="price">100 ₽</span></div>
-
                 </div>
-
                 <div class="check-mark">✓</div>
-
             </div>
-
-            
 
             <div class="service-item" data-name="Unique" data-price="100">
-
                 <div class="service-left">
-
                     <span class="service-emoji">✨</span>
-
                     <div class="service-info"><span class="name">Уникализация</span><span class="price">100 ₽</span></div>
-
                 </div>
-
                 <div class="check-mark">✓</div>
-
             </div>
-
         </div>
-
-        
 
         <textarea id="service-desc" placeholder="Ссылка на билд и пароль..."></textarea>
 
-        
-
         <button id="btn-pay" class="btn-primary">
-
             Оплатить заказ • <span id="current-price">250</span> ₽
-
         </button>
 
-        
-
         <div id="status-msg" style="text-align:center; font-size:14px; margin-top:20px; min-height:20px; font-weight:500; color:var(--text-muted);"></div>
-
       </div>
-
     </div>
-
-
 
     <!-- ТАБ: ИНФО -->
-
     <div id="tab-info" class="tab-content">
-
         <div class="tab-scroll">
-
             <div class="page-header">
-
                 <h1>Навигация</h1>
-
                 <p>Правила сервиса и поддержка</p>
-
             </div>
-
             <div style="display:flex; flex-direction:column; gap:8px;">
-
                 <a href="https://t.me/transferalexandria" class="info-link" onclick="event.preventDefault(); tg.openLink(this.href)">
-
                     <b>🏛 О проекте</b><span class="arrow">→</span>
-
                 </a>
-
                 <a href="https://t.me/Alexandria_supp" class="info-link" onclick="event.preventDefault(); tg.openLink(this.href)">
-
                     <b>💎 Поддержка 24/7</b><span class="arrow">→</span>
-
                 </a>
-
                 <a href="https://telegra.ph/Polzovatelskoe-soglashenie-08-15-10" class="info-link" onclick="event.preventDefault(); tg.openLink(this.href)">
-
                     <b>📄 Соглашение</b><span class="arrow">→</span>
-
                 </a>
-
                 <a href="https://telegra.ph/Politika-konfidencialnosti-08-15-17" class="info-link" onclick="event.preventDefault(); tg.openLink(this.href)">
-
                     <b>🔒 Приватность</b><span class="arrow">→</span>
-
                 </a>
-
             </div>
-
         </div>
-
     </div>
 
-
-
     <!-- ТАБ: ПРОФИЛЬ -->
-
     <div id="tab-profile" class="tab-content">
-
         <div class="tab-scroll">
-
             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:40px;">
-
                 <div class="page-header" style="margin:0; text-align:left;">
-
                     <h1 id="user-name">Профиль</h1>
-
                     <p id="user-id-line">Telegram ID: <span id="user-id-val" style="color:#fff; font-weight:600;">...</span></p>
-
                 </div>
-
                 <button id="refresh-balance" style="background:none; border:none; color:var(--text-muted); font-size:24px; cursor:pointer; padding:0;">🔄</button>
-
             </div>
-
-            
 
             <div class="balance-block">
-
                 <div class="balance-label">Текущий баланс</div>
-
                 <div id="user-balance" class="user-balance-value">0 ₽</div>
-
             </div>
-
-            
 
             <!-- Сегментированный UI оплаты -->
-
             <div class="pay-methods-row">
-
                 <div class="pay-method active" data-method="crystal">
-
                     <span class="emoji">💎</span><span>Crystal</span>
-
                 </div>
-
                 <div class="pay-method" data-method="lolz">
-
                     <span class="emoji">⚡</span><span>Lolz</span>
-
                 </div>
-
                 <div class="pay-method" data-method="platega">
-
                     <span class="emoji">🏦</span><span>СБП</span>
-
                 </div>
-
             </div>
-
-
 
             <input type="number" id="topup-amount" placeholder="Введите сумму (₽)" style="text-align:center; font-size:20px; font-weight:700; margin-bottom:16px;">
 
-            
-
             <button id="topup-balance" class="btn-primary" style="margin-bottom:20px;">Пополнить баланс</button>
-
         </div>
-
     </div>
-
-
 
     <!-- ДОК НАВИГАЦИИ -->
-
     <div class="nav-bar">
-
         <div class="nav-item active" data-tab="main">
-
             <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-
             <span style="display:none;">Услуги</span> <!-- Текст можно скрыть ради минимализма, но оставим для структуры -->
-
         </div>
-
         <div class="nav-item" data-tab="info">
-
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-
         </div>
-
         <div class="nav-item" data-tab="profile">
-
             <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-
         </div>
-
     </div>
-
-
 
 </div> <!-- Конец app-wrapper -->
 
-
-
     <!-- ВЕСЬ JS СКОПИРОВАН 1-В-1 ИЗ ИСХОДНОГО КОДА -->
-
     <script>
-
         const tg = window.Telegram.WebApp;
-
         const API_BASE = 'https://alexalolz.lol';
-
         let state = { selectedService: { name: 'Archive', price: 250 }, paymentMethod: 'crystal', user: tg.initDataUnsafe?.user || { id: 715300422, first_name: 'Misha' } };
-
-
 
         const HINTS = { 'Archive': 'Ссылка на билд и пароль...', 'SEO': 'Ссылка на YouTube видео...', 'Upload': 'Архив с видео и данными...', 'Unique': 'Файл для уникализации...' };
 
-
-
         function updateHint(n) { document.getElementById('service-desc').placeholder = HINTS[n] || 'Детали ТЗ...'; }
-
         function setStatus(t, c) { const e = document.getElementById('status-msg'); e.style.color = c || 'var(--text-main)'; e.innerText = t; }
 
-
-
         tg.expand();
-
         tg.setHeaderColor('#050505');
 
-
-
         document.querySelectorAll('.nav-item').forEach(i => i.onclick = () => {
-
             const t = i.dataset.tab;
-
             tg.HapticFeedback.impactOccurred('light');
-
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-
             document.getElementById(`tab-${t}`).classList.add('active');
-
             i.classList.add('active');
-
             if (t === 'profile') updateProfileData();
-
         });
-
-
 
         document.querySelectorAll('.service-item').forEach(i => i.onclick = () => {
-
             tg.HapticFeedback.selectionChanged();
-
             document.querySelectorAll('.service-item').forEach(s => s.classList.remove('active'));
-
             i.classList.add('active');
-
             state.selectedService = { name: i.dataset.name, price: parseInt(i.dataset.price) };
-
             document.getElementById('current-price').innerText = state.selectedService.price;
-
             updateHint(state.selectedService.name);
-
         });
-
-
 
         document.querySelectorAll('.pay-method').forEach(i => i.onclick = () => {
-
             tg.HapticFeedback.selectionChanged();
-
             document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('active'));
-
             i.classList.add('active');
-
             state.paymentMethod = i.dataset.method;
-
         });
 
-
-
         async function updateProfileData() {
-
             document.getElementById('user-name').innerText = state.user.first_name;
-
             document.getElementById('user-id-val').innerText = state.user.id;
-
             try {
-
                 const res = await fetch(`${API_BASE}/api/balance?user_id=${state.user.id}`);
-
                 const data = await res.json();
-
                 document.getElementById('user-balance').innerText = `${Math.floor(data.balance).toLocaleString()} ₽`;
-
             } catch(e) {}
-
         }
-
-
-
-        document.getElementById('topup-balance').onclick = () => {
-
+document.getElementById('topup-balance').onclick = () => {
             const a = document.getElementById('topup-amount').value.trim();
-
             if (!a || isNaN(a) || a <= 0) return tg.showAlert("Введите сумму!");
-
-            fetch(`${API_BASE}/api/create_topup`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: state.user.id, amount: parseFloat(a), payment_method: state.paymentMethod }) })
-
+            fetch(`${API_BASE}/api/create_topup`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_id: state.user.id, amount: parseFloat(a), payment_method: state.paymentMethod })
+            })
             .then(r => r.json()).then(d => { if(d.pay_url) tg.openLink(d.pay_url); });
-
         };
-
-
 
         document.getElementById('btn-pay').onclick = async () => {
-
             const d = document.getElementById('service-desc').value.trim();
-
             if (!d) return tg.showAlert("Заполните ТЗ!");
-
             tg.showConfirm(`Списать ${state.selectedService.price}₽?`, async (ok) => {
-
                 if (!ok) return;
-
                 setStatus('⏳ Обработка...');
-
                 try {
-
-                    const res = await fetch(`${API_BASE}/api/create_order`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user_id: state.user.id, user_name: state.user.first_name, service_name: state.selectedService.name, description: d, price: state.selectedService.price, payment_method: state.paymentMethod }) });
-
+                    const res = await fetch(`${API_BASE}/api/create_order`, {
+                        method: 'POST',
+                        headers: {'Content-Type':'application/json'},
+                        body: JSON.stringify({
+                            user_id: state.user.id,
+                            user_name: state.user.first_name,
+                            service_name: state.selectedService.name,
+                            description: d,
+                            price: state.selectedService.price,
+                            payment_method: state.paymentMethod
+                        })
+                    });
                     const data = await res.json();
-
-                    if (res.ok) { 
-
-                        setStatus('✅ Принято!', '#ffffff'); 
-
-                        tg.showAlert("Заказ успешно создан!"); 
-
+                    if (res.ok) {
+                        setStatus('✅ Принято!', '#ffffff');
+                        tg.showAlert("Заказ успешно создан!");
                         document.getElementById('service-desc').value = "";
-
-                        updateProfileData(); 
-
-                    } else if (data.pay_url) { 
-
-                        tg.showPopup({ title: 'Баланс', message: 'Недостаточно средств. Пополнить?', buttons: [{id:'p', type:'default', text:'Да'}, {type:'cancel'}] }, (id) => { if(id==='p') tg.openLink(data.pay_url); }); 
-
+                        updateProfileData();
+                    } else if (data.pay_url) {
+                        tg.showPopup({
+                            title: 'Баланс',
+                            message: 'Недостаточно средств. Пополнить?',
+                            buttons: [{id:'p', type:'default', text:'Да'}, {type:'cancel'}]
+                        }, (id) => { if(id==='p') tg.openLink(data.pay_url); });
                     }
-
                 } catch(e) { setStatus('❌ Ошибка', '#ff5a5a'); }
-
             });
-
         };
 
-
-
         document.getElementById('refresh-balance').onclick = updateProfileData;
-
         updateProfileData();
-
     </script>
-
 </body>
-
-</html> 
+</html>
 
