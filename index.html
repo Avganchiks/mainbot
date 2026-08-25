@@ -7,7 +7,6 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            /* Строгая палитра 3 цветов: Black, Gray, White + Gradients */
             --bg-dark: #050505;
             --bg-gray: #111214;
             --surface: #191b1f;
@@ -17,14 +16,20 @@
             --text-main: #ffffff;
             --text-muted: #888c94;
             
-            /* Премиальный серебряный градиент для активных элементов */
             --gradient-silver: linear-gradient(135deg, #ffffff 0%, #c4c4c4 100%);
             --gradient-gray: linear-gradient(180deg, #2a2d32 0%, #191b1f 100%);
             
             --safe-bottom: env(safe-area-inset-bottom, 20px);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            outline: none; 
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
         ::-webkit-scrollbar { display: none; }
 
         body {
@@ -34,14 +39,12 @@
             background-color: var(--bg-dark);
             color: var(--text-main);
             height: 100vh; overflow: hidden;
-            display: flex; justify-content: center; /* Центрирование для ПК */
-            user-select: none;
+            display: flex; justify-content: center;
         }
 
-        /* Ограничитель ширины, чтобы на ПК выглядело как стильное приложение */
         .app-wrapper {
             width: 100%;
-            max-width: 520px; /* Идеально для ПК и планшетов */
+            max-width: 520px;
             height: 100%;
             position: relative;
             display: flex;
@@ -64,7 +67,6 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Заголовки */
         .page-header { margin-bottom: 30px; }
         .page-header h1 {
             font-size: 32px; font-weight: 800; letter-spacing: -1px; margin: 0 0 8px 0;
@@ -73,7 +75,6 @@
         }
         .page-header p { color: var(--text-muted); font-size: 15px; margin: 0; font-weight: 400; }
 
-        /* СПИСОК УСЛУГ (Горизонтальные карточки) */
         .services-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
 
         .service-item {
@@ -81,11 +82,10 @@
             background: var(--gradient-gray);
             border: 1px solid var(--border);
             border-radius: 20px; padding: 16px 20px;
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer; transition: all 0.2s ease;
         }
-        .service-item * { pointer-events: none; } /* Важно: чтобы клик попадал ровно на контейнер */
-        .service-item:hover { border-color: var(--border-light); transform: translateY(-1px); }
-        .service-item:active { transform: scale(0.97); }
+        .service-item * { pointer-events: none; }
+        .service-item:hover { border-color: var(--border-light); }
 
         .service-item.active {
             background: var(--surface-hover);
@@ -102,7 +102,6 @@
         .service-info .price { font-weight: 500; font-size: 13px; color: var(--text-muted); margin-top: 2px; }
         .service-item.active .price { color: #d1d1d1; }
 
-        /* Стильный Checkmark-радиокнопка */
         .check-mark {
             width: 22px; height: 22px; border-radius: 50%;
             border: 2px solid #444;
@@ -114,12 +113,11 @@
             border-color: #ffffff; color: #000; font-weight: bold;
         }
 
-        /* ПОЛЯ ВВОДА И КНОПКИ */
         textarea, input[type="number"] {
             width: 100%; background: var(--surface); border: 1px solid var(--border);
             border-radius: 20px; padding: 20px; color: var(--text-main);
             font-family: inherit; font-size: 16px; transition: 0.3s; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
-            user-select: text;
+            user-select: text; -webkit-user-select: text;
         }
         textarea { resize: none; min-height: 120px; margin-bottom: 24px; line-height: 1.5; }
         textarea:focus, input[type="number"]:focus { border-color: #888; background: var(--surface-hover); }
@@ -131,21 +129,11 @@
             display: flex; align-items: center; justify-content: center; gap: 8px;
             box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
         }
-        .btn-primary:active { transform: scale(0.97); box-shadow: 0 5px 10px rgba(255, 255, 255, 0.05); }
 
-        .btn-secondary {
-            background: transparent; color: var(--text-main);
-            border: 1px solid var(--border-light); padding: 18px; border-radius: 20px;
-            font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s;
-        }
-        .btn-secondary:active { background: rgba(255,255,255,0.05); }
-
-        /* ПРОФИЛЬ И СЕГМЕНТИРОВАННАЯ ОПЛАТА */
         .balance-block { text-align: center; margin-bottom: 30px; }
         .balance-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
         .user-balance-value { font-size: 52px; font-weight: 800; letter-spacing: -2px; margin: 8px 0; }
 
-        /* Сегментированный переключатель в стиле iOS */
         .pay-methods-row {
             display: flex; background: #0f1115; border: 1px solid var(--border);
             border-radius: 18px; padding: 6px; margin-bottom: 24px;
@@ -162,7 +150,6 @@
         .pay-method .emoji { font-size: 16px; filter: grayscale(100%); opacity: 0.6; transition: 0.3s; }
         .pay-method.active .emoji { filter: grayscale(0%); opacity: 1; }
 
-        /* ИНФО ССЫЛКИ */
         .info-link {
             display: flex; align-items: center; justify-content: space-between;
             background: var(--surface); padding: 22px 24px; border-radius: 20px;
@@ -170,13 +157,10 @@
             border: 1px solid var(--border); font-size: 16px; transition: 0.2s;
             cursor: pointer;
         }
-        .info-link:hover { border-color: var(--border-light); background: var(--surface-hover); }
-        .info-link:active { transform: scale(0.98); }
         .info-link span.arrow { color: var(--text-muted); font-size: 20px; }
 
-        /* ПЛАВАЮЩИЙ ДОК НАВИГАЦИИ (Island Style) */
         .nav-bar {
-            position: absolute; /* Позиционируем внутри .app-wrapper */
+            position: absolute;
             bottom: 30px; 
             left: 50%; transform: translateX(-50%);
             width: max-content; min-width: 320px;
@@ -186,7 +170,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex; justify-content: space-between;
             padding: 8px 12px; z-index: 1000;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
         }
         .nav-item { 
             display: flex; align-items: center; gap: 8px;
@@ -263,16 +247,16 @@
                 <p>Правила сервиса и поддержка</p>
             </div>
             <div style="display:flex; flex-direction:column; gap:8px;">
-                <a href="https://t.me/transferalexandria" class="info-link" onclick="openExternalLink(event, this.href)">
+                <a href="https://t.me/transferalexandria" class="info-link" data-link="https://t.me/transferalexandria">
                     <b>🏛 О проекте</b><span class="arrow">→</span>
                 </a>
-                <a href="https://t.me/Alexandria_supp" class="info-link" onclick="openExternalLink(event, this.href)">
+                <a href="https://t.me/Alexandria_supp" class="info-link" data-link="https://t.me/Alexandria_supp">
                     <b>💎 Поддержка 24/7</b><span class="arrow">→</span>
                 </a>
-                <a href="https://telegra.ph/Polzovatelskoe-soglashenie-08-15-10" class="info-link" onclick="openExternalLink(event, this.href)">
+                <a href="https://telegra.ph/Polzovatelskoe-soglashenie-08-15-10" class="info-link" data-link="https://telegra.ph/Polzovatelskoe-soglashenie-08-15-10">
                     <b>📄 Соглашение</b><span class="arrow">→</span>
                 </a>
-                <a href="https://telegra.ph/Politika-konfidencialnosti-08-15-17" class="info-link" onclick="openExternalLink(event, this.href)">
+                <a href="https://telegra.ph/Politika-konfidencialnosti-08-15-17" class="info-link" data-link="https://telegra.ph/Politika-konfidencialnosti-08-15-17">
                     <b>🔒 Приватность</b><span class="arrow">→</span>
                 </a>
             </div>
@@ -295,7 +279,6 @@
                 <div id="user-balance" class="user-balance-value">0 ₽</div>
             </div>
             
-            <!-- Сегментированный UI оплаты -->
             <div class="pay-methods-row">
                 <div class="pay-method active" data-method="crystal">
                     <span class="emoji">💎</span><span>Crystal</span>
@@ -332,6 +315,7 @@
     <script>
         const tg = window.Telegram?.WebApp;
         const API_BASE = 'https://alexalolz.lol';
+        
         let state = { 
             selectedService: { name: 'Archive', price: 250 }, 
             paymentMethod: 'crystal', 
@@ -345,37 +329,23 @@
             'Unique': 'Файл для уникализации...' 
         };
 
-        // Безопасный вызов вибрации (не ломает скрипт на ПК)
-        function safeHaptic(type, arg) {
-            try {
-                if (tg && tg.HapticFeedback) {
-                    if (type === 'impact') tg.HapticFeedback.impactOccurred(arg);
-                    if (type === 'selection') tg.HapticFeedback.selectionChanged();
-                }
-            } catch(e) {}
+        function bindAction(selector, handler) {
+            document.querySelectorAll(selector).forEach(el => {
+                const trigger = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handler(el, e);
+                };
+                el.addEventListener('pointerdown', trigger);
+            });
         }
 
-        // Безопасное открытие внешних ссылок
-        function openExternalLink(e, url) {
-            if (e) e.preventDefault();
+        function openLinkSafe(url) {
             try {
-                if (tg && tg.openLink) {
-                    tg.openLink(url);
-                } else {
-                    window.open(url, '_blank');
-                }
-            } catch(err) {
-                window.open(url, '_blank');
-            }
-        }
-
-        // Безопасный вывод алертов
-        function safeAlert(msg) {
-            try {
-                if (tg && tg.showAlert) tg.showAlert(msg);
-                else alert(msg);
+                if (tg && tg.openLink) tg.openLink(url);
+                else window.open(url, '_blank');
             } catch(e) {
-                alert(msg);
+                window.open(url, '_blank');
             }
         }
 
@@ -383,42 +353,38 @@
         function setStatus(t, c) { const e = document.getElementById('status-msg'); e.style.color = c || 'var(--text-main)'; e.innerText = t; }
 
         if (tg) {
-            try { tg.ready(); tg.expand(); tg.setHeaderColor('#050505'); } catch(e){}
+            try { tg.ready(); tg.expand(); } catch(e){}
         }
 
-        // Навигация по табам
-        document.querySelectorAll('.nav-item').forEach(i => {
-            i.addEventListener('click', () => {
-                const t = i.dataset.tab;
-                safeHaptic('impact', 'light');
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                document.getElementById(`tab-${t}`).classList.add('active');
-                i.classList.add('active');
-                if (t === 'profile') updateProfileData();
-            });
+        // Переключение табов
+        bindAction('.nav-item', (el) => {
+            const t = el.dataset.tab;
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(`tab-${t}`).classList.add('active');
+            el.classList.add('active');
+            if (t === 'profile') updateProfileData();
         });
 
         // Выбор услуги
-        document.querySelectorAll('.service-item').forEach(i => {
-            i.addEventListener('click', () => {
-                safeHaptic('selection');
-                document.querySelectorAll('.service-item').forEach(s => s.classList.remove('active'));
-                i.classList.add('active');
-                state.selectedService = { name: i.dataset.name, price: parseInt(i.dataset.price) };
-                document.getElementById('current-price').innerText = state.selectedService.price;
-                updateHint(state.selectedService.name);
-            });
+        bindAction('.service-item', (el) => {
+            document.querySelectorAll('.service-item').forEach(s => s.classList.remove('active'));
+            el.classList.add('active');
+            state.selectedService = { name: el.dataset.name, price: parseInt(el.dataset.price) };
+            document.getElementById('current-price').innerText = state.selectedService.price;
+            updateHint(state.selectedService.name);
         });
 
         // Выбор метода оплаты
-        document.querySelectorAll('.pay-method').forEach(i => {
-            i.addEventListener('click', () => {
-                safeHaptic('selection');
-                document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('active'));
-                i.classList.add('active');
-                state.paymentMethod = i.dataset.method;
-            });
+        bindAction('.pay-method', (el) => {
+            document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('active'));
+            el.classList.add('active');
+            state.paymentMethod = el.dataset.method;
+        });
+
+        // Ссылки на инфо
+        bindAction('.info-link', (el) => {
+            openLinkSafe(el.dataset.link);
         });
 
         // Загрузка баланса
@@ -432,10 +398,10 @@
             } catch(e) {}
         }
 
-        // Пополнение баланса
-        document.getElementById('topup-balance').addEventListener('click', () => {
+        // Пополнение
+        bindAction('#topup-balance', () => {
             const a = document.getElementById('topup-amount').value.trim();
-            if (!a || isNaN(a) || a <= 0) return safeAlert("Введите сумму!");
+            if (!a || isNaN(a) || a <= 0) return alert("Введите сумму!");
             fetch(`${API_BASE}/api/create_topup`, { 
                 method: 'POST', 
                 headers: {'Content-Type': 'application/json'}, 
@@ -443,17 +409,15 @@
             })
             .then(r => r.json())
             .then(d => { 
-                if(d.pay_url) openExternalLink(null, d.pay_url); 
+                if(d.pay_url) openLinkSafe(d.pay_url); 
             })
-            .catch(() => safeAlert("Ошибка генерации ссылки на пополнение"));
+            .catch(() => alert("Ошибка пополнения"));
         });
 
-        // Оплата заказа
-        document.getElementById('btn-pay').addEventListener('click', async () => {
+        // Оплата
+        bindAction('#btn-pay', async () => {
             const d = document.getElementById('service-desc').value.trim();
-            if (!d) return safeAlert("Заполните ТЗ!");
-
-            if (!confirm(`Списать ${state.selectedService.price}₽?`)) return;
+            if (!d) return alert("Заполните ТЗ!");
 
             setStatus('⏳ Обработка...');
             try {
@@ -472,20 +436,18 @@
                 const data = await res.json();
                 if (res.ok) { 
                     setStatus('✅ Принято!', '#ffffff'); 
-                    safeAlert("Заказ успешно создан!"); 
+                    alert("Заказ успешно создан!"); 
                     document.getElementById('service-desc').value = "";
                     updateProfileData(); 
                 } else if (data.pay_url) { 
-                    if (confirm('Недостаточно средств. Пополнить баланс?')) {
-                        openExternalLink(null, data.pay_url);
-                    }
+                    openLinkSafe(data.pay_url);
                 } else {
                     setStatus('❌ Ошибка заказа', '#ff5a5a');
                 }
             } catch(e) { setStatus('❌ Ошибка сети', '#ff5a5a'); }
         });
 
-        document.getElementById('refresh-balance').addEventListener('click', updateProfileData);
+        bindAction('#refresh-balance', updateProfileData);
         updateProfileData();
     </script>
 </body>
