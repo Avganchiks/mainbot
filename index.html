@@ -670,164 +670,210 @@
     <!-- ВЕСЬ JS СКОПИРОВАН 1-В-1 ИЗ ИСХОДНОГО КОДА -->
 
     <script>
+    const tg = window.Telegram.WebApp;
+    const API_BASE = 'https://alexalolz.lol';
 
-        const tg = window.Telegram.WebApp;
+    // Безопасное получение данных пользователя (если на ПК initData пустая, подставляем заглушку или читаем из WebApp)
+    let tgUser = tg.initDataUnsafe?.user;
+    let state = {
+        selectedService: { name: 'Archive', price: 250 },
+        paymentMethod: 'crystal',
+        user: tgUser && tgUser.id ? tgUser : { id: 715300422, first_name: 'Misha' }
+    };
 
-        const API_BASE = 'https://alexalolz.lol';
+    const HINTS = {
+        'Archive': 'Ссылка на билд и пароль...',
+        'SEO': 'Ссылка на YouTube видео...',
+        'Upload': 'Архив с видео и данными...',
+        'Unique': 'Файл для уникализации...'
+    };
 
-        let state = { selectedService: { name: 'Archive', price: 250 }, paymentMethod: 'crystal', user: tg.initDataUnsafe?.user || { id: 715300422, first_name: 'Misha' } };
+    function updateHint(n) {
+        const desc = document.getElementById('service-desc');
+        if(desc) desc.placeholder = HINTS[n] || 'Детали ТЗ...';
+    }
 
+    function setStatus(t, c) {
+        const e = document.getElementById('status-msg');
+        if(e) {
+            e.style.color = c || 'var(--text-main)';
+            e.innerText = t;
+        }
+    }
 
-
-        const HINTS = { 'Archive': 'Ссылка на билд и пароль...', 'SEO': 'Ссылка на YouTube видео...', 'Upload': 'Архив с видео и данными...', 'Unique': 'Файл для уникализации...' };
-
-
-
-        function updateHint(n) { document.getElementById('service-desc').placeholder = HINTS[n] || 'Детали ТЗ...'; }
-
-        function setStatus(t, c) { const e = document.getElementById('status-msg'); e.style.color = c || 'var(--text-main)'; e.innerText = t; }
-
-
-
+    // Инициализация Telegram WebApp
+    try {
         tg.expand();
+        if (tg.setHeaderColor) tg.setHeaderColor('#050505');
+    } catch(err) {
+        console.log("WebApp init error:", err);
+    }
 
-        tg.setHeaderColor('#050505');
-
-
-
-        document.querySelectorAll('.nav-item').forEach(i => i.onclick = () => {
-
-            const t = i.dataset.tab;
-
-            tg.HapticFeedback.impactOccurred('light');
+    // Исправление навигации для ПК и мобилок (используем addEventListener вместо .onclick)
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const t = item.dataset.tab;
+            try { tg.HapticFeedback.impactOccurred('light'); } catch(err) {}
 
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-            document.getElementById(`tab-${t}`).classList.add('active');
-
-            i.classList.add('active');
+            const targetTab = document.getElementById(`tab-${t}`);
+            if (targetTab) targetTab.classList.add('active');
+            item.classList.add('active');
 
             if (t === 'profile') updateProfileData();
-
         });
+    });
 
-
-
-        document.querySelectorAll('.service-item').forEach(i => i.onclick = () => {
-
-            tg.HapticFeedback.selectionChanged();
+    // Выбор услуг через addEventListener
+    document.querySelectorAll('.service-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            try { tg.HapticFeedback.selectionChanged(); } catch(err) {}
 
             document.querySelectorAll('.service-item').forEach(s => s.classList.remove('active'));
+            item.classList.add('active');
 
-            i.classList.add('active');
+            state.selectedService = {
+                name: item.dataset.name,
+                price: parseInt(item.dataset.price)
+            };
 
-            state.selectedService = { name: i.dataset.name, price: parseInt(i.dataset.price) };
-
-            document.getElementById('current-price').innerText = state.selectedService.price;
-
+            const priceEl = document.getElementById('current-price');
+            if (priceEl) priceEl.innerText = state.selectedService.price;
             updateHint(state.selectedService.name);
-
         });
+    });
 
-
-
-        document.querySelectorAll('.pay-method').forEach(i => i.onclick = () => {
-
-            tg.HapticFeedback.selectionChanged();
+    // Выбор метода оплаты
+    document.querySelectorAll('.pay-method').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            try { tg.HapticFeedback.selectionChanged(); } catch(err) {}
 
             document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('active'));
-
-            i.classList.add('active');
-
-            state.paymentMethod = i.dataset.method;
-
+            item.classList.add('active');
+            state.paymentMethod = item.dataset.method;
         });
+    });
 
+    async function updateProfileData() {
+        const nameEl = document.getElementById('user-name');
+        const idValEl = document.getElementById('user-id-val');
+        const balanceEl = document.getElementById('user-balance');
 
+        if (nameEl) nameEl.innerText = state.user.first_name || 'Юзер';
+        if (idValEl) idValEl.innerText = state.user.id;
 
-        async function updateProfileData() {
+        try {
+            const res = await fetch(`${API_BASE}/api/balance?user_id=${state.user.id}`);
+            const data = await res.json();
+            if (balanceEl && data.balance !== undefined) {
+                balanceEl.innerText = `${Math.floor(data.balance).toLocaleString()} ₽`;
+            }
+        } catch(e) {
+            console.log("Balance fetch error:", e);
+        }
+    }
 
-            document.getElementById('user-name').innerText = state.user.first_name;
-
-            document.getElementById('user-id-val').innerText = state.user.id;
+    // Пополнение баланса
+    const topupBtn = document.getElementById('topup-balance');
+    if (topupBtn) {
+        topupBtn.addEventListener('click', async () => {
+            const amountInput = document.getElementById('topup-amount');
+            if (!amountInput) return;
+            const a = amountInput.value.trim();
+            if (!a || isNaN(a) || a <= 0) return tg.showAlert ? tg.showAlert("Введите сумму!") : alert("Введите сумму!");
 
             try {
+                const res = await fetch(`${API_BASE}/api/create_topup`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: state.user.id, amount: parseFloat(a), payment_method: state.paymentMethod })
+                });
+                const d = await res.json();
+                if(d.pay_url) {
+                    if (tg.openLink) { tg.openLink(d.pay_url); } else { window.open(d.pay_url, '_blank'); }
+                } else {
+                    alert("Ошибка создания платежа");
+                }
+            } catch(err) {
+                alert("Ошибка соединения с сервером");
+            }
+        });
+    }
 
-                const res = await fetch(`${API_BASE}/api/balance?user_id=${state.user.id}`);
+    // Создание заказа / Оплата
+    const payBtn = document.getElementById('btn-pay');
+    if (payBtn) {
+        payBtn.addEventListener('click', async () => {
+            const descInput = document.getElementById('service-desc');
+            if (!descInput) return;
+            const d = descInput.value.trim();
 
-                const data = await res.json();
+            if (!d) return tg.showAlert ? tg.showAlert("Заполните ТЗ!") : alert("Заполните ТЗ!");
 
-                document.getElementById('user-balance').innerText = `${Math.floor(data.balance).toLocaleString()} ₽`;
+            const confirmAction = (callback) => {
+                if (tg.showConfirm) {
+                    tg.showConfirm(`Списать ${state.selectedService.price}₽?`, callback);
+                } else {
+                    callback(confirm(`Списать ${state.selectedService.price}₽?`));
+                }
+            };
 
-            } catch(e) {}
-
-        }
-
-
-
-        document.getElementById('topup-balance').onclick = () => {
-
-            const a = document.getElementById('topup-amount').value.trim();
-
-            if (!a || isNaN(a) || a <= 0) return tg.showAlert("Введите сумму!");
-
-            fetch(`${API_BASE}/api/create_topup`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: state.user.id, amount: parseFloat(a), payment_method: state.paymentMethod }) })
-
-            .then(r => r.json()).then(d => { if(d.pay_url) tg.openLink(d.pay_url); });
-
-        };
-
-
-
-        document.getElementById('btn-pay').onclick = async () => {
-
-            const d = document.getElementById('service-desc').value.trim();
-
-            if (!d) return tg.showAlert("Заполните ТЗ!");
-
-            tg.showConfirm(`Списать ${state.selectedService.price}₽?`, async (ok) => {
-
+            confirmAction(async (ok) => {
                 if (!ok) return;
-
                 setStatus('⏳ Обработка...');
-
                 try {
-
-                    const res = await fetch(`${API_BASE}/api/create_order`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user_id: state.user.id, user_name: state.user.first_name, service_name: state.selectedService.name, description: d, price: state.selectedService.price, payment_method: state.paymentMethod }) });
-
+                    const res = await fetch(`${API_BASE}/api/create_order`, {
+                        method: 'POST',
+                        headers: {'Content-Type':'application/json'},
+                        body: JSON.stringify({
+                            user_id: state.user.id,
+                            user_name: state.user.first_name || 'Юзер',
+                            service_name: state.selectedService.name,
+                            description: d,
+                            price: state.selectedService.price,
+                            payment_method: state.paymentMethod
+                        })
+                    });
                     const data = await res.json();
-
                     if (res.ok) {
-
                         setStatus('✅ Принято!', '#ffffff');
-
-                        tg.showAlert("Заказ успешно создан!");
-
-                        document.getElementById('service-desc').value = "";
-
+                        if (tg.showAlert) tg.showAlert("Заказ успешно создан!");
+                        descInput.value = "";
                         updateProfileData();
-
                     } else if (data.pay_url) {
-
-                        tg.showPopup({ title: 'Баланс', message: 'Недостаточно средств. Пополнить?', buttons: [{id:'p', type:'default', text:'Да'}, {type:'cancel'}] }, (id) => { if(id==='p') tg.openLink(data.pay_url); });
-
+                        if (tg.showPopup) {
+                            tg.showPopup({
+                                title: 'Баланс',
+                                message: 'Недостаточно средств. Пополнить?',
+                                buttons: [{id:'p', type:'default', text:'Да'}, {type:'cancel'}]
+                            }, (id) => {
+                                if(id==='p') {
+                                    if (tg.openLink) tg.openLink(data.pay_url); else window.open(data.pay_url, '_blank');
+                                }
+                            });
+                        }
+                    } else {
+                        setStatus('❌ Ошибка', '#ff5a5a');
                     }
-
-                } catch(e) { setStatus('❌ Ошибка', '#ff5a5a'); }
-
+                } catch(e) {
+                    setStatus('❌ Ошибка сети', '#ff5a5a');
+                }
             });
+        });
+    }
 
-        };
+    const refreshBtn = document.getElementById('refresh-balance');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', updateProfileData);
+    }
 
-
-
-        document.getElementById('refresh-balance').onclick = updateProfileData;
-
-        updateProfileData();
-
-    </script>
+    updateProfileData();
+</script>
 
 </body>
 
