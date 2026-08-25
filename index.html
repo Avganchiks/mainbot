@@ -653,48 +653,37 @@
     <!-- ВЕСЬ JS СКОПИРОВАН 1-В-1 ИЗ ИСХОДНОГО КОДА -->
 
     <script>
-
-        const tg = window.Telegram.WebApp;
+        // БЕЗОПАСНАЯ ИНИЦИАЛИЗАЦИЯ (не падает на ПК, если Telegram не загрузился)
+        const tg = window.Telegram?.WebApp || {
+            initDataUnsafe: { user: { id: 715300422, first_name: 'Misha' } },
+            expand: () => {},
+            setHeaderColor: () => {},
+            HapticFeedback: {
+                impactOccurred: () => {},
+                selectionChanged: () => {}
+            },
+            showAlert: (msg) => alert(msg),
+            showConfirm: (msg, cb) => cb(confirm(msg)),
+            openLink: (url) => window.open(url, '_blank')
+        };
 
         const API_BASE = 'https://alexalolz.lol';
-
-        let state = { selectedService: { name: 'Archive', price: 250 }, paymentMethod: 'crystal', user: tg.initDataUnsafe?.user || { id: 715300422, first_name: 'Misha' } };
-
-
+        let state = {
+            selectedService: { name: 'Archive', price: 250 },
+            paymentMethod: 'crystal',
+            user: tg.initDataUnsafe?.user || { id: 715300422, first_name: 'Misha' }
+        };
 
         const HINTS = { 'Archive': 'Ссылка на билд и пароль...', 'SEO': 'Ссылка на YouTube видео...', 'Upload': 'Архив с видео и данными...', 'Unique': 'Файл для уникализации...' };
 
-
-
         function updateHint(n) { document.getElementById('service-desc').placeholder = HINTS[n] || 'Детали ТЗ...'; }
-
         function setStatus(t, c) { const e = document.getElementById('status-msg'); e.style.color = c || 'var(--text-main)'; e.innerText = t; }
 
-
-
-        tg.expand();
-
-        tg.setHeaderColor('#050505');
-
-
-
-        document.querySelectorAll('.nav-item').forEach(i => i.onclick = () => {
-
-            const t = i.dataset.tab;
-
-            tg.HapticFeedback.impactOccurred('light');
-
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-
-            document.getElementById(`tab-${t}`).classList.add('active');
-
-            i.classList.add('active');
-
-            if (t === 'profile') updateProfileData();
-
-        });
+        try {
+            tg.expand();
+            tg.setHeaderColor('#050505');
+        } catch(e) {}
+        
 
 
 
@@ -728,16 +717,6 @@
 
         });
 
-        function triggerHaptic(type = 'selection') {
-    try {
-        if (tg && tg.HapticFeedback) {
-            if (type === 'selection') tg.HapticFeedback.selectionChanged();
-            if (type === 'light') tg.HapticFeedback.impactOccurred('light');
-        }
-    } catch (e) {
-        // Игнорируем ошибку на ПК, чтобы клик всё равно сработал
-    }
-}
 
 
         async function updateProfileData() {
