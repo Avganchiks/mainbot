@@ -7,7 +7,6 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            /* Палитра: Black, Gray, White + Gradients */
             --bg-dark: #050505;
             --bg-gray: #111214;
             --surface: #191b1f;
@@ -16,10 +15,8 @@
             --border-light: rgba(255, 255, 255, 0.15);
             --text-main: #ffffff;
             --text-muted: #888c94;
-            
             --gradient-silver: linear-gradient(135deg, #ffffff 0%, #c4c4c4 100%);
             --gradient-gray: linear-gradient(180deg, #2a2d32 0%, #191b1f 100%);
-            
             --safe-bottom: env(safe-area-inset-bottom, 20px);
             --app-height: var(--tg-viewport-height, 100vh);
         }
@@ -45,7 +42,6 @@
             align-items: center;
         }
 
-        /* Ограничитель ширины для ПК и адаптив под мобильные */
         .app-wrapper {
             width: 100%;
             max-width: 520px;
@@ -84,7 +80,6 @@
             scrollbar-width: none;
         }
 
-        /* Заголовки */
         .page-header { margin-bottom: 30px; }
         .page-header h1 {
             font-size: 32px; font-weight: 800; letter-spacing: -1px; margin: 0 0 8px 0;
@@ -93,7 +88,6 @@
         }
         .page-header p { color: var(--text-muted); font-size: 15px; margin: 0; font-weight: 400; }
 
-        /* СПИСОК УСЛУГ */
         .services-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
 
         .service-item {
@@ -133,7 +127,6 @@
             border-color: #ffffff; color: #000; font-weight: bold;
         }
 
-        /* ПОЛЯ ВВОДА И КНОПКИ */
         textarea, input[type="number"] {
             width: 100%; background: var(--surface); border: 1px solid var(--border);
             border-radius: 20px; padding: 20px; color: var(--text-main);
@@ -154,15 +147,6 @@
         .btn-primary:active { transform: scale(0.97); box-shadow: 0 5px 10px rgba(255, 255, 255, 0.05); }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        .btn-secondary {
-            background: transparent; color: var(--text-main);
-            border: 1px solid var(--border-light); padding: 18px; border-radius: 20px;
-            font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s;
-            user-select: none;
-        }
-        .btn-secondary:active { background: rgba(255,255,255,0.05); }
-
-        /* ПРОФИЛЬ И СЕГМЕНТИРОВАННАЯ ОПЛАТА */
         .balance-block { text-align: center; margin-bottom: 30px; }
         .balance-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
         .user-balance-value { font-size: 52px; font-weight: 800; letter-spacing: -2px; margin: 8px 0; }
@@ -182,7 +166,6 @@
         .pay-method .emoji { font-size: 16px; filter: grayscale(100%); opacity: 0.6; transition: 0.3s; }
         .pay-method.active .emoji { filter: grayscale(0%); opacity: 1; }
 
-        /* ИНФО ССЫЛКИ */
         .info-link {
             display: flex; align-items: center; justify-content: space-between;
             background: var(--surface); padding: 22px 24px; border-radius: 20px;
@@ -194,7 +177,6 @@
         .info-link:active { transform: scale(0.98); }
         .info-link span.arrow { color: var(--text-muted); font-size: 20px; }
 
-        /* ПЛАВАЮЩИЙ ДОК НАВИГАЦИИ */
         .nav-bar {
             position: absolute;
             bottom: calc(10px + var(--safe-bottom)); 
@@ -347,257 +329,298 @@
 
 </div>
 
-    <script>
-        const tg = window.Telegram?.WebApp;
-        const API_BASE = 'https://alexalolz.lol';
-        
-        // Получаем пользовательские данные WebApp безопасным образом
-        const userRaw = tg?.initDataUnsafe?.user;
-        const state = { 
-            selectedService: { name: 'Archive', price: 250 }, 
-            paymentMethod: 'crystal', 
-            user: userRaw && userRaw.id ? userRaw : null 
-        };
+<script>
+    const API_BASE = 'https://alexalolz.lol';
+    const tg = window.Telegram?.WebApp;
 
-        const HINTS = { 
-            'Archive': 'Ссылка на билд и пароль...', 
-            'SEO': 'Ссылка на YouTube видео...', 
-            'Upload': 'Архив с видео и данными...', 
-            'Unique': 'Файл для уникализации...' 
-        };
+    // ГАРАНТИРОВАННЫЙ ИЗВЛЕКАТЕЛЬ TELEGRAM USER DATA (Тройной фоллбек)
+    function getTelegramUser() {
+        // 1. Стандартный метод WebApp SDK
+        if (tg?.initDataUnsafe?.user?.id) {
+            return tg.initDataUnsafe.user;
+        }
 
-        // Хелперы безопасного вызова native WebApp API и фоллбеки для ПК браузеров
-        function triggerHaptic(type, style) {
+        // 2. Ручной парсинг из initData (если SDK еще не распарсил объект)
+        if (tg?.initData) {
             try {
-                if (!tg?.HapticFeedback) return;
-                if (type === 'impact') tg.HapticFeedback.impactOccurred(style);
-                if (type === 'selection') tg.HapticFeedback.selectionChanged();
-            } catch (e) {}
-        }
-
-        function safeAlert(message) {
-            if (tg?.showAlert) {
-                tg.showAlert(message);
-            } else {
-                alert(message);
+                const searchParams = new URLSearchParams(tg.initData);
+                const userRaw = searchParams.get('user');
+                if (userRaw) return JSON.parse(userRaw);
+            } catch (e) {
+                console.error("Ошибка парсинга tg.initData:", e);
             }
         }
 
-        function safeOpenLink(url) {
-            if (tg?.openLink) {
-                tg.openLink(url);
-            } else {
-                window.open(url, '_blank');
+        // 3. Глубокий парсинг из URL (для Telegram Desktop edge-cases)
+        try {
+            const rawHash = window.location.hash.startsWith('#') ? window.location.hash.substring(1) : window.location.hash;
+            const rawSearch = window.location.search.startsWith('?') ? window.location.search.substring(1) : window.location.search;
+            const fullQuery = rawHash || rawSearch;
+
+            if (fullQuery) {
+                const params = new URLSearchParams(fullQuery);
+                let tgWebAppData = params.get('tgWebAppData') || fullQuery;
+                
+                if (tgWebAppData.includes('user=')) {
+                    const innerParams = new URLSearchParams(tgWebAppData);
+                    const userStr = innerParams.get('user');
+                    if (userStr) return JSON.parse(decodeURIComponent(userStr));
+                }
             }
+        } catch (e) {
+            console.error("Ошибка парсинга URL параметров:", e);
         }
 
-        function updateHint(name) { 
-            document.getElementById('service-desc').placeholder = HINTS[name] || 'Детали ТЗ...'; 
+        return null;
+    }
+
+    const state = { 
+        selectedService: { name: 'Archive', price: 250 }, 
+        paymentMethod: 'crystal'
+    };
+
+    const HINTS = { 
+        'Archive': 'Ссылка на билд и пароль...', 
+        'SEO': 'Ссылка на YouTube видео...', 
+        'Upload': 'Архив с видео и данными...', 
+        'Unique': 'Файл для уникализации...' 
+    };
+
+    function triggerHaptic(type, style) {
+        try {
+            if (!tg?.HapticFeedback) return;
+            if (type === 'impact') tg.HapticFeedback.impactOccurred(style);
+            if (type === 'selection') tg.HapticFeedback.selectionChanged();
+        } catch (e) {}
+    }
+
+    function safeAlert(message) {
+        if (tg?.showAlert) {
+            tg.showAlert(message);
+        } else {
+            alert(message);
         }
+    }
 
-        function setStatus(text, color) { 
-            const el = document.getElementById('status-msg'); 
-            el.style.color = color || 'var(--text-main)'; 
-            el.innerText = text; 
+    function safeOpenLink(url) {
+        if (tg?.openLink) {
+            tg.openLink(url);
+        } else {
+            window.open(url, '_blank');
         }
+    }
 
-        // Инициализация параметров Telegram WebApp
-        if (tg) {
-            try {
-                tg.ready();
-                tg.expand();
-                if (tg.setHeaderColor) tg.setHeaderColor('#050505');
-            } catch (e) {}
-        }
+    function updateHint(name) { 
+        document.getElementById('service-desc').placeholder = HINTS[name] || 'Детали ТЗ...'; 
+    }
 
-        // Переключение вкладок навигации
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.onclick = () => {
-                const targetTab = item.dataset.tab;
-                triggerHaptic('impact', 'light');
-                
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                
-                document.getElementById(`tab-${targetTab}`).classList.add('active');
-                item.classList.add('active');
-                
-                if (targetTab === 'profile') updateProfileData();
-            };
-        });
+    function setStatus(text, color) { 
+        const el = document.getElementById('status-msg'); 
+        el.style.color = color || 'var(--text-main)'; 
+        el.innerText = text; 
+    }
 
-        // Выбор услуги
-        document.querySelectorAll('.service-item').forEach(item => {
-            item.onclick = () => {
-                triggerHaptic('selection');
-                document.querySelectorAll('.service-item').forEach(s => s.classList.remove('active'));
-                item.classList.add('active');
-                
-                state.selectedService = { 
-                    name: item.dataset.name, 
-                    price: parseInt(item.dataset.price, 10) || 0 
-                };
-                
-                document.getElementById('current-price').innerText = state.selectedService.price;
-                updateHint(state.selectedService.name);
-            };
-        });
-
-        // Выбор метода оплаты
-        document.querySelectorAll('.pay-method').forEach(item => {
-            item.onclick = () => {
-                triggerHaptic('selection');
-                document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('active'));
-                item.classList.add('active');
-                state.paymentMethod = item.dataset.method;
-            };
-        });
-
-        // Внешние информационные ссылки
-        document.querySelectorAll('[data-external-link]').forEach(link => {
-            link.onclick = (e) => {
-                e.preventDefault();
-                safeOpenLink(link.href);
-            };
-        });
-
-        // Получение данных и баланса профиля
-        async function updateProfileData() {
-            if (!state.user) {
-                document.getElementById('user-name').innerText = 'Гость';
-                document.getElementById('user-id-val').innerText = 'Не определен (Запустите в TG)';
-                document.getElementById('user-balance').innerText = '0 ₽';
-                return;
-            }
-
-            document.getElementById('user-name').innerText = state.user.first_name || 'Пользователь';
-            document.getElementById('user-id-val').innerText = state.user.id;
+    // Навигация по табам
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.onclick = () => {
+            const targetTab = item.dataset.tab;
+            triggerHaptic('impact', 'light');
             
-            try {
-                const res = await fetch(`${API_BASE}/api/balance?user_id=${state.user.id}`);
-                if (!res.ok) throw new Error('Balance API error');
-                const data = await res.json();
-                const balanceNum = typeof data.balance === 'number' ? data.balance : 0;
-                document.getElementById('user-balance').innerText = `${Math.floor(balanceNum).toLocaleString('ru-RU')} ₽`;
-            } catch(e) {
-                console.error('Ошибка загрузки баланса:', e);
-            }
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(`tab-${targetTab}`).classList.add('active');
+            item.classList.add('active');
+            
+            if (targetTab === 'profile') updateProfileData();
+        };
+    });
+
+    // Выбор услуги
+    document.querySelectorAll('.service-item').forEach(item => {
+        item.onclick = () => {
+            triggerHaptic('selection');
+            document.querySelectorAll('.service-item').forEach(s => s.classList.remove('active'));
+            item.classList.add('active');
+            
+            state.selectedService = { 
+                name: item.dataset.name, 
+                price: parseInt(item.dataset.price, 10) || 0 
+            };
+            
+            document.getElementById('current-price').innerText = state.selectedService.price;
+            updateHint(state.selectedService.name);
+        };
+    });
+
+    // Выбор метода оплаты
+    document.querySelectorAll('.pay-method').forEach(item => {
+        item.onclick = () => {
+            triggerHaptic('selection');
+            document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('active'));
+            item.classList.add('active');
+            state.paymentMethod = item.dataset.method;
+        };
+    });
+
+    // Внешние ссылки
+    document.querySelectorAll('[data-external-link]').forEach(link => {
+        link.onclick = (e) => {
+            e.preventDefault();
+            safeOpenLink(link.href);
+        };
+    });
+
+    // Загрузка и обновление профиля
+    async function updateProfileData() {
+        const user = getTelegramUser();
+        
+        if (!user || !user.id) {
+            document.getElementById('user-name').innerText = 'Гость';
+            document.getElementById('user-id-val').innerText = 'Не определен (Запустите в TG)';
+            document.getElementById('user-balance').innerText = '0 ₽';
+            return;
         }
 
-        // Пополнение баланса
-        document.getElementById('topup-balance').onclick = async () => {
-            if (!state.user) {
-                return safeAlert("Авторизация не найдена! Откройте приложение через Telegram.");
+        document.getElementById('user-name').innerText = user.first_name || 'Пользователь';
+        document.getElementById('user-id-val').innerText = user.id;
+        
+        try {
+            const res = await fetch(`${API_BASE}/api/balance?user_id=${user.id}`);
+            if (!res.ok) throw new Error('Balance API error');
+            const data = await res.json();
+            const balanceNum = typeof data.balance === 'number' ? data.balance : 0;
+            document.getElementById('user-balance').innerText = `${Math.floor(balanceNum).toLocaleString('ru-RU')} ₽`;
+        } catch(e) {
+            console.error('Ошибка загрузки баланса:', e);
+        }
+    }
+
+    // Пополнение баланса
+    document.getElementById('topup-balance').onclick = async () => {
+        const user = getTelegramUser();
+        if (!user || !user.id) {
+            return safeAlert("Авторизация не найдена! Перезапустите Mini App через бота.");
+        }
+
+        const amountInput = document.getElementById('topup-amount').value.trim();
+        const amount = parseFloat(amountInput);
+
+        if (!amountInput || isNaN(amount) || amount <= 0) {
+            return safeAlert("Введите корректную сумму!");
+        }
+
+        const btn = document.getElementById('topup-balance');
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(`${API_BASE}/api/create_topup`, { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ 
+                    user_id: user.id, 
+                    amount: amount, 
+                    payment_method: state.paymentMethod 
+                }) 
+            });
+
+            const data = await res.json();
+            if (res.ok && data.pay_url) {
+                safeOpenLink(data.pay_url);
+            } else {
+                safeAlert(data.message || "Ошибка при создании счета на пополнение.");
             }
+        } catch (e) {
+            safeAlert("Ошибка соединения с сервером.");
+        } finally {
+            btn.disabled = false;
+        }
+    };
 
-            const amountInput = document.getElementById('topup-amount').value.trim();
-            const amount = parseFloat(amountInput);
+    // Оплата и заказ
+    document.getElementById('btn-pay').onclick = async () => {
+        const user = getTelegramUser();
+        if (!user || !user.id) {
+            return safeAlert("Авторизация не найдена! Перезапустите Mini App через бота.");
+        }
 
-            if (!amountInput || isNaN(amount) || amount <= 0) {
-                return safeAlert("Введите корректную сумму!");
-            }
+        const desc = document.getElementById('service-desc').value.trim();
+        if (!desc) return safeAlert("Заполните ТЗ!");
 
-            const btn = document.getElementById('topup-balance');
+        const confirmAction = async () => {
+            setStatus('⏳ Обработка...');
+            const btn = document.getElementById('btn-pay');
             btn.disabled = true;
 
             try {
-                const res = await fetch(`${API_BASE}/api/create_topup`, { 
+                const res = await fetch(`${API_BASE}/api/create_order`, { 
                     method: 'POST', 
-                    headers: {'Content-Type': 'application/json'}, 
+                    headers: {'Content-Type':'application/json'}, 
                     body: JSON.stringify({ 
-                        user_id: state.user.id, 
-                        amount: amount, 
+                        user_id: user.id, 
+                        user_name: user.first_name, 
+                        service_name: state.selectedService.name, 
+                        description: desc, 
+                        price: state.selectedService.price, 
                         payment_method: state.paymentMethod 
                     }) 
                 });
 
                 const data = await res.json();
-                if (res.ok && data.pay_url) {
-                    safeOpenLink(data.pay_url);
+                
+                if (res.ok) { 
+                    setStatus('✅ Принято!', '#ffffff'); 
+                    safeAlert("Заказ успешно создан!"); 
+                    document.getElementById('service-desc').value = "";
+                    updateProfileData(); 
+                } else if (data.pay_url) { 
+                    setStatus('⚠️ Недостаточно средств', '#ffbc00');
+                    if (tg?.showPopup) {
+                        tg.showPopup({ 
+                            title: 'Баланс', 
+                            message: 'Недостаточно средств. Пополнить?', 
+                            buttons: [{id:'p', type:'default', text:'Да'}, {type:'cancel'}] 
+                        }, (buttonId) => { 
+                            if(buttonId === 'p') safeOpenLink(data.pay_url); 
+                        });
+                    } else if (confirm("Недостаточно средств. Пополнить баланс?")) {
+                        safeOpenLink(data.pay_url);
+                    }
                 } else {
-                    safeAlert(data.message || "Ошибка при создании счета на пополнение.");
+                    setStatus('❌ Ошибка заказа', '#ff5a5a');
+                    safeAlert(data.message || "Не удалось совершить заказ.");
                 }
-            } catch (e) {
-                safeAlert("Ошибка соединения с сервером.");
+            } catch(e) { 
+                setStatus('❌ Ошибка сети', '#ff5a5a'); 
             } finally {
                 btn.disabled = false;
             }
         };
 
-        // Создание и оплата заказа
-        document.getElementById('btn-pay').onclick = async () => {
-            if (!state.user) {
-                return safeAlert("Авторизация не найдена! Откройте приложение через Telegram.");
+        if (tg?.showConfirm) {
+            tg.showConfirm(`Списать ${state.selectedService.price}₽?`, (ok) => {
+                if (ok) confirmAction();
+            });
+        } else {
+            if (confirm(`Списать ${state.selectedService.price}₽?`)) {
+                confirmAction();
             }
+        }
+    };
 
-            const desc = document.getElementById('service-desc').value.trim();
-            if (!desc) return safeAlert("Заполните ТЗ!");
+    document.getElementById('refresh-balance').onclick = updateProfileData;
 
-            const confirmAction = async () => {
-                setStatus('⏳ Обработка...');
-                const btn = document.getElementById('btn-pay');
-                btn.disabled = true;
+    // Старт
+    if (tg) {
+        try {
+            tg.ready();
+            tg.expand();
+            if (tg.setHeaderColor) tg.setHeaderColor('#050505');
+        } catch (e) {}
+    }
 
-                try {
-                    const res = await fetch(`${API_BASE}/api/create_order`, { 
-                        method: 'POST', 
-                        headers: {'Content-Type':'application/json'}, 
-                        body: JSON.stringify({ 
-                            user_id: state.user.id, 
-                            user_name: state.user.first_name, 
-                            service_name: state.selectedService.name, 
-                            description: desc, 
-                            price: state.selectedService.price, 
-                            payment_method: state.paymentMethod 
-                        }) 
-                    });
-
-                    const data = await res.json();
-                    
-                    if (res.ok) { 
-                        setStatus('✅ Принято!', '#ffffff'); 
-                        safeAlert("Заказ успешно создан!"); 
-                        document.getElementById('service-desc').value = "";
-                        updateProfileData(); 
-                    } else if (data.pay_url) { 
-                        setStatus('⚠️ Недостаточно средств', '#ffbc00');
-                        if (tg?.showPopup) {
-                            tg.showPopup({ 
-                                title: 'Баланс', 
-                                message: 'Недостаточно средств. Пополнить?', 
-                                buttons: [{id:'p', type:'default', text:'Да'}, {type:'cancel'}] 
-                            }, (buttonId) => { 
-                                if(buttonId === 'p') safeOpenLink(data.pay_url); 
-                            });
-                        } else if (confirm("Недостаточно средств. Пополнить баланс?")) {
-                            safeOpenLink(data.pay_url);
-                        }
-                    } else {
-                        setStatus('❌ Ошибка заказа', '#ff5a5a');
-                        safeAlert(data.message || "Не удалось совершить заказ.");
-                    }
-                } catch(e) { 
-                    setStatus('❌ Ошибка сети', '#ff5a5a'); 
-                } finally {
-                    btn.disabled = false;
-                }
-            };
-
-            if (tg?.showConfirm) {
-                tg.showConfirm(`Списать ${state.selectedService.price}₽?`, (ok) => {
-                    if (ok) confirmAction();
-                });
-            } else {
-                if (confirm(`Списать ${state.selectedService.price}₽?`)) {
-                    confirmAction();
-                }
-            }
-        };
-
-        document.getElementById('refresh-balance').onclick = updateProfileData;
-        
-        // Старт первичной загрузки
-        updateProfileData();
-    </script>
+    // Вызов инициализации данных
+    updateProfileData();
+</script>
 </body>
 </html>
