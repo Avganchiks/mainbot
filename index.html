@@ -342,60 +342,57 @@
 
         /* ПЛАВАЮЩИЙ ДОК НАВИГАЦИИ (Island Style) */
 
-        .nav-bar {
-    position: fixed;
-    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-    left: 50%;
-    transform: translateX(-50%);
+       .nav-bar {
+            position: fixed;
+            bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+            left: 50%;
+            transform: translateX(-50%);
 
-    width: 300px;
-    height: 60px;
+            width: 300px;
+            height: 60px;
 
-    background: rgba(20, 20, 20, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
 
-    border-radius: 40px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
 
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
 
-    padding: 6px;
-    z-index: 99999;
+            padding: 6px;
+            z-index: 99999;
 
-    box-shadow:
-        0 20px 40px rgba(0,0,0,0.8),
-        inset 0 1px 0 rgba(255,255,255,0.1);
+            /* ВАЖНО: Сама подложка больше не блокирует клики насквозь */
+            pointer-events: none;
 
-    pointer-events: auto;
-    touch-action: manipulation;
-}
+            box-shadow:
+                0 20px 40px rgba(0,0,0,0.8),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+        }
 
 .nav-item {
-    width: 70px;
-    height: 48px;
+            width: 70px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border-radius: 30px;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 0;
-    border-radius: 30px;
-
-    color: var(--text-muted);
-    font-size: 14px;
-    font-weight: 600;
-
-    cursor: pointer;
-    transition: all 0.3s ease;
-
-    pointer-events: auto;
-    touch-action: manipulation;
-    -webkit-user-select: none;
-    user-select: none;
-}
+            /* Включаем клики только для самих иконок */
+            pointer-events: auto;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+        }
 
         .nav-item svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.5; transition: 0.3s; }
 
